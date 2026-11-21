@@ -1,0 +1,13 @@
+id: "02-03"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Dictionaries, Dict Comprehensions & Safe Lookup Patterns"
+objective: "Merge layered configurations with dict union (|), invert mappings safely, and build filtered dict comprehensions without KeyError surprises."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Dictionaries"
+  - "Dict Union |"
+  - "Safe Lookups"
+entryFile: "feature_flags.py"

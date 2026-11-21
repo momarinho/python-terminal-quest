@@ -1,0 +1,26 @@
+services:
+  python-terminal-quest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-terminal-quest
+    ports:
+      - "${PYQUEST_PORT:-8080}:8080"
+    environment:
+      - PYQUEST_HOST=0.0.0.0
+      - PYQUEST_PORT=8080
+      - PYQUEST_DB_PATH=/app/.pyquest/progress.db
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+    volumes:
+      - pyquest_data:/app/.pyquest
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://127.0.0.1:8080/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  pyquest_data:

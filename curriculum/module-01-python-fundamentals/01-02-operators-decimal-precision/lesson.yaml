@@ -1,0 +1,13 @@
+id: "01-02"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Operators, Expressions & Numeric Precision (Decimal vs float)"
+objective: "Perform exact financial arithmetic with decimal.Decimal and ROUND_HALF_UP while avoiding IEEE-754 float drift and integer division pitfalls."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Decimal"
+  - "Operators"
+  - "Precision"
+entryFile: "invoice_math.py"

@@ -1,0 +1,13 @@
+id: "01-05"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Functions, Parameters (*args, **kwargs, Keyword-Only & Mutable Default Traps)"
+objective: "Eliminate shared mutable default bugs, enforce keyword-only configuration parameters, and forward dynamic attributes with *args and **kwargs."
+mode: BUG_FIX
+kind: STANDARD
+xp: 100
+tags:
+  - "Functions"
+  - "*args/**kwargs"
+  - "Mutable Default"
+entryFile: "audit_tags.py"

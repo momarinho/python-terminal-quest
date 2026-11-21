@@ -1,0 +1,13 @@
+id: "02-04"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Strings, Parsing & String Methods"
+objective: "Parse structured key=value log lines and HTTP headers cleanly using split(maxsplit=1), removeprefix/removesuffix, casefold, and join."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Strings"
+  - "Parsing"
+  - "removeprefix"
+entryFile: "kv_log_parser.py"

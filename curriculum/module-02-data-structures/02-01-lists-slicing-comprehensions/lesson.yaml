@@ -1,0 +1,13 @@
+id: "02-01"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Lists, Slicing & List Comprehensions"
+objective: "Extract non-mutating windows with negative and step slicing, and transform/filter collections cleanly via list comprehensions."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Lists"
+  - "Slicing"
+  - "Comprehensions"
+entryFile: "telemetry_windows.py"

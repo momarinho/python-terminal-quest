@@ -1,0 +1,4 @@
+hints:
+  - "In `format_slo_row(service, requests, errors)`: compute `success_rate = 1.0 if requests == 0 else (requests - errors) / requests` and format `{service:<16} | {requests:>7,} | {errors:>5,} | {success_rate:6.2%}`."
+  - "In `emit_slo_report(stdin_stream=None, stdout_stream=None)`: default `in_s = stdin_stream or sys.stdin` and `out_s = stdout_stream or sys.stdout`."
+  - "Skip blank lines when iterating `for raw_line in in_s:`, parse `service, req_s, err_s = raw_line.strip().split(',')`, and write each formatted row plus `\\n` to `out_s`."

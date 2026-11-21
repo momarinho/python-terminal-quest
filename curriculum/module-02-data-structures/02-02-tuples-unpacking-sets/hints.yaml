@@ -1,0 +1,4 @@
+hints:
+  - "In `split_route_record(record)`: unpack `service, region, *endpoints = record` (raise `ValueError` if fewer than 2 elements) and return `(service, region, tuple(endpoints))`."
+  - "In `audit_permission_drift(expected, actual)`: convert both to `set` and return `{'missing': sorted(expected_set - actual_set), 'extra': sorted(actual_set - expected_set), 'shared': sorted(expected_set & actual_set)}`."
+  - "In `dedupe_preserve_order(events)`: track seen IDs in a `set[str]` while appending unseen IDs to a `list[str]`."

@@ -1,0 +1,4 @@
+hints:
+  - "In `parser.py`, split tokens by whitespace, then `token.split('=', 1)` into a dict. Validate required keys `{'ts', 'service', 'status', 'latency_ms'}` and ensure `ts >= 0`, `latency_ms >= 0`, and `service` is non-empty."
+  - "In `SlidingWindowTopK`, store `(ts, service, is_error)` tuples in `self._window: deque[tuple[int, str, bool]]` and maintain `self._requests: Counter[str]` and `self._errors: Counter[str]`."
+  - "When evicting entries where `entry_ts < self._max_ts - self.window_seconds`, decrement `self._requests` and `self._errors` (deleting keys that reach `<= 0`). For `top_failing_services(k)`, pass `[(-cnt, svc) for svc, cnt in self._errors.items() if cnt > 0]` to `heapq.nsmallest(k, ...)` and convert back to `(svc, -neg_cnt)`."

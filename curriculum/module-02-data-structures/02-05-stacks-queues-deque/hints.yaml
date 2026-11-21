@@ -1,0 +1,4 @@
+hints:
+  - "In `is_balanced_expression(text)`: map closing -> opening `{')': '(', ']': '[', '}': '{'}` and check `stack` is empty at the end."
+  - "In `BoundedEventQueue.__init__(self, maxlen: int)`: validate `maxlen >= 1` (raise `ValueError`) and initialize `self._q: deque[str] = deque(maxlen=maxlen)`."
+  - "Implement `push(event)` with `self._q.append(event)`, `pop_oldest()` returning `self._q.popleft() if self._q else None`, and `snapshot()` returning `list(self._q)`."

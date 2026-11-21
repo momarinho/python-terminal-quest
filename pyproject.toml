@@ -1,0 +1,43 @@
+[project]
+name = "python-terminal-quest"
+version = "0.1.0"
+description = "16-bit Obsidian RPG learning platform for mastering Python 3.13, FastAPI, Pydantic, and AI Systems."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.7.0",
+    "pyyaml>=6.0.2",
+    "httpx>=0.28.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.4",
+    "ruff>=0.9.0",
+]
+
+[project.scripts]
+pyquest = "pyquest.cli:main"
+
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pyquest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]

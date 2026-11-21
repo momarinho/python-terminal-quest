@@ -1,0 +1,4 @@
+hints:
+  - "In `is_release_ready(checks)`: guard `bool(checks)` first so an empty check list does not vacuously return `True` with `all(...)`."
+  - "In `rank_endpoints(endpoints)`: use `sorted(endpoints, key=lambda ep: (-float(ep['error_rate']), -int(ep['p99_ms']), str(ep['path'])))` so higher error rate comes first, then higher p99 latency, then alphabetical path."
+  - "In `fastest_healthy_region(regions)`: filter `[r for r in regions if r['healthy']]`, raise `ValueError` if none are healthy, and return `min(..., key=lambda r: (int(r['latency_ms']), str(r['name'])))['name']`."

@@ -1,0 +1,13 @@
+id: "01-07"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Basic Input/Output & Structured Formatting (f-strings, sys.stdin/stdout)"
+objective: "Format aligned numeric reports with Python f-string format specifiers and process line-oriented streams cleanly via sys.stdin/sys.stdout."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "f-strings"
+  - "sys.stdin"
+  - "Formatting"
+entryFile: "slo_report.py"

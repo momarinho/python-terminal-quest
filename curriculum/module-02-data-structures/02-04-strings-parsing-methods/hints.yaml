@@ -1,0 +1,4 @@
+hints:
+  - "In `extract_bearer_token(header)`: strip outer whitespace, check `header_clean[:7].casefold() == 'bearer '` (or split once), and return the stripped token—avoid `.lstrip('Bearer ')` which eats `B`, `e`, `a`, `r` characters from the token!"
+  - "In `parse_kv_log(line)`: split on whitespace into tokens, reject tokens without `'='`, split each with `token.split('=', 1)`, strip surrounding quotes (`\"`) from values, and lowercase keys."
+  - "In `format_kv_line(fields)`: sort keys alphabetically and join `' '.join(f'{k}={v}' for k, v in sorted(fields.items()))`."

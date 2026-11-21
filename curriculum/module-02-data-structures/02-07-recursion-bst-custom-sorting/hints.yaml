@@ -1,0 +1,4 @@
+hints:
+  - "In `collect_transitive_deps(graph, root)`: use a recursive DFS helper with a `visited: set[str]` guard (to avoid cycles) and return `sorted(visited - {root})`."
+  - "In `MetricBST`: store `BSTNode(key, left=None, right=None)`. Recursive `insert` places smaller keys on `left` and larger keys on `right` (ignoring duplicates); `inorder` visits `left`, appends `node.key`, visits `right`."
+  - "In `sort_services(services)`: use `sorted(services, key=lambda s: (-int(s['tier']), int(s['latency_ms']), str(s['name'])))`."

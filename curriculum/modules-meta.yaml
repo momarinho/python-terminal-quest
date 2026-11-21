@@ -1,0 +1,69 @@
+modules:
+  - moduleId: "module-01"
+    order: 1
+    phase: 1
+    title: "Module 1: Python Fundamentals"
+    subtitle: "Types, Decimal precision, structural pattern matching, functions, I/O & domain exceptions"
+    linkedinAngle:
+      hook: "Why does `0.1 + 0.2 == 0.3` evaluate to `False` in Python—and why does `def add_tag(tag, tags=[])` silently corrupt data across requests?"
+      pythonInsight: "Python 3.13 pairs dynamic ergonomics with strict precision tools when you need them: `Decimal('0.1')` eliminates IEEE-754 monetary drift, `match`/`case` replaces brittle `if`/`elif` chains, `tags: list[str] | None = None` prevents shared mutable defaults, and `raise ... from exc` preserves full exception causality."
+      codeComparison: |
+        # Trap: shared mutable default + binary float money
+        def record_fee(amount: float, ledger: list[float] = []) -> list[float]:
+            ledger.append(amount * 1.1)
+            return ledger
+
+        # Python 3.13 Production Idiom:
+        from decimal import Decimal, ROUND_HALF_UP
+
+        def record_fee(amount: Decimal, ledger: list[Decimal] | None = None) -> list[Decimal]:
+            target = list(ledger) if ledger is not None else []
+            fee = (amount * Decimal("1.10")).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+            target.append(fee)
+            return target
+    bossLinkedinAngle:
+      hook: "I built a deterministic Fee & Policy Evaluator Engine in pure Python 3.13—catching IEEE-754 rounding drift, mutable defaults, and swallowed exceptions."
+      pythonInsight: "Combining `Decimal` + `ROUND_HALF_UP`, `match`/`case` policy routing with guard clauses, keyword-only override parameters (`*`), and chained custom domain exceptions (`raise PolicyEvaluationError(...) from exc`) turns fragile billing scripts into testable backend components."
+      codeComparison: |
+        match rule:
+            case {"tier": "enterprise", "volume": vol} if vol >= 1000:
+                rate = Decimal("0.0125")
+            case {"tier": "standard"}:
+                rate = Decimal("0.0290")
+            case _:
+                raise PolicyEvaluationError("Unsupported merchant policy")
+    reflectionPrompts:
+      - "Why does `Decimal(0.1)` still capture floating-point error compared to `Decimal('0.1')`?"
+      - "When does a default mutable argument get evaluated in Python, and why is `None` + local initialization mandatory?"
+
+  - moduleId: "module-02"
+    order: 2
+    phase: 1
+    title: "Module 2: Data Structures & Core Algorithms"
+    subtitle: "Slicing, O(1) sets/dicts, deque sliding windows, Counter/heapq & BST recursion"
+    linkedinAngle:
+      hook: "Using `list.pop(0)` inside a log processor turns an O(N) stream into an O(N^2) CPU bottleneck—`collections.deque` fixes it in one import."
+      pythonInsight: "Choosing the right built-in or `collections` container dominates Python backend performance: `set` membership is O(1) vs `list` O(N), `deque` gives O(1) head/tail evictions, `Counter` and `defaultdict` eliminate defensive boilerplate, and `heapq` keeps top-K tracking in O(N log K)."
+      codeComparison: |
+        # Before: O(N) front pop + manual dict initialization
+        window.pop(0)
+        counts[code] = counts.get(code, 0) + 1
+
+        # After: O(1) deque eviction + Counter / heapq
+        from collections import Counter, deque
+        window: deque[tuple[int, str]] = deque()
+        window.popleft()
+        counts = Counter(codes)
+    bossLinkedinAngle:
+      hook: "Built a Sliding-Window Log Stream & Top-K Anomaly Tracker using `deque`, `Counter`, and `heapq`—with zero O(N^2) list shifts."
+      pythonInsight: "In the Module 2 Boss Fight, evicting expired timestamps from the left of a `deque` in amortized O(1), parsing raw log lines safely with `split('=', 1)`, and ranking hottest failing services with `heapq.nsmallest` using negated counts + alphabetical tie-breakers keeps throughput predictable."
+      codeComparison: |
+        while window and window[0][0] < cutoff_ts:
+            _, expired_service, is_err = window.popleft()
+            if is_err:
+                error_counts[expired_service] -= 1
+                if error_counts[expired_service] <= 0:
+                    del error_counts[expired_service]
+    reflectionPrompts:
+      - "Why is checking `item in seen_set` dramatically faster than `item in seen_list` as N grows?"
+      - "How do you guarantee deterministic tie-breaking in `heapq` when two items share the same priority?"

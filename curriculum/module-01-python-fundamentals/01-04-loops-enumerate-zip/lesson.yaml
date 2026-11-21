@@ -1,0 +1,13 @@
+id: "01-04"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Loops (for, while, enumerate, zip)"
+objective: "Pair multi-series telemetry cleanly with zip(strict=True), track 1-based batch indices with enumerate, and guard while loops against infinite retries."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Loops"
+  - "enumerate"
+  - "zip(strict=True)"
+entryFile: "canary_loops.py"

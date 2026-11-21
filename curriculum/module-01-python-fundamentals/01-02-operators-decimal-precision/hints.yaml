@@ -1,0 +1,4 @@
+hints:
+  - "Convert `unit_price`, `discount_pct`, and `tax_pct` using `Decimal(str_value)`—never `float(...)`."
+  - "Apply discount first (`subtotal * (1 - discount_pct / 100)`), then apply tax (`* (1 + tax_pct / 100)`), and quantize to `Decimal('0.01')` with `ROUND_HALF_UP`."
+  - "For `split_installments(total, count)`: use floor division on cents (`total_cents // count` and `total_cents % count`) so the remainder cents go 1 each to the earliest installments and the sum equals `total` exactly."

@@ -1,0 +1,13 @@
+id: "02-02"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Tuples, Unpacking & Sets (Deduplication & O(1) Membership)"
+objective: "Destructure fixed records with starred tuple unpacking, compute RBAC permission diffs with set algebra, and deduplicate streams in O(N) while preserving order."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Tuples"
+  - "Sets"
+  - "O(1) Membership"
+entryFile: "rbac_audit.py"

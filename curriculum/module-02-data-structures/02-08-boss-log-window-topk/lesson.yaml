@@ -1,0 +1,14 @@
+id: "02-08"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Log Stream Sliding-Window Queue & Top-K Tracker"
+objective: "Combine string parsing, O(1) collections.deque sliding-window eviction, Counter/defaultdict aggregation, and heapq Top-K ranking across two modules."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "deque"
+  - "Counter"
+  - "heapq"
+entryFile: "tracker.py"

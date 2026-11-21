@@ -1,0 +1,13 @@
+id: "01-03"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Control Flow (if/elif/else, Truthiness & match/case)"
+objective: "Route structured webhook events using Python 3.10+ structural pattern matching (match/case with guards) and distinguish None from falsy numeric 0."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "match/case"
+  - "Control Flow"
+  - "Truthiness"
+entryFile: "webhook_router.py"

@@ -1,0 +1,13 @@
+id: "02-06"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Advanced Data Structures (Counter, defaultdict, heapq Priority Queue)"
+objective: "Aggregate incident frequencies with Counter, group alerts with defaultdict(list), and dispatch priority tasks deterministically via heapq."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Counter"
+  - "defaultdict"
+  - "heapq"
+entryFile: "incident_triage.py"

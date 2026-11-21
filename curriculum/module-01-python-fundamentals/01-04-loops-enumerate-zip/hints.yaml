@@ -1,0 +1,4 @@
+hints:
+  - "In `pair_node_latencies`, pass `strict=True` to `zip(nodes, latencies_ms, strict=True)` so mismatched lengths raise `ValueError`."
+  - "In `first_degraded_stage`, iterate with `enumerate(error_rates, start=1)` and return the first 1-based stage index where `rate > threshold` (or `None` if none exceed it)."
+  - "In `simulate_backoff_attempts`, use a `while` loop starting at `delay = initial_delay_ms`, stopping when `attempt > max_attempts` or `delay > budget_ms`, subtracting `delay` from remaining budget or accumulating delays up to `budget_ms`."

@@ -1,0 +1,13 @@
+id: "01-01"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Variables, Data Types, Type Casting & Type Hints"
+objective: "Parse raw environment strings into strictly typed Python values using int, float, bool normalization, and Python 3.13 union type hints."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Python 3.13"
+  - "Type Hints"
+  - "Casting"
+entryFile: "config_parser.py"

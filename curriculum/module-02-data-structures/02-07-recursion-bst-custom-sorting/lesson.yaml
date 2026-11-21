@@ -1,0 +1,13 @@
+id: "02-07"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Recursion, Binary Search Tree (BST) & Custom Sorting"
+objective: "Traverse nested dependency trees recursively, implement insert/search/inorder on a Binary Search Tree, and sort multi-attribute records deterministically."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Recursion"
+  - "BST"
+  - "Custom Sorting"
+entryFile: "tree_and_sort.py"

@@ -1,0 +1,4 @@
+hints:
+  - "Create a base `SettlementError(Exception)` with subclasses `PayloadDecodeError(SettlementError)` and `InvalidAmountError(SettlementError)`."
+  - "Wrap `json.loads(raw_json)` in `try` and convert `json.JSONDecodeError` (or non-dict JSON) into `PayloadDecodeError` using `raise PayloadDecodeError(...) from exc`."
+  - "In `else:` validate `'tx_id'` (non-empty str) and `'amount_cents'` (positive `int`, not `bool`, raising `InvalidAmountError`), append `'OK'` to `audit_log`, and in `finally:` always append `'RELEASED'` to `audit_log`."

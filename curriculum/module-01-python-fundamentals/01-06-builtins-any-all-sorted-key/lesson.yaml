@@ -1,0 +1,13 @@
+id: "01-06"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Built-in Functions (any, all, sorted, min/max with key)"
+objective: "Compose short-circuit predicates (any/all) and key-based sorting/extrema (sorted, min, max) without mutating source collections."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Built-ins"
+  - "any/all"
+  - "sorted(key=)"
+entryFile: "deploy_gates.py"

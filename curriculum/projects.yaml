@@ -1,0 +1,62 @@
+projects:
+  - id: "proj-01-ledger-reconciler"
+    order: 1
+    title: "CLI Financial Ledger Reconciler"
+    milestoneLabel: "Gate #1 // Wave 1B Target (Foundations Capstone)"
+    requiredModulesCompleted: 5
+    prerequisiteModuleIds:
+      - "module-01"
+      - "module-02"
+      - "module-03"
+      - "module-04"
+      - "module-05"
+    techStack:
+      - "Python 3.13"
+      - "uv"
+      - "Decimal"
+      - "pytest"
+      - "GitHub Actions CI"
+    businessContext: |
+      Payment engineering teams reconcile internal gateway exports against acquiring bank settlement
+      CSVs every night. A single cent rounding bug or missed refund silently breaks financial audits.
+      Build a deterministic CLI reconciler in pure Python 3.13 + `uv` that parses CSV ledgers using
+      `Decimal` arithmetic, detects exact matches, cent discrepancies, and orphan entries, and prints
+      a clean audit summary verified by `pytest` and GitHub Actions CI.
+    packageLayout: |
+      ledger-reconciler/
+      ├── .github/workflows/ci.yml
+      ├── pyproject.toml
+      ├── fixtures/
+      │   ├── gateway_export.csv
+      │   └── bank_settlement.csv
+      ├── src/reconciler/
+      │   ├── cli.py
+      │   ├── models.py
+      │   └── engine.py
+      └── tests/
+          └── test_reconciler.py
+    sprints:
+      - id: "sprint-1"
+        title: "Sprint 1: uv Project & Fixtures"
+        items:
+          - id: "s1-1"
+            text: "Initialize a `uv` Python 3.13 repository with `ruff`, `pytest`, and realistic CSV fixtures."
+          - id: "s1-2"
+            text: "Configure `.github/workflows/ci.yml` to run `uv run ruff check .` and `uv run pytest`."
+      - id: "sprint-2"
+        title: "Sprint 2: Exact Decimal Reconciliation Engine"
+        items:
+          - id: "s2-1"
+            text: "Model transaction records using `Decimal` (zero `float` values anywhere in monetary paths)."
+          - id: "s2-2"
+            text: "Classify rows into `EXACT_MATCH`, `AMOUNT_MISMATCH`, `GATEWAY_ONLY`, and `BANK_ONLY`."
+    reviewCriteria:
+      - "Zero `float` variables anywhere in price, fee, or variance calculations."
+      - "Deterministic discrepancy output and strict validation for malformed CSV lines."
+      - "Clean separation between pure reconciliation logic and CLI/file I/O."
+    showcaseTips:
+      - "Include a sample terminal discrepancy report in your README."
+      - "Highlight why `Decimal('0.10') + Decimal('0.20') == Decimal('0.30')` matters in fintech."
+    aiReviewPrompts:
+      - "Review my Python ledger reconciler for floating-point leaks, mutable default traps, malformed CSV handling, and duplicated parsing logic. List risks before suggesting edits."
+      - "Critique my pytest suite for boundary cases: empty CSVs, duplicate transaction IDs, $0.01 rounding drift, and reversed refunds."

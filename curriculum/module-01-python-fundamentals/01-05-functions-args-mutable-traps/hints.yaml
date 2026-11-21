@@ -1,0 +1,4 @@
+hints:
+  - "Change `tags: list[str] = []` to `tags: list[str] | None = None` and copy/create a new list so callers' lists aren't leaked across calls."
+  - "Put `*labels: str` before `*, severity: str = 'info'` (or since `*labels` already absorbs positional args, `severity` after `*labels` is automatically keyword-only!)."
+  - "Return a dict containing `'metric'`, `'labels': list(labels)`, `'severity'`, and `'attrs': dict(attrs)`."

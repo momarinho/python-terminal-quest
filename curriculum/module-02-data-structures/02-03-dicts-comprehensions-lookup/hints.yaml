@@ -1,0 +1,4 @@
+hints:
+  - "In `merge_tenant_flags(defaults, overrides)`: use `defaults | overrides` so neither input dict is mutated."
+  - "In `active_flags_for_env(flags, env)`: use a dict comprehension `{name: cfg['enabled'] for name, cfg in flags.items() if env in cfg.get('envs', ()) and cfg.get('enabled', False)}` (or returning `bool(cfg.get('enabled'))`)."
+  - "In `invert_unique_aliases(aliases)`: iterate `for alias, target in aliases.items():`, raise `ValueError` if `target` already exists in the inverted dict, else assign `inverted[target] = alias`."

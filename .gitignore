@@ -1,0 +1,24 @@
+# Python & uv
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Local persistence & IDE
+.pyquest/
+*.db
+*.sqlite3
+.DS_Store
+.idea/
+.vscode/
+
+# Frontend
+web/node_modules/
+web/dist/
+.env
+.env.local

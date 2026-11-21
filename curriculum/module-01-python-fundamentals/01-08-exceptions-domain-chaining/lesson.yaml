@@ -1,0 +1,13 @@
+id: "01-08"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Exceptions (try/except/else/finally, Custom Exceptions & raise ... from)"
+objective: "Model domain-specific exception hierarchies, preserve root causes with raise ... from, and separate success vs. cleanup paths with else and finally."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Exceptions"
+  - "raise ... from"
+  - "try/else/finally"
+entryFile: "settlement_decoder.py"

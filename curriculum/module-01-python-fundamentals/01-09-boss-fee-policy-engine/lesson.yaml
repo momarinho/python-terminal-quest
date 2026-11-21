@@ -1,0 +1,14 @@
+id: "01-09"
+moduleId: "module-01"
+moduleTitle: "Module 1: Python Fundamentals"
+title: "Fee & Policy Evaluator Engine"
+objective: "Architect a multi-file fee and compliance evaluation engine combining Decimal precision, match/case policy routing, keyword-only overrides, all/any gates, and chained domain exceptions."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "Decimal"
+  - "match/case"
+  - "Exceptions"
+entryFile: "engine.py"

@@ -1,0 +1,4 @@
+hints:
+  - "In `models.py`, use `match policy:` ordered from specific (`enterprise` with `monthly_volume >= 100_000`, `growth` with `high_risk: True`) to general, ending with `case _: raise PolicyEvaluationError(...)`."
+  - "In `engine.py`, catch `(InvalidOperation, TypeError)` around `Decimal(amount_str)` and chain with `raise PolicyEvaluationError('Invalid payout amount') from exc`."
+  - "Make `override_rate: Decimal | None = None` keyword-only after `*` in `evaluate_payout`, validate `Decimal('0') <= override_rate < Decimal('1')` if provided, and check `bool(checks) and all(checks)`."

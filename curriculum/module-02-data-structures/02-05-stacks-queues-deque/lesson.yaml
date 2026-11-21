@@ -1,0 +1,13 @@
+id: "02-05"
+moduleId: "module-02"
+moduleTitle: "Module 2: Data Structures & Core Algorithms"
+title: "Stacks & Queues (collections.deque)"
+objective: "Validate nested delimiters with a LIFO stack and build an O(1) bounded FIFO event buffer using collections.deque."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Stacks"
+  - "Queues"
+  - "collections.deque"
+entryFile: "queue_buffers.py"
