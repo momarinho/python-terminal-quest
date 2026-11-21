@@ -22,16 +22,17 @@ def test_health_and_curriculum_endpoints(tmp_path: Path) -> None:
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["lessons"] == 17
+    assert health.json()["modules"] == 5
+    assert health.json()["lessons"] == 37
 
     curr = client.get("/api/curriculum")
     assert curr.status_code == 200
     body = curr.json()
-    assert body["totalLessons"] == 17
+    assert body["totalLessons"] == 37
     assert body["completedLessons"] == 0
     assert body["hero"]["tier"] == 1
     assert body["hero"]["title"] == "Apprentice"
-    assert len(body["modules"]) == 2
+    assert len(body["modules"]) == 5
 
 
 def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
@@ -95,5 +96,8 @@ def test_projects_endpoint(tmp_path: Path) -> None:
     resp = client.get("/api/projects")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["totalProjects"] >= 1
-    assert data["projects"][0]["id"] == "proj-01-ledger-reconciler"
+    assert data["totalProjects"] == 1
+    gate = data["projects"][0]
+    assert gate["id"] == "proj-01-cli-ledger-reconciler"
+    assert gate["requiredModulesCompleted"] == 5
+    assert gate["milestoneUnlocked"] is False

@@ -1,0 +1,13 @@
+id: "05-06"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "Structured HTML Parsing with Beautiful Soup"
+objective: "Parse HTML tables and semantic markup safely with BeautifulSoup CSS selectors, normalizing whitespace and handling missing attributes gracefully."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "BeautifulSoup"
+  - "HTML Parsing"
+  - "CSS Selectors"
+entryFile: "html_extractor.py"

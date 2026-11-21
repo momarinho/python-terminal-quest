@@ -1,0 +1,4 @@
+hints:
+  - "In `iter_non_empty_events(lines)`: loop `for raw in lines:`, strip whitespace, skip empty lines or lines starting with `'#'`, and `yield cleaned`."
+  - "In `iter_error_records(lines)`: chain lazily over `iter_non_empty_events(lines)`, split `'level:message'` (maxsplit=1), and `yield` dicts `{'level': lvl, 'message': msg}` only when `lvl == 'ERROR'`."
+  - "In `batch_records(records, size)`: validate `size >= 1` first (before yielding—or use a helper/non-generator validation wrapper so `batch_records(..., 0)` raises `ValueError` immediately!) and yield `list(chunk)` via `itertools.batched(records, size)`."

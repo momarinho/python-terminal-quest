@@ -1,0 +1,4 @@
+hints:
+  - "In `build_threshold_checks(thresholds)`: bind each threshold `t` eagerly using a helper `def _check(val: int, limit: int = t) -> bool:` or `functools.partial` so all lambdas don't share the final loop `t`."
+  - "In `make_moving_counter(start=0)`: declare `nonlocal count` inside the nested `step(delta=1)` function before `count += delta`."
+  - "In `bind_alert_formatter(service, env)`: use `partial(_format_alert, service=service, env=env)` (or positional binding) returning a callable `fn(message: str) -> str`."

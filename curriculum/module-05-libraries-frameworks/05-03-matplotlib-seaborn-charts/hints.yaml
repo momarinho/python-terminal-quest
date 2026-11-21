@@ -1,0 +1,4 @@
+hints:
+  - "Validate that `services` is non-empty and `len(services) == len(p95_ms)` (raise `ValueError` otherwise)."
+  - "Call `matplotlib.use('Agg')` before importing `pyplot` and `seaborn`, and create `fig, ax = plt.subplots(figsize=(7, 4))`."
+  - "Render with `sns.barplot(x=services, y=p95_ms, ax=ax)`, set `ax.set_title(title)` / `ax.set_ylabel('p95 (ms)')`, save to `output_path` (`output_path.parent.mkdir(parents=True, exist_ok=True)`), and always call `plt.close(fig)` in `finally:`."

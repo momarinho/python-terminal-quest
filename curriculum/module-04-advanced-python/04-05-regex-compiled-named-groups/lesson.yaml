@@ -1,0 +1,13 @@
+id: "04-05"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "Regular Expressions (Compiled Patterns, Named Groups & Structured Extraction)"
+objective: "Compile reusable regexes with re.compile, extract structured fields via (?P<name>...) named capture groups, and redact sensitive spans cleanly."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Regex"
+  - "re.compile"
+  - "Named Groups"
+entryFile: "regex_extractor.py"

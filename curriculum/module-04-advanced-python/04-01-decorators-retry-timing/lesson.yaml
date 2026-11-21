@@ -1,0 +1,13 @@
+id: "04-01"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "Decorators (functools.wraps, Parameterized Retry & Timing Decorators)"
+objective: "Build parameterized decorators with @functools.wraps preserving metadata, configurable retry policies, and execution timing instrumentation."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Decorators"
+  - "functools.wraps"
+  - "Retry"
+entryFile: "resilience_decorators.py"

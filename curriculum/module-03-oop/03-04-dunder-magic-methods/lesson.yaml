@@ -1,0 +1,13 @@
+id: "03-04"
+moduleId: "module-03"
+moduleTitle: "Module 3: Object-Oriented Programming"
+title: "Magic (Dunder) Methods (__repr__, __eq__, __hash__, __lt__, __len__, __iter__)"
+objective: "Implement Pythonic value equality, hashing, total ordering, and container iteration protocols on custom domain classes."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Dunder Methods"
+  - "__eq__/__hash__"
+  - "__iter__/__len__"
+entryFile: "semver.py"

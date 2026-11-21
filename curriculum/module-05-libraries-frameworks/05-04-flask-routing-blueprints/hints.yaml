@@ -1,0 +1,4 @@
+hints:
+  - "Create `items_bp = Blueprint('items', __name__, url_prefix='/api/items')` inside `create_app()` (with a fresh in-memory dict per `create_app()` call so tests stay isolated!)."
+  - "In `POST /api/items`, read `payload = request.get_json(silent=True) or {}`, validate `name` (non-empty `str`) and `qty` (`int`, not `bool`, `> 0`), else return `jsonify({'error': '...'}), 400`."
+  - "Register `app.register_blueprint(items_bp)` and `@app.errorhandler(404)` returning `(jsonify({'error': 'not found'}), 404)`."

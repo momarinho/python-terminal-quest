@@ -1,0 +1,13 @@
+id: "03-01"
+moduleId: "module-03"
+moduleTitle: "Module 3: Object-Oriented Programming"
+title: "Classes, Objects & @dataclass Modeling"
+objective: "Model immutable domain records with @dataclass(frozen=True), enforce invariants in __post_init__, and avoid shared mutable fields with field(default_factory=list)."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "OOP"
+  - "@dataclass"
+  - "__post_init__"
+entryFile: "cluster_models.py"

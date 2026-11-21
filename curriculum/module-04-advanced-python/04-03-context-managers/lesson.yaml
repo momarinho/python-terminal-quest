@@ -1,0 +1,13 @@
+id: "04-03"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "Context Managers (__enter__/__exit__, @contextmanager, Safe Cleanup)"
+objective: "Guarantee deterministic resource acquisition and teardown using class-based context managers and @contextlib.contextmanager."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Context Managers"
+  - "@contextmanager"
+  - "with"
+entryFile: "resource_guard.py"

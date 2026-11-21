@@ -1,0 +1,4 @@
+hints:
+  - "Have `EmailChannel` and `SlackChannel` inherit from `NotificationChannel` and call `super().__init__(name)` in `__init__`."
+  - "Override `format_payload(self, severity: str, message: str) -> str`: `EmailChannel` formats `f'[{severity.upper()}] to={self.recipient} :: {message}'`, `SlackChannel` formats `f'#{self.channel} [{severity.upper()}] {message}'`."
+  - "In `AlertDispatcher.dispatch(severity, message)`, loop over composed `self.channels` (skipping channels whose `min_severity` is higher than `severity`, where `info < warn < critical`) and return the list of formatted payloads."

@@ -294,6 +294,7 @@ class PytestGrader:
             "PYTHONPATH": str(workdir),
             "PYTHONDONTWRITEBYTECODE": "1",
             "PYTHONNOUSERSITE": "1",
+            "MPLBACKEND": "Agg",
             "LC_ALL": "C.UTF-8",
             "LANG": "C.UTF-8",
         }

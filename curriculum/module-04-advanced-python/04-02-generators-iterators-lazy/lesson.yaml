@@ -1,0 +1,13 @@
+id: "04-02"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "Generators, Iterators & O(1) Memory Lazy Pipelines"
+objective: "Build lazy streaming data pipelines with yield, generator expressions, and itertools (islice, batched) without materializing intermediate lists."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Generators"
+  - "yield"
+  - "itertools"
+entryFile: "lazy_pipeline.py"

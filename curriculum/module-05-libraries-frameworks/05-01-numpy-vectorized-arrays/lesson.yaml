@@ -1,0 +1,13 @@
+id: "05-01"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "NumPy Vectorized Arrays & Metric Aggregations"
+objective: "Replace slow Python loops with vectorized NumPy array operations, boolean masks, percentiles, and min-max normalization."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "NumPy"
+  - "Vectorization"
+  - "Percentiles"
+entryFile: "latency_stats.py"

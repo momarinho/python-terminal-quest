@@ -1,0 +1,4 @@
+hints:
+  - "Copy `raw_df.copy()`, strip `'tenant'`, replace blank strings `''` with `pd.NA`, and coerce `'tokens'` and `'cost_usd'` with `pd.to_numeric(..., errors='coerce')`."
+  - "Drop rows where `tenant`, `tokens`, or `cost_usd` is missing (`dropna(subset=...)`), then filter `tokens >= 0` and `cost_usd >= 0`."
+  - "Group by `'tenant'` with `.agg(total_tokens=('tokens', 'sum'), total_cost_usd=('cost_usd', 'sum'), request_count=('tokens', 'count'))` and sort by `('total_cost_usd', 'tenant')` (`ascending=[False, True]`)."

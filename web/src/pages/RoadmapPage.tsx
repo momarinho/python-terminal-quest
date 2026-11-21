@@ -35,14 +35,14 @@ interface PhaseSpec {
 }
 
 const GATE_AFTER_MODULE_ID: Record<string, string> = {
-  'module-02': 'proj-01-ledger-reconciler',
+  'module-05': 'proj-01-cli-ledger-reconciler',
 };
 
 const PHASES: PhaseSpec[] = [
   {
     number: 1,
-    title: 'Foundations & Core Data Structures',
-    subtitle: 'Modules 1–2 · Python 3.13, Decimal, Collections & Algorithms',
+    title: 'Foundations, OOP & Ecosystem Base',
+    subtitle: 'Modules 1–5 · Python 3.13, Data Structures, OOP, Generators & Core Libraries',
     moduleRange: [1, 5],
   },
   {

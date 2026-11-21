@@ -1,0 +1,4 @@
+hints:
+  - "Decorate `ServiceEndpoint` with `@dataclass(frozen=True)` and validate `name.strip()`, `1 <= port <= 65535`, and `latency_ms >= 0` inside `__post_init__`."
+  - "Because `ServiceEndpoint` is frozen, normalize `name` via `object.__setattr__(self, 'name', cleaned)` if needed, or reject blank names with `ValueError`."
+  - "On `ClusterSnapshot`, use `endpoints: list[ServiceEndpoint] = field(default_factory=list)` and return `0.0` in `healthy_ratio()` when `endpoints` is empty."

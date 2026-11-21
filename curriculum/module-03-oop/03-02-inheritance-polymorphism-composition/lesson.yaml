@@ -1,0 +1,13 @@
+id: "03-02"
+moduleId: "module-03"
+moduleTitle: "Module 3: Object-Oriented Programming"
+title: "Inheritance, Polymorphism & Composition over Inheritance"
+objective: "Build polymorphic notification channels with super() initialization and compose them inside an AlertDispatcher rather than deep inheritance trees."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Inheritance"
+  - "Polymorphism"
+  - "Composition"
+entryFile: "notifier.py"

@@ -1,0 +1,4 @@
+hints:
+  - "In `models.py`, validate all fields inside `Order.__post_init__` and define `Order.with_qty(self, new_qty: int) -> Order` using `dataclasses.replace(self, qty=new_qty)`."
+  - "In `strategies.py`, select eligible counter-orders (opposite side & crossing price), sort them by `(order.price, order.seq)` for SELL resting orders or `(-order.price, order.seq)` for BUY resting orders, fill sequentially, and rebuild `updated_resting` preserving remaining orders (and partially reduced qty)."
+  - "In `OrderBook.submit(order)`, auto-assign a monotonically increasing `seq` if needed or validate unique `order_id` among resting orders (`any(o.order_id == order.order_id for o in self._resting)` -> raise `ValueError`)."

@@ -1,0 +1,14 @@
+id: "04-07"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "Streaming PII Log Redactor"
+objective: "Build a lazy O(1)-memory file-streaming PII redactor combining compiled regexes, generators, context managers, and atomic stats output."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "Generators"
+  - "Regex"
+  - "pathlib"
+entryFile: "pipeline.py"

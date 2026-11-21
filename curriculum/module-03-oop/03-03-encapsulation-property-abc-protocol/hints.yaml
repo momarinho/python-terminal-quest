@@ -1,0 +1,4 @@
+hints:
+  - "In `TokenBucket`: keep `_capacity` and `_tokens` private-by-convention; expose `available_tokens` as a read-only `@property` and `refill_rate` with `@property` + `@refill_rate.setter` raising `ValueError` when `<= 0`."
+  - "In `TokenBucket.consume(count)` and `refill(amount)`: reject `<= 0` arguments with `ValueError`, clamp `_tokens` to `self._capacity` on refill, and return `False` without modifying `_tokens` if `count > self._tokens`."
+  - "Define `class MetricsSink(Protocol): def emit(self, metric: str, value: int) -> None: ...` (no inheritance needed on concrete sinks!)."

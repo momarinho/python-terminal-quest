@@ -67,3 +67,105 @@ modules:
     reflectionPrompts:
       - "Why is checking `item in seen_set` dramatically faster than `item in seen_list` as N grows?"
       - "How do you guarantee deterministic tie-breaking in `heapq` when two items share the same priority?"
+
+  - moduleId: "module-03"
+    order: 3
+    phase: 1
+    title: "Module 3: Object-Oriented Programming"
+    subtitle: "Dataclasses, composition, @property invariants, typing.Protocol & dunder methods"
+    linkedinAngle:
+      hook: "Why use `typing.Protocol` instead of `abc.ABC` in Python 3.13—and why does defining `__eq__` without `__hash__` break your sets and dicts?"
+      pythonInsight: "Python OOP prioritizes structural contracts (`Protocol`), immutable `@dataclass(frozen=True)` value objects with `__post_init__` guards, `@property` invariant validation, and composition over deep inheritance hierarchies."
+      codeComparison: |
+        # Before: nominal ABC forcing inheritance on every test double
+        class MetricsSink(ABC):
+            @abstractmethod
+            def emit(self, name: str, value: int) -> None: ...
+
+        # Pythonic Structural Protocol:
+        class MetricsSink(Protocol):
+            def emit(self, name: str, value: int) -> None: ...
+    bossLinkedinAngle:
+      hook: "I architected an extensible Limit Order Book in pure Python 3.13—swapping Price-Time and Immediate-Or-Cancel matching with zero `OrderBook` rewrites."
+      pythonInsight: "Combining frozen `@dataclass` orders, `__len__`/`__iter__` container dunders, and a `MatchingStrategy(Protocol)` isolates matching rules from order-book state and makes partial fills deterministic."
+      codeComparison: |
+        class OrderBook:
+            def __init__(self, strategy: MatchingStrategy | None = None) -> None:
+                self._strategy = strategy or PriceTimeStrategy()
+                self._resting: list[Order] = []
+
+            def submit(self, order: Order) -> list[TradeFill]:
+                fills, next_resting, remainder = self._strategy.match(order, self._resting)
+                if remainder is not None:
+                    next_resting.append(remainder)
+                self._resting = next_resting
+                return fills
+    reflectionPrompts:
+      - "Why does defining `__eq__` on a custom class automatically set `__hash__ = None` unless you define `__hash__`?"
+      - "When is `typing.Protocol` a better fit than `abc.ABC` for decoupling storage or pricing strategies?"
+
+  - moduleId: "module-04"
+    order: 4
+    phase: 1
+    title: "Module 4: Advanced Python"
+    subtitle: "Decorators, lazy generators, context managers, closures, regex & atomic file writes"
+    linkedinAngle:
+      hook: "Reading a 4 GB production log with `.readlines()` crashes workers with OOM. Replacing `[...]` with `yield` keeps memory flat at O(1)."
+      pythonInsight: "Python's iterator protocol, `@contextmanager` cleanup guarantees, `@functools.wraps` parameterized decorators, `re.compile` named groups, and `tempfile.mkstemp` + `os.replace` atomic writes solve real production failure modes cleanly."
+      codeComparison: |
+        # Trap: loads whole file into RAM + non-atomic partial write
+        lines = src.read_text().splitlines()
+        target.write_text(summary)
+
+        # Production Python: lazy generator + atomic os.replace
+        with src.open("r", encoding="utf-8") as fh:
+            for line, counts in iter_redacted_lines(fh):
+                out_fh.write(line)
+        os.replace(tmp_path, target)
+    bossLinkedinAngle:
+      hook: "Built a Streaming PII Log Redactor in Python 3.13 that scrubs emails, CPFs, and Bearer JWTs in O(1) memory with atomic JSON stats."
+      pythonInsight: "Pairing compiled `re.Pattern.subn()` rules with a lazy `yield` generator pipeline and `os.replace` atomic writes guarantees zero half-written audit files and constant memory usage on unbounded streams."
+      codeComparison: |
+        def iter_redacted_lines(lines: Iterable[str]) -> Iterator[tuple[str, dict[str, int]]]:
+            for line in lines:
+                yield redact_line(line)
+    reflectionPrompts:
+      - "Why must a temporary file live in the same directory as the destination before calling `os.replace(tmp, target)`?"
+      - "What breaks in a closure loop `[lambda: i for i in range(3)]`, and how does `functools.partial` fix it?"
+
+  - moduleId: "module-05"
+    order: 5
+    phase: 1
+    title: "Module 5: Libraries & Frameworks Base"
+    subtitle: "NumPy vectorization, Pandas groupby, headless Agg charts, Flask, requests & BeautifulSoup"
+    linkedinAngle:
+      hook: "Calling `requests.get(url)` without `timeout=` can hang a backend worker forever—and `plt.show()` crashes in Docker without `Agg`."
+      pythonInsight: "Mastering Python's core ecosystem requires defensive defaults: NumPy boolean masks with zero-range guards, `pd.to_numeric(..., errors='coerce')`, headless `matplotlib.use('Agg')` + `plt.close(fig)`, modular Flask Blueprints, and `requests.Session` timeouts."
+      codeComparison: |
+        # Fragile script: no timeout, leaks open figures
+        data = requests.get(url).json()
+        plt.bar(x, y)
+
+        # Production-safe headless pipeline:
+        matplotlib.use("Agg")
+        with requests.Session() as session:
+            resp = session.get(url, timeout=2.0)
+            resp.raise_for_status()
+        fig, ax = plt.subplots()
+        try:
+            sns.barplot(x=x, y=y, ax=ax)
+            fig.savefig(out_path)
+        finally:
+            plt.close(fig)
+    bossLinkedinAngle:
+      hook: "Built an offline-tested Automated Web Report Collector: `requests` → `BeautifulSoup` → `Pandas` groupby → headless `Agg` PNG + Markdown digest."
+      pythonInsight: "Testing `requests` + `BeautifulSoup` against an ephemeral `ThreadingHTTPServer` on `127.0.0.1:0` and rendering charts with `Agg` + `plt.close(fig)` keeps integration suites deterministic, leak-free, and 100% offline."
+      codeComparison: |
+        summary = (
+            df.groupby("region", as_index=False)
+            .agg(avg_latency_ms=("latency_ms", "mean"), service_count=("service", "count"))
+            .sort_values(by=["avg_latency_ms", "region"], ascending=[False, True])
+        )
+    reflectionPrompts:
+      - "When would you choose Flask (micro-framework + Blueprints) vs. Django (MTV + built-in ORM/Admin) for a new backend service?"
+      - "Why should every `matplotlib` figure created in a server or test suite be closed inside a `finally:` block?"

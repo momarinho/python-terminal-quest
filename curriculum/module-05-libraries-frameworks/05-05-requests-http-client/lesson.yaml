@@ -1,0 +1,14 @@
+id: "05-05"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "HTTP Client Engineering with requests (Session, Headers, Timeouts & Status Handling)"
+objective: "Use requests.Session for connection pooling and shared headers, always enforce explicit timeouts, and translate HTTP errors/timeouts into clean domain exceptions."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "requests"
+  - "HTTP Client"
+  - "Timeouts"
+entryFile: "http_client.py"

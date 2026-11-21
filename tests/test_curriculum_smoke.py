@@ -9,14 +9,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CURRICULUM_DIR = REPO_ROOT / "curriculum"
 
 
-def test_curriculum_loads_modules_1_and_2_with_17_lessons() -> None:
+def test_curriculum_loads_block1_with_5_modules_and_37_lessons() -> None:
     loaded = CurriculumLoader(CURRICULUM_DIR).load()
-    assert len(loaded.modules) == 2
-    assert len(loaded.lessons) == 17
+    assert len(loaded.modules) == 5
+    assert len(loaded.lessons) == 37
 
     boss_lessons = [lesson for lesson in loaded.lessons if lesson.kind == "BOSS"]
-    assert [b.id for b in boss_lessons] == ["01-09", "02-08"]
+    assert [b.id for b in boss_lessons] == ["01-09", "02-08", "03-06", "04-07", "05-07"]
     assert all(b.xp == 250 for b in boss_lessons)
+
+    assert len(loaded.projects) == 1
+    assert loaded.projects[0].id == "proj-01-cli-ledger-reconciler"
+    assert loaded.projects[0].required_modules_completed == 5
 
     for lesson in loaded.lessons:
         assert len(lesson.hints) == 3, f"{lesson.id} must have exactly 3 hints"

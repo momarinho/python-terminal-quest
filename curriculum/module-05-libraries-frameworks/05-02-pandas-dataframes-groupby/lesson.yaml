@@ -1,0 +1,13 @@
+id: "05-02"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "Pandas DataFrames, Cleaning & groupby Reporting"
+objective: "Clean dirty tabular datasets with pandas, coerce numeric columns safely, filter invalid rows, and aggregate metrics using groupby."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Pandas"
+  - "DataFrame"
+  - "groupby"
+entryFile: "usage_report.py"

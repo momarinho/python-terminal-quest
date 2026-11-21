@@ -1,0 +1,13 @@
+id: "05-03"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "Matplotlib & Seaborn Headless Chart Generation"
+objective: "Render annotated bar charts cleanly in headless server/CI environments using Matplotlib's Agg backend and Seaborn without leaking open figures."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Matplotlib"
+  - "Seaborn"
+  - "Headless Agg"
+entryFile: "chart_builder.py"

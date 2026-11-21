@@ -1,0 +1,13 @@
+id: "03-05"
+moduleId: "module-03"
+moduleTitle: "Module 3: Object-Oriented Programming"
+title: "Pythonic Design Patterns (Strategy, Factory, Repository Protocol)"
+objective: "Decouple pricing rules and storage backends using Strategy, Factory dispatch, and a Repository Protocol across multiple modules."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Design Patterns"
+  - "Strategy/Factory"
+  - "Repository"
+entryFile: "service.py"

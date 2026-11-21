@@ -1,0 +1,13 @@
+id: "03-03"
+moduleId: "module-03"
+moduleTitle: "Module 3: Object-Oriented Programming"
+title: "Encapsulation (@property) & Abstraction (ABC vs typing.Protocol)"
+objective: "Enforce invariant boundaries with @property getters/setters and contrast nominal ABCs against structural typing.Protocol contracts."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "@property"
+  - "ABC"
+  - "typing.Protocol"
+entryFile: "rate_limiter.py"

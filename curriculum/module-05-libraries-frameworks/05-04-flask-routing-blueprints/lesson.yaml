@@ -1,0 +1,14 @@
+id: "05-04"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "Web Frameworks Base — Flask Routing, Blueprints & Error Handling"
+objective: "Build modular Flask apps with Blueprints, JSON route validation, structured error handlers, and contrast Flask micro-architecture against Django MTV."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "Flask"
+  - "Blueprints"
+  - "Flask vs Django"
+entryFile: "flask_service.py"

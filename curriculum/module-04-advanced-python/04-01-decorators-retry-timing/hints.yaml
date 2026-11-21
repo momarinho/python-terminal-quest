@@ -1,0 +1,4 @@
+hints:
+  - "Validate `max_attempts >= 1` in `retry_on`, and apply `@wraps(fn)` on `wrapper`."
+  - "Inside `retry_on`'s wrapper, attempt up to `max_attempts` times catching `exceptions`; re-raise the final exception once attempts are exhausted."
+  - "In `record_timing(sink)`, capture `start = time.perf_counter()` before `try: return fn(*args, **kwargs)`, and in `finally:` append `(fn.__name__, time.perf_counter() - start)` to `sink`."

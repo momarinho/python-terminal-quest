@@ -1,6 +1,8 @@
 # Python Terminal Quest
 
-A calm Obsidian 16-bit RPG workspace for mastering modern **Python 3.13**, **Data Structures**, **FastAPI**, **Pydantic v2**, and **AI Engineering**.
+A calm Obsidian 16-bit RPG workspace for mastering modern **Python 3.13**, **Data Structures**, **OOP**, **Advanced Python**, **Libraries & Frameworks**, **FastAPI**, and **AI Engineering**.
+
+**Current Curriculum (Block 1 Complete):** 5 modules • 37 interactive lessons (32 core + 5 Boss Fights) • Portfolio Gate #1 (`CLI Financial Ledger Reconciler`).
 
 ## Quick Start (Local Development)
 

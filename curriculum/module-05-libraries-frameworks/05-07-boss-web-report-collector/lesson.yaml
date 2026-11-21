@@ -1,0 +1,15 @@
+id: "05-07"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "Automated Web Report Collector"
+objective: "Build an end-to-end offline web report pipeline combining requests HTTP fetching, BeautifulSoup HTML parsing, Pandas aggregation, and Markdown + Agg PNG chart generation."
+mode: PYTEST_TDD
+kind: BOSS
+runtime: WEB_INTEGRATION
+xp: 250
+tags:
+  - "Boss Fight"
+  - "requests"
+  - "BeautifulSoup"
+  - "Pandas + Agg"
+entryFile: "reporter.py"

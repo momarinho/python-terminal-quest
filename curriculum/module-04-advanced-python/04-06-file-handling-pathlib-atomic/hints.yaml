@@ -1,0 +1,4 @@
+hints:
+  - "In `atomic_write_json(target, payload)`: serialize with `json.dumps(payload, indent=2)`, create a temp file in `target.parent` via `tempfile.mkstemp(dir=target.parent)`, write + flush, and swap with `os.replace(tmp_path, target)`."
+  - "In `stream_csv_totals(csv_path)`: open with `csv_path.open('r', encoding='utf-8', newline='')`, iterate `csv.DictReader(fh)`, and sum `Decimal(row['amount'])` per `row['category']`."
+  - "In `write_jsonl_records(target, records)`: stream one `json.dumps(rec) + '\\n'` per record (or write atomically via temp file) and return the number of written lines."

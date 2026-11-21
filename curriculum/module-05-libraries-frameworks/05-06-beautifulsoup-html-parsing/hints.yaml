@@ -1,0 +1,4 @@
+hints:
+  - "In `extract_service_table(html)`: parse with `BeautifulSoup(html, 'html.parser')`, iterate `soup.select('table#status-table tbody tr')`, extract `[td.get_text(' ', strip=True) for td in tr.select('td')]`, and skip malformed rows with `< 3` cells."
+  - "Convert the third column (`latency_ms`) to `int` (strip `'ms'` suffix if present, or raise/skip cleanly—here rows carry `'42ms'` or `'42'`, so `int(cells[2].removesuffix('ms').strip())`)."
+  - "In `extract_nav_links(html)`: iterate `soup.select('nav a[href]')` and return `[{'label': a.get_text(' ', strip=True), 'href': str(a['href']).strip()} for a in ... if str(a['href']).strip()]`."

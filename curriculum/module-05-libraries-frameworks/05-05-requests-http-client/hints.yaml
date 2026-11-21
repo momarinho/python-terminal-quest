@@ -1,0 +1,4 @@
+hints:
+  - "Initialize `self._session = requests.Session()` and update `self._session.headers` with `{'User-Agent': user_agent, 'Accept': 'application/json'}`."
+  - "In `fetch_json(path)`: build `url = f'{self.base_url}/{path.lstrip(\"/\")}'`, pass `timeout=self.timeout`, and retry on `requests.Timeout` or `502`/`503`/`504` responses up to `max_retries` extra attempts."
+  - "For non-retryable HTTP errors (e.g., `404`, `400`) or exhausted retries/network errors, raise `HttpClientError(...) from exc`."

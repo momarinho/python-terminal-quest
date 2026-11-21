@@ -1,0 +1,14 @@
+id: "03-06"
+moduleId: "module-03"
+moduleTitle: "Module 3: Object-Oriented Programming"
+title: "Extensible Order Book Domain"
+objective: "Architect a multi-file limit Order Book combining frozen @dataclass models, dunder protocols (__len__, __iter__), and pluggable MatchingStrategy Protocols."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "OOP"
+  - "Protocol"
+  - "Dunder Methods"
+entryFile: "book.py"

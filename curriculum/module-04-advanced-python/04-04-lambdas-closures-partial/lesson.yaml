@@ -1,0 +1,13 @@
+id: "04-04"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "Lambda Functions, Closures & Functional Callbacks (functools.partial)"
+objective: "Build stateful closures with nonlocal, freeze callback arguments cleanly with functools.partial, and fix late-binding loop closure traps."
+mode: BUG_FIX
+kind: STANDARD
+xp: 100
+tags:
+  - "Closures"
+  - "functools.partial"
+  - "Callbacks"
+entryFile: "callbacks.py"

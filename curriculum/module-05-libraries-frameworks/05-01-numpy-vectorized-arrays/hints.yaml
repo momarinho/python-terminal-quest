@@ -1,0 +1,4 @@
+hints:
+  - "Convert input sequences with `arr = np.asarray(samples, dtype=np.float64)` and filter invalid negative sentinel values via boolean mask `valid = arr[arr >= 0]`."
+  - "Raise `ValueError` if `valid.size == 0`, then compute `float(np.mean(valid))`, `float(np.percentile(valid, 95))`, and `float(np.percentile(valid, 99))`."
+  - "In `minmax_scale(values)`: compute `lo, hi = arr.min(), arr.max()`; if `hi == lo` return `np.zeros_like(arr, dtype=np.float64)`, else `(arr - lo) / (hi - lo)`."

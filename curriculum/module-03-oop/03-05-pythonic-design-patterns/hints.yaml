@@ -1,0 +1,4 @@
+hints:
+  - "In `patterns.py`: `FlatDiscount` subtracts `amount` clamped at `Decimal('0.00')` (`max(Decimal('0.00'), subtotal - self.amount)`); `PercentDiscount` multiplies by `(1 - pct / 100)` quantized to `Decimal('0.01')` with `ROUND_HALF_UP`."
+  - "In `create_pricing_strategy(kind, value)`: dispatch `'flat'` -> `FlatDiscount(Decimal(value))`, `'percent'` -> `PercentDiscount(Decimal(value))`, `'none'` -> `NoDiscount()`, else raise `ValueError`."
+  - "In `service.py`: `BillingService.create_invoice(invoice_id, subtotal, strategy_kind, strategy_value)` computes `total` via the factory strategy, stores `{'id': invoice_id, 'subtotal': subtotal, 'total': total}` in `self.repo`, and returns the saved dict."

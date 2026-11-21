@@ -1,0 +1,4 @@
+hints:
+  - "In `fetcher.py`, define `class FetchError(Exception): pass` and wrap `session.get(url, timeout=timeout)` + `resp.raise_for_status()` inside `try ... except requests.RequestException as exc: raise FetchError(...) from exc`."
+  - "In `parser.py`, parse `table#metrics tbody tr` with `BeautifulSoup(html, 'html.parser')`, extracting `region`, `service`, and `int(latency_str)` (skipping rows where `len(cells) < 3` or `latency_str` is not an int)."
+  - "In `reporter.py`, set `matplotlib.use('Agg')` before `pyplot`/`seaborn`, aggregate with `df.groupby('region', as_index=False).agg(avg_latency_ms=('latency_ms', 'mean'), service_count=('service', 'count'))`, save chart + close fig in `finally:`, and write Markdown rows to `report_path`."

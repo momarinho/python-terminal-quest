@@ -1,0 +1,4 @@
+hints:
+  - "In `patterns.py`, compile `_EMAIL_RE`, `_CPF_RE`, and `_BEARER_RE`. Use `pattern.subn(...)` (or a callback tracking a local counter) so you both replace and count exact matches in one pass!"
+  - "For email masking: match `r'\\b([A-Za-z0-9._%+-])([A-Za-z0-9._%+-]*)@([A-Za-z0-9.-]+\\.[A-Za-z]{2,})\\b'` and replace with `f'{m.group(1)}***@{m.group(3)}'`."
+  - "In `pipeline.py`, `iter_redacted_lines` must `yield` one tuple at a time; in `redact_log_file`, stream from `src.open('r')` to `dest.open('w')` and write `stats_dest` atomically using `tempfile.mkstemp(dir=stats_dest.parent)` + `os.replace`."

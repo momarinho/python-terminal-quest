@@ -1,0 +1,13 @@
+id: "04-06"
+moduleId: "module-04"
+moduleTitle: "Module 4: Advanced Python"
+title: "File Handling (pathlib.Path, Streaming CSV/JSON & Atomic File Writes)"
+objective: "Use pathlib.Path, csv.DictReader, streaming JSONL, and atomic temp-file + os.replace writes to prevent half-written corrupt files."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "pathlib"
+  - "CSV/JSONL"
+  - "Atomic Write"
+entryFile: "file_ops.py"

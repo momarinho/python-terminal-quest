@@ -1,0 +1,4 @@
+hints:
+  - "In `TransactionScope`: append `'BEGIN'` in `__enter__` and return `self`; in `__exit__`, append `'COMMIT'` if `exc_type is None` else `'ROLLBACK'`, and return `False` so exceptions propagate."
+  - "In `scoped_env_override(env, updates)`: snapshot previous values (`missing = object()` sentinel so you can distinguish keys that didn't exist from keys set to `''`), apply `env.update(updates)`, `yield`, and restore in `finally:`."
+  - "Remember to delete keys that were not present prior to `scoped_env_override` rather than leaving them set to `None`."
