@@ -47,21 +47,21 @@ const PHASES: PhaseSpec[] = [
   },
   {
     number: 2,
-    title: 'Modern Python, Testing & Architecture',
-    subtitle: 'Upcoming · OOP, Context Managers, Asyncio & Typing',
-    moduleRange: [6, 10],
+    title: 'Architecture, Typing & Concurrency',
+    subtitle: 'Modules 6–7 · src/ Layout, Pydantic v2, pytest, Thread/Process Pools & asyncio',
+    moduleRange: [6, 7],
   },
   {
     number: 3,
-    title: 'FastAPI, SQL & Production APIs',
-    subtitle: 'Upcoming · Pydantic v2, SQLAlchemy, Auth & Observability',
-    moduleRange: [11, 15],
+    title: 'SQL & Data Engineering',
+    subtitle: 'Module 8 · Analytic CTEs, Indexes, Keyset Pagination & ACID Optimistic Locking',
+    moduleRange: [8, 9],
   },
   {
     number: 4,
-    title: 'AI Engineering & RAG Systems',
-    subtitle: 'Upcoming · Embeddings, Vector Stores, Tool Calling & Evals',
-    moduleRange: [16, 20],
+    title: 'FastAPI, Auth & AI Systems',
+    subtitle: 'Upcoming · FastAPI, SQLAlchemy, RAG, Embeddings & Production Observability',
+    moduleRange: [10, 20],
   },
 ];
 

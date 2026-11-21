@@ -1,0 +1,13 @@
+id: "08-01"
+moduleId: "module-08"
+moduleTitle: "Module 8: Raw SQL Engineering"
+title: "Analytic JOINs, GROUP BY, HAVING, CTEs (WITH) & Subqueries (EXISTS vs IN)"
+objective: "Write parameterized SQL analytics with CTEs, GROUP BY/HAVING, and NULL-safe NOT EXISTS subqueries while understanding 1NF-3NF normalization trade-offs."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "SQL"
+  - "CTEs & JOINs"
+  - "EXISTS vs IN"
+entryFile: "sql_analytics.py"

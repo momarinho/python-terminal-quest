@@ -1,0 +1,13 @@
+id: "06-03"
+moduleId: "module-06"
+moduleTitle: "Module 6: Complex Project Architecture, Typing & pytest"
+title: "Pydantic v2 Boundary Validation & Discriminated Unions"
+objective: "Validate untrusted external webhook payloads using Pydantic v2 BaseModel, field_validator, model_validator, and Annotated discriminated unions."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Pydantic v2"
+  - "Discriminated Union"
+  - "Validators"
+entryFile: "events_schema.py"

@@ -1,0 +1,13 @@
+id: "07-02"
+moduleId: "module-07"
+moduleTitle: "Module 7: CPython Internals, Concurrency & asyncio"
+title: "Threads vs. Processes (ThreadPoolExecutor & ProcessPoolExecutor)"
+objective: "Eliminate shared-state race conditions with threading.Lock and choose ThreadPoolExecutor for blocking I/O vs ProcessPoolExecutor for CPU-bound work."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Threading"
+  - "Multiprocessing"
+  - "concurrent.futures"
+entryFile: "concurrency_pools.py"

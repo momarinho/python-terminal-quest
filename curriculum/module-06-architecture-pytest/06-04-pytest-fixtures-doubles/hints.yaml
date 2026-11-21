@@ -1,0 +1,4 @@
+hints:
+  - "In `notifier_service.py`, define `UserRepo(Protocol)`, `TokenGenerator(Protocol)`, and `EmailSender(Protocol)`."
+  - "In `PasswordResetService.request_reset(email)`: normalize `email.strip().lower()`, look up `self.users.exists(normalized)`; if `False` return `False` without calling `tokens` or `mailer`, else generate a token and call `self.mailer.send(normalized, token)` returning `True`."
+  - "In `doubles.py`, implement `FakeUserRepo` (set/dict of known emails), `StubTokenGenerator` (returns fixed token), and `SpyEmailSender` (appends `(to, token)` to `self.sent`)."

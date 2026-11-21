@@ -22,17 +22,17 @@ def test_health_and_curriculum_endpoints(tmp_path: Path) -> None:
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["modules"] == 5
-    assert health.json()["lessons"] == 37
+    assert health.json()["modules"] == 8
+    assert health.json()["lessons"] == 52
 
     curr = client.get("/api/curriculum")
     assert curr.status_code == 200
     body = curr.json()
-    assert body["totalLessons"] == 37
+    assert body["totalLessons"] == 52
     assert body["completedLessons"] == 0
     assert body["hero"]["tier"] == 1
     assert body["hero"]["title"] == "Apprentice"
-    assert len(body["modules"]) == 5
+    assert len(body["modules"]) == 8
 
 
 def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:

@@ -1,0 +1,13 @@
+id: "07-03"
+moduleId: "module-07"
+moduleTitle: "Module 7: CPython Internals, Concurrency & asyncio"
+title: "asyncio Coroutines & Structured Concurrency (TaskGroup & asyncio.timeout)"
+objective: "Coordinate concurrent async tasks safely with Python 3.11+ asyncio.TaskGroup and asyncio.timeout without leaking orphaned tasks."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "asyncio"
+  - "TaskGroup"
+  - "asyncio.timeout"
+entryFile: "async_orchestrator.py"

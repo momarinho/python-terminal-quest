@@ -1,0 +1,13 @@
+id: "08-03"
+moduleId: "module-08"
+moduleTitle: "Module 8: Raw SQL Engineering"
+title: "Keyset (Cursor) Pagination vs. OFFSET Drift"
+objective: "Implement deterministic keyset pagination over (created_at, id) with limit+1 lookahead so live inserts never duplicate or skip rows."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Pagination"
+  - "Keyset Cursor"
+  - "SQL"
+entryFile: "keyset_pagination.py"

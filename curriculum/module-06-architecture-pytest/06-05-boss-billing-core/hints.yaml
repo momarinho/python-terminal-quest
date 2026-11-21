@@ -1,0 +1,4 @@
+hints:
+  - "Keep imports unidirectional: `config.py` and `domain.py` have no local imports; `ports.py` uses `TYPE_CHECKING` for `Receipt`; `service.py` imports from `config`, `domain`, and `ports`."
+  - "In `service.py`, use `pydantic.TypeAdapter(ChargeCommand).validate_python(raw_command)` to parse the discriminated union cleanly."
+  - "Quantize `subtotal`, `tax`, and `total` to `Decimal('0.01')` with `ROUND_HALF_UP`, pass `settings.gateway_secret.get_secret_value()` to `gateway.charge(...)`, persist the `Receipt`, and return `receipt.model_dump(mode='json')`."

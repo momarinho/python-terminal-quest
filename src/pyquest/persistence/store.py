@@ -21,8 +21,8 @@ from pyquest.domain.models import (
 HERO_TIERS: list[tuple[int, int, str, str]] = [
     (1, 0, "Apprentice", "Wood Sword & Morning Coffee"),
     (2, 1, "Explorer", "Hooded Cloak & Cyan Rune"),
-    (3, 2, "Async Knight", "Visor Helm & Concurrency Sparks"),
-    (4, 5, "Backend Architect", "Gilded Mantle & Rune Tome"),
+    (3, 5, "Async Knight", "Visor Helm & Concurrency Sparks"),
+    (4, 7, "Backend Architect", "Gilded Mantle & Rune Tome"),
     (5, 9, "AI Grandmaster", "Emerald-Gold Crown & Aura"),
 ]
 

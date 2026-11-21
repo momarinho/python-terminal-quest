@@ -1,0 +1,13 @@
+id: "07-01"
+moduleId: "module-07"
+moduleTitle: "Module 7: CPython Internals, Concurrency & asyncio"
+title: "CPython Internals, the GIL & Memory/CPU Profiling (tracemalloc & cProfile)"
+objective: "Measure peak heap allocations with tracemalloc and capture deterministic CPU hot-spots via cProfile + pstats while reasoning about refcounting, cyclic GC, and the GIL."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "CPython / GIL"
+  - "tracemalloc"
+  - "cProfile"
+entryFile: "profiler_tools.py"

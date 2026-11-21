@@ -9,13 +9,22 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CURRICULUM_DIR = REPO_ROOT / "curriculum"
 
 
-def test_curriculum_loads_block1_with_5_modules_and_37_lessons() -> None:
+def test_curriculum_loads_wave2a_with_8_modules_and_52_lessons() -> None:
     loaded = CurriculumLoader(CURRICULUM_DIR).load()
-    assert len(loaded.modules) == 5
-    assert len(loaded.lessons) == 37
+    assert len(loaded.modules) == 8
+    assert len(loaded.lessons) == 52
 
     boss_lessons = [lesson for lesson in loaded.lessons if lesson.kind == "BOSS"]
-    assert [b.id for b in boss_lessons] == ["01-09", "02-08", "03-06", "04-07", "05-07"]
+    assert [b.id for b in boss_lessons] == [
+        "01-09",
+        "02-08",
+        "03-06",
+        "04-07",
+        "05-07",
+        "06-05",
+        "07-05",
+        "08-05",
+    ]
     assert all(b.xp == 250 for b in boss_lessons)
 
     assert len(loaded.projects) == 1

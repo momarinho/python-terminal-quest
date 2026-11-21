@@ -1,0 +1,4 @@
+hints:
+  - "In `schema.py`, create both tables (`CHECK(stock >= 0)` on `skus`, `CHECK(qty > 0)` on `reservations`) and `CREATE INDEX IF NOT EXISTS idx_res_lookup ON reservations (res_id, sku)`."
+  - "In `engine.py`, wrap the entire multi-SKU loop inside one `conn.execute('BEGIN IMMEDIATE') ... conn.commit()` block with `except BaseException: conn.rollback(); raise`."
+  - "Note: if `items` contains duplicate SKUs like `[('A', 2), ('A', 2)]`, re-querying `skus` on each tuple naturally sees the updated `(stock, version)` inside the same transaction and still guards `rowcount == 1`!"

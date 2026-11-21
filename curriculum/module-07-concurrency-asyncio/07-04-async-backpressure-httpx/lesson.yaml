@@ -1,0 +1,14 @@
+id: "07-04"
+moduleId: "module-07"
+moduleTitle: "Module 7: CPython Internals, Concurrency & asyncio"
+title: "Async Backpressure & Resilient HTTP with httpx.AsyncClient"
+objective: "Enforce bounded concurrency with asyncio.Semaphore and transient retry backoff over httpx.AsyncClient."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "httpx"
+  - "Semaphore"
+  - "Backpressure"
+entryFile: "async_fetcher.py"

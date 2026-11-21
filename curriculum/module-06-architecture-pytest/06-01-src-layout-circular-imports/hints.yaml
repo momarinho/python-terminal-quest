@@ -1,0 +1,4 @@
+hints:
+  - "Remove the top-level `from service import DispatchService` import from `domain.py`—domain models must not depend on the service layer."
+  - "Have `ports.py` import `ShipmentOrder` from `domain` (or use `from __future__ import annotations` + `TYPE_CHECKING`) and define `CarrierPort(Protocol)`."
+  - "Have `service.py` import `ShipmentOrder` from `domain` and `CarrierPort` from `ports`, implementing `DispatchService.dispatch(order_id, destination)` returning the created `ShipmentOrder`."

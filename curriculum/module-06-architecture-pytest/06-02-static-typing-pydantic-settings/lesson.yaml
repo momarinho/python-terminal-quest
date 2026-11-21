@@ -1,0 +1,13 @@
+id: "06-02"
+moduleId: "module-06"
+moduleTitle: "Module 6: Complex Project Architecture, Typing & pytest"
+title: "Static Typing Craft (typing, Protocol, mypy/ruff) & 12-Factor Config (pydantic-settings)"
+objective: "Enforce 12-factor environment config with pydantic-settings BaseSettings + SecretStr and combine structural Protocol contracts with strict type annotations."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "pydantic-settings"
+  - "SecretStr"
+  - "mypy / ruff"
+entryFile: "settings.py"

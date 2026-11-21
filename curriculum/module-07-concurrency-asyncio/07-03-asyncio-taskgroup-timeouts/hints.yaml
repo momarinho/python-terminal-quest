@@ -1,0 +1,4 @@
+hints:
+  - "In `run_strict_taskgroup(task_fns, overall_timeout)`: wrap `async with asyncio.TaskGroup() as tg:` inside `async with asyncio.timeout(overall_timeout):`, creating `tasks = [tg.create_task(fn()) for fn in task_fns]`, then return `[t.result() for t in tasks]` after the `TaskGroup` exits."
+  - "In `run_resilient_batch(task_fns, per_task_timeout)`: define an `async def _guarded(fn)` helper that runs `async with asyncio.timeout(per_task_timeout): val = await fn()`, catches `TimeoutError` -> `{'ok': None, 'error': 'timeout'}` and `Exception as exc` -> `{'ok': None, 'error': str(exc)}` (never catching `asyncio.CancelledError` unless re-raising!)."
+  - "Run all `_guarded` calls inside `async with asyncio.TaskGroup() as tg:` and collect `tasks[i].result()` in order."

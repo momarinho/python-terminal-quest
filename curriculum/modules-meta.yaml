@@ -169,3 +169,88 @@ modules:
     reflectionPrompts:
       - "When would you choose Flask (micro-framework + Blueprints) vs. Django (MTV + built-in ORM/Admin) for a new backend service?"
       - "Why should every `matplotlib` figure created in a server or test suite be closed inside a `finally:` block?"
+
+  - moduleId: "module-06"
+    order: 6
+    phase: 2
+    title: "Module 6: Complex Project Architecture, Typing & pytest"
+    subtitle: "Unidirectional src/ layering, pydantic-settings, Pydantic v2 discriminated unions & test doubles"
+    linkedinAngle:
+      hook: "Circular imports in Python aren't a language bug—they're an architecture smell telling you your domain layer depends on your service layer."
+      pythonInsight: "Using a `src/` layout with `uv` + `pyproject.toml`, unidirectional imports (`domain` ← `ports` ← `service`), `TYPE_CHECKING` guards, `pydantic-settings` (`SecretStr`), and Pydantic v2 discriminated unions keeps large Python backends statically verifiable and modular."
+      codeComparison: |
+        # Before: domain.py imports service.py -> ImportError cycle!
+        # After: unidirectional dependency inversion via Protocol + TYPE_CHECKING
+        from __future__ import annotations
+        from typing import TYPE_CHECKING, Protocol
+
+        if TYPE_CHECKING:
+            from domain import Receipt
+
+        class ReceiptRepoPort(Protocol):
+            def save(self, receipt: Receipt) -> None: ...
+    bossLinkedinAngle:
+      hook: "I architected a 4-module hexagonal Billing Core in Python 3.13—combining `pydantic-settings`, Pydantic v2 discriminated unions, `Protocol` ports, and pure in-memory test doubles."
+      pythonInsight: "Validating commands via `TypeAdapter(ChargeCommand)`, masking secrets with `SecretStr`, and testing against `StubGateway`/`FakeReceiptRepo` Protocols delivers fast deterministic tests with zero `unittest.mock.patch` coupling."
+      codeComparison: |
+        ChargeCommand = Annotated[
+            SubscriptionCharge | UsageCharge,
+            Field(discriminator="kind"),
+        ]
+        cmd = TypeAdapter(ChargeCommand).validate_python(raw_command)
+    reflectionPrompts:
+      - "Why does testing with `Protocol`-backed Fake/Spy doubles scale better than patching internal imports with `unittest.mock.patch`?"
+      - "How does `Annotated[Union[...], Field(discriminator='kind')]` improve Pydantic v2 validation speed and error clarity?"
+
+  - moduleId: "module-07"
+    order: 7
+    phase: 2
+    title: "Module 7: CPython Internals, Concurrency & asyncio"
+    subtitle: "GIL, tracemalloc/cProfile, ThreadPool vs ProcessPool, TaskGroup & httpx backpressure"
+    linkedinAngle:
+      hook: "Spawning 50 threads for CPU-bound hashing won't speed up CPython because of the GIL—and spawning 5,000 unbounded `asyncio` HTTP tasks will crash your gateway."
+      pythonInsight: "CPython's GIL releases during I/O (`ThreadPoolExecutor` / `asyncio`) but requires `ProcessPoolExecutor` with top-level picklable workers for CPU-bound Python code, while `asyncio.TaskGroup`, `asyncio.timeout`, and `asyncio.Semaphore` prevent task leaks and overload."
+      codeComparison: |
+        # Before: unbounded gather() + no timeout
+        await asyncio.gather(*(client.get(u) for u in urls))
+
+        # Structured Concurrency + Backpressure:
+        async with sem, asyncio.timeout(0.5):
+            resp = await client.get(url)
+    bossLinkedinAngle:
+      hook: "Built a Resilient Async Health Aggregator with `asyncio.TaskGroup`, `asyncio.Semaphore`, per-probe `asyncio.timeout`, and deterministic `httpx.MockTransport` tests."
+      pythonInsight: "Isolating per-probe timeouts and `503` retries inside `ProbeClient` while orchestrating fan-out in `HealthAggregator` keeps one slow upstream from stalling the cluster health rollup."
+      codeComparison: |
+        async with self._sem:
+            async with asyncio.timeout(self.per_probe_timeout):
+                resp = await self.client.get(url)
+    reflectionPrompts:
+      - "When should you reach for `ThreadPoolExecutor`, `ProcessPoolExecutor`, or `asyncio` in CPython?"
+      - "Why must functions passed to `ProcessPoolExecutor.map` be defined at module top level instead of local lambdas?"
+
+  - moduleId: "module-08"
+    order: 8
+    phase: 3
+    title: "Module 8: Raw SQL Engineering"
+    subtitle: "CTEs, NOT EXISTS, composite indexes + EXPLAIN, keyset cursors & optimistic locking"
+    linkedinAngle:
+      hook: "Why does `WHERE id NOT IN (SELECT user_id FROM refunds)` return ZERO rows when a single row has `NULL`, and why does `OFFSET 10000` duplicate items under live inserts?"
+      pythonInsight: "Production SQL discipline replaces `NOT IN` with `NULL`-safe `NOT EXISTS`, orders composite B-tree indexes `(equality_cols, sort_col)` verified by `EXPLAIN QUERY PLAN`, uses `(created_at, id)` keyset cursors, and enforces `WHERE version = ?` optimistic locks."
+      codeComparison: |
+        -- Before: full scan + OFFSET drift + lost updates
+        SELECT * FROM feed_events ORDER BY created_at DESC LIMIT 20 OFFSET 5000;
+
+        -- Keyset Cursor Pagination + Index Seek:
+        SELECT id, title, created_at FROM feed_events
+        WHERE (created_at < ?) OR (created_at = ? AND id < ?)
+        ORDER BY created_at DESC, id DESC LIMIT 21;
+    bossLinkedinAngle:
+      hook: "Built an ACID Multi-SKU Inventory Reservation Engine in raw SQL—preventing oversell with `BEGIN IMMEDIATE`, optimistic `version` checks, and full rollback on partial SKU failure."
+      pythonInsight: "Checking `cursor.rowcount == 1` on `UPDATE skus SET stock = stock - ?, version = version + 1 WHERE sku = ? AND version = ? AND stock >= ?` inside a single `BEGIN IMMEDIATE` transaction guarantees zero partial decrements."
+      codeComparison: |
+        UPDATE skus
+        SET stock = stock - ?, version = version + 1
+        WHERE sku = ? AND version = ? AND stock >= ?;
+    reflectionPrompts:
+      - "Why does `NOT IN` fail silently when a subquery returns `NULL`, whereas `NOT EXISTS` handles `NULL` safely?"
+      - "How does PostgreSQL's `SELECT ... FOR UPDATE SKIP LOCKED` solve concurrent job-queue polling compared to SQLite's `BEGIN IMMEDIATE`?"

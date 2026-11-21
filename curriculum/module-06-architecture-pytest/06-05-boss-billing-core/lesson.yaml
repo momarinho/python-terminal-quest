@@ -1,0 +1,14 @@
+id: "06-05"
+moduleId: "module-06"
+moduleTitle: "Module 6: Complex Project Architecture, Typing & pytest"
+title: "Multi-Module Billing Core"
+objective: "Architect a 4-module billing core combining pydantic-settings configuration, Pydantic v2 discriminated unions, Protocol ports, and clean unidirectional imports."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "Pydantic v2"
+  - "Protocols"
+  - "Architecture"
+entryFile: "service.py"

@@ -1,0 +1,15 @@
+id: "07-05"
+moduleId: "module-07"
+moduleTitle: "Module 7: CPython Internals, Concurrency & asyncio"
+title: "Resilient Async Health Aggregator"
+objective: "Build a multi-file async microservice health aggregator with bounded Semaphore fan-out, per-service timeouts, transient 503 retries, and degraded rollup."
+mode: PYTEST_TDD
+kind: BOSS
+runtime: WEB_INTEGRATION
+xp: 250
+tags:
+  - "Boss Fight"
+  - "asyncio"
+  - "TaskGroup"
+  - "httpx"
+entryFile: "aggregator.py"

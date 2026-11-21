@@ -1,0 +1,4 @@
+hints:
+  - "In `high_value_customers(conn, min_total_cents)`: write a CTE aggregating `orders` (`WHERE status != 'CANCELLED'`), `GROUP BY customer_id HAVING SUM(amount_cents) >= ?`, and `JOIN customers` ordered by `total_cents DESC, c.id ASC`."
+  - "Always use `?` bound parameters (`conn.execute(sql, (min_total_cents,))`), never f-strings for SQL values!"
+  - "In `customers_without_refunds(conn)`: use `SELECT c.id FROM customers c WHERE NOT EXISTS (SELECT 1 FROM refunds r WHERE r.customer_id = c.id) ORDER BY c.id ASC`."

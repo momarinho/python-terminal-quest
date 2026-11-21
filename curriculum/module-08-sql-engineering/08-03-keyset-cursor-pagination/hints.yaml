@@ -1,0 +1,4 @@
+hints:
+  - "Encode `(created_at, item_id)` with `base64.urlsafe_b64encode(f'{created_at}|{item_id}'.encode()).decode()`, and decode back cleanly in `decode_cursor` (raising `ValueError` on malformed cursor tokens)."
+  - "In `fetch_feed_page`: query `LIMIT ?` with `limit + 1`. If `len(rows) > limit`, set `has_more = True` and slice `rows = rows[:limit]`; else `has_more = False`."
+  - "When `has_more` is `True`, encode the last returned item's `(created_at, id)` as `next_cursor`; otherwise `next_cursor = None`."

@@ -1,0 +1,13 @@
+id: "08-04"
+moduleId: "module-08"
+moduleTitle: "Module 8: Raw SQL Engineering"
+title: "ACID Transactions, Isolation Levels & Optimistic Locking"
+objective: "Enforce atomic multi-statement transfers with explicit ROLLBACK and prevent lost updates via versioned optimistic concurrency control."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Transactions"
+  - "Optimistic Locking"
+  - "ACID"
+entryFile: "transactions.py"

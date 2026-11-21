@@ -1,0 +1,4 @@
+hints:
+  - "In `create_audit_index(conn)`: execute `CREATE INDEX IF NOT EXISTS idx_audit_tenant_sev_ts ON audit_events (tenant_id, severity, created_at DESC)`."
+  - "In `fetch_recent_alerts(conn, tenant_id, severity, limit)`: query `SELECT id, message, created_at FROM audit_events WHERE tenant_id = ? AND severity = ? ORDER BY created_at DESC LIMIT ?`."
+  - "In `explain_alerts_plan(...)`: prepend `EXPLAIN QUERY PLAN ` to the exact same `SELECT` query and return the detail strings (`[str(row[3]) for row in conn.execute(...).fetchall()]`)."

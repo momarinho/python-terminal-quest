@@ -1,0 +1,13 @@
+id: "08-02"
+moduleId: "module-08"
+moduleTitle: "Module 8: Raw SQL Engineering"
+title: "Composite Indexes & Query Execution Plans (EXPLAIN QUERY PLAN)"
+objective: "Design B-tree composite indexes respecting leftmost-prefix and sort order, and verify index utilization via EXPLAIN QUERY PLAN."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Indexes"
+  - "EXPLAIN QUERY PLAN"
+  - "Performance"
+entryFile: "index_tuning.py"

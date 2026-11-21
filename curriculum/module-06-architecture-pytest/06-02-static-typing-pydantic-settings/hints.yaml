@@ -1,0 +1,4 @@
+hints:
+  - "In `settings.py`, configure `model_config = SettingsConfigDict(env_prefix='SVC_', extra='ignore')` on `AppSettings(BaseSettings)`."
+  - "Use `api_token: SecretStr` (non-empty validated with `@field_validator` or `min_length`), `timeout_sec: float = Field(default=5.0, gt=0.0)`, and `max_retries: int = Field(default=2, ge=0)`."
+  - "In `contracts.py`, define `ClockProtocol(Protocol)` with `def now_iso(self) -> str: ...`, and have `build_audit_header(settings, clock)` return `{'X-Service': settings.service_name, 'X-Timestamp': clock.now_iso(), 'Authorization': f'Bearer {settings.api_token.get_secret_value()}'}`."

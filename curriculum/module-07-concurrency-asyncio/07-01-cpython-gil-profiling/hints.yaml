@@ -1,0 +1,4 @@
+hints:
+  - "In `profile_memory_peak(fn)`: check `was_tracing = tracemalloc.is_tracing()`. If not tracing, call `tracemalloc.start()`; run `result = fn()`, read `current, peak = tracemalloc.get_traced_memory()`, and in `finally:` call `tracemalloc.stop()` only if `not was_tracing`."
+  - "In `profile_top_functions(fn, limit=3)`: validate `limit >= 1`, run `with cProfile.Profile() as pr: pr.runcall(fn)` (or `enable()`/`disable()` in `try`/`finally`), then inspect `pstats.Stats(pr).stats.items()`."
+  - "Each entry in `stats.stats` is `(filename, lineno, func_name) -> (cc, nc, tt, ct, callers)`; sort by `(-ct, func_name)` and return `[(func_name, nc, ct), ...][:limit]`."

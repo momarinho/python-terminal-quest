@@ -1,0 +1,4 @@
+hints:
+  - "Define `kind: Literal['card']`, `kind: Literal['pix']`, and `kind: Literal['refund']` on the three `BaseModel` classes, with `amount: Decimal = Field(gt=Decimal('0'))`."
+  - "On `RefundEvent`, add `@model_validator(mode='after')` verifying `if self.partial and not self.reason:` raises `ValueError`; on `CardChargeEvent`, validate `last4` is 4 digits via `@field_validator('last4')`."
+  - "Alias `PaymentPayload = Annotated[CardChargeEvent | PixTransferEvent | RefundEvent, Field(discriminator='kind')]`, include it on `WebhookEnvelope`, and return `envelope.model_dump(mode='json')` in `serialize_envelope`."

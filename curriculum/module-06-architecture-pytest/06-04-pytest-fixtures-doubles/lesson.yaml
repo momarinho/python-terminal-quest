@@ -1,0 +1,13 @@
+id: "06-04"
+moduleId: "module-06"
+moduleTitle: "Module 6: Complex Project Architecture, Typing & pytest"
+title: "pytest Engineering — Fixtures, Parametrize & Pure-Python Test Doubles"
+objective: "Design dependency-injected services alongside clean Fake and Spy test doubles, contrasting pytest fixtures/monkeypatch against unittest and doctest."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "pytest"
+  - "Test Doubles"
+  - "Dependency Injection"
+entryFile: "notifier_service.py"

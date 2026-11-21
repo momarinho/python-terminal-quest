@@ -1,0 +1,14 @@
+id: "08-05"
+moduleId: "module-08"
+moduleTitle: "Module 8: Raw SQL Engineering"
+title: "Inventory Reservation Engine"
+objective: "Build an ACID multi-SKU inventory reservation engine with composite indexing, optimistic locking, zero oversell, and full rollback on partial SKU failure."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "ACID"
+  - "Optimistic Locking"
+  - "SQL"
+entryFile: "engine.py"

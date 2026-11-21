@@ -1,0 +1,4 @@
+hints:
+  - "In `transfer_balance_atomic(conn, from_id, to_id, amount_cents)`: validate `amount_cents > 0` and `from_id != to_id`, begin a transaction (`conn.execute('BEGIN IMMEDIATE')` if not `conn.in_transaction`), check sender balance, debit sender, credit receiver (`cursor.rowcount == 1` check!), `conn.commit()`, and on any error `conn.rollback()` before re-raising."
+  - "If the receiver account doesn't exist (`rowcount == 0` on credit), raising an error triggers `conn.rollback()` so the sender debit is undone atomically!"
+  - "In `update_tier_optimistic(conn, account_id, new_tier, expected_version)`: run `UPDATE accounts SET tier = ?, version = version + 1 WHERE id = ? AND version = ?`; if `cur.rowcount == 0`, raise `OptimisticConflictError`, else commit and return `expected_version + 1`."

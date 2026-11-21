@@ -1,0 +1,4 @@
+hints:
+  - "In `client.py`, measure elapsed ms with `time.perf_counter()`, hold `async with self._sem:`, and wrap each `await self.client.get(url)` inside `async with asyncio.timeout(self.per_probe_timeout):`."
+  - "When `resp.status_code == 200`, inspect `payload = resp.json()`; return `'UP'` if `payload.get('ok', True)` is truthy else `'DEGRADED'`."
+  - "In `aggregator.py`, spawn all `probe_client.probe(svc, url)` calls in `asyncio.TaskGroup`, sort results by `item['service']`, count `UP` vs `DOWN` (and `DEGRADED`), and derive `'overall'` cleanly."

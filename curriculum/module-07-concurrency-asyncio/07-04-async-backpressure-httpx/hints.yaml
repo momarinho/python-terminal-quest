@@ -1,0 +1,4 @@
+hints:
+  - "Initialize `self._sem = asyncio.Semaphore(max_concurrency)` in `AsyncBatchFetcher.__init__` and validate `max_concurrency >= 1`."
+  - "Inside `fetch_one(path)`, acquire `async with self._sem:` around the retry loop so a sleeping retry or active request holds its concurrency slot cleanly (or acquire inside each attempt)."
+  - "Retry up to `max_retries` extra attempts on `httpx.TimeoutException` or `resp.status_code in {502, 503, 504}`, awaiting `self.sleep_fn(self.base_delay * (2 ** attempt_idx))` before retrying; raise `FetchClientError` if retries exhaust or a 4xx status occurs."

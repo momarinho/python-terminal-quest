@@ -1,0 +1,13 @@
+id: "06-01"
+moduleId: "module-06"
+moduleTitle: "Module 6: Complex Project Architecture, Typing & pytest"
+title: "Modular src/ Layout, pyproject.toml & Breaking Circular Imports"
+objective: "Untangle circular dependencies using unidirectional layering (domain <- ports <- service) and TYPE_CHECKING guards."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Architecture"
+  - "Circular Imports"
+  - "uv / pyproject"
+entryFile: "service.py"
