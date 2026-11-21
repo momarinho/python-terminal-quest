@@ -233,6 +233,9 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     };
   }, [lessonId]);
 
+  const runningTestsRef = useRef(false);
+  runningTestsRef.current = runningTests;
+
   const handleSave = useCallback(async () => {
     const currentLesson = lessonRef.current;
     if (!currentLesson) return;
@@ -253,11 +256,12 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
 
   const handleRunTests = useCallback(async () => {
     const currentLesson = lessonRef.current;
-    if (!currentLesson) return;
+    if (!currentLesson || runningTestsRef.current) return;
     if (autoSaveTimerRef.current) {
       window.clearTimeout(autoSaveTimerRef.current);
       autoSaveTimerRef.current = null;
     }
+    runningTestsRef.current = true;
     setRunningTests(true);
     setCompanionMood('running');
     setSaveState('SAVING');
@@ -274,23 +278,33 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
       setCompanionMood('fail');
       setErrorBanner((err as Error).message);
     } finally {
+      runningTestsRef.current = false;
       setRunningTests(false);
     }
   }, [onProgressUpdated]);
 
+  const handleSaveRef = useRef(handleSave);
+  handleSaveRef.current = handleSave;
+  const handleRunTestsRef = useRef(handleRunTests);
+  handleRunTestsRef.current = handleRunTests;
+
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      const isCtrlOrMeta = e.ctrlKey || e.metaKey;
+      if (!isCtrlOrMeta || e.altKey) return;
+      if (e.key === 'Enter' || e.code === 'Enter' || e.code === 'NumpadEnter') {
         e.preventDefault();
-        handleRunTests();
-      } else if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+        e.stopPropagation();
+        handleRunTestsRef.current();
+      } else if (e.key === 's' || e.key === 'S') {
         e.preventDefault();
-        handleSave();
+        e.stopPropagation();
+        handleSaveRef.current();
       }
     };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
-  }, [handleRunTests, handleSave]);
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, []);
 
   const syncMonacoDiagnostics = useCallback(
     (
@@ -361,6 +375,12 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
   const handleEditorMount: OnMount = (editor, monaco) => {
     editorRef.current = editor;
     monacoRef.current = monaco;
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      handleRunTestsRef.current();
+    });
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+      handleSaveRef.current();
+    });
     syncMonacoDiagnostics(monaco, lessonRef.current, gradeResult, editorMode);
   };
 
