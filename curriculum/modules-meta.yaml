@@ -254,3 +254,63 @@ modules:
     reflectionPrompts:
       - "Why does `NOT IN` fail silently when a subquery returns `NULL`, whereas `NOT EXISTS` handles `NULL` safely?"
       - "How does PostgreSQL's `SELECT ... FOR UPDATE SKIP LOCKED` solve concurrent job-queue polling compared to SQLite's `BEGIN IMMEDIATE`?"
+
+  - moduleId: "module-09"
+    order: 9
+    phase: 3
+    title: "Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic"
+    subtitle: "DeclarativeBase Mapped types, Unit of Work DTO boundaries, selectinload, savepoints & Alembic"
+    linkedinAngle:
+      hook: "Fetching 25 orders and reading `order.items` inside a loop quietly fires 26+ SQL queries. One `selectinload` option collapses that N+1 storm down to 2."
+      pythonInsight: "SQLAlchemy 2.0 pairs strict type-checked `Mapped[...]` / `mapped_column(...)` models with `selectinload`/`joinedload` eager loading, `begin_nested()` savepoints, `version_id_col` optimistic locks, Pydantic DTO mapping before `Session` close, and reversible Alembic migrations."
+      codeComparison: |
+        # Trap: lazy N+1 storm + detached ORM leak
+        orders = session.scalars(select(Order)).all()
+
+        # SQLAlchemy 2.0 Zero-N+1 + Pydantic DTO Boundary:
+        stmt = select(Order).options(joinedload(Order.buyer), selectinload(Order.lines))
+        orders = session.scalars(stmt).unique().all()
+        return [OrderDTO.model_validate(o) for o in orders]
+    bossLinkedinAngle:
+      hook: "I built a Zero-N+1 Order Repository in SQLAlchemy 2.0—enforced by an automated SQL query-count listener and `version_id_col` optimistic locking."
+      pythonInsight: "Attaching an engine `before_cursor_execute` assertion in `pytest` proves `list_orders_dto` executes <= 2 SQL queries for 25+ orders, while catching `StaleDataError` prevents lost stock updates."
+      codeComparison: |
+        class Product(Base):
+            __tablename__ = "products"
+            id: Mapped[int] = mapped_column(primary_key=True)
+            stock: Mapped[int]
+            version: Mapped[int] = mapped_column(nullable=False, default=1)
+            __mapper_args__ = {"version_id_col": version}
+    reflectionPrompts:
+      - "Why should ORM instances always be mapped into Pydantic DTOs before exiting the `Session` context manager?"
+      - "When is `selectinload` preferred over `joinedload` in SQLAlchemy 2.0?"
+
+  - moduleId: "module-10"
+    order: 10
+    phase: 4
+    title: "Module 10: FastAPI as a Production System"
+    subtitle: "Depends() DI, RFC 7807 ProblemDetail, PyJWT + RBAC (401 vs 403) & contextvars observability"
+    linkedinAngle:
+      hook: "Returning `403 Forbidden` for a missing JWT or leaking `contextvars` across async requests breaks API contracts and audit logs—here is the FastAPI fix."
+      pythonInsight: "Production FastAPI layers `api -> service -> domain -> repo` with `Depends()`, standardizes every failure as RFC 7807 `application/problem+json`, separates `401` JWT auth from `403` RBAC, and resets `contextvars.ContextVar` request IDs in `finally:`."
+      codeComparison: |
+        # Safe async correlation middleware:
+        token = REQUEST_ID_CTX.set(req_id)
+        try:
+            response = await call_next(request)
+            response.headers["X-Request-ID"] = req_id
+            return response
+        finally:
+            REQUEST_ID_CTX.reset(token)
+    bossLinkedinAngle:
+      hook: "Built a Hardened Admin Gateway API in FastAPI: PyJWT + RBAC, RFC 7807 `ProblemDetail` errors, `X-Request-ID` propagation, and structured audit logs."
+      pythonInsight: "Routing auth (`401`) and RBAC (`403`) exceptions through a unified RFC 7807 `@app.exception_handler` attaches the active `REQUEST_ID_CTX` trace ID to every success and failure response."
+      codeComparison: |
+        @app.post("/admin/policies", status_code=201)
+        def create_policy(
+            body: PolicyCreate,
+            actor: Annotated[AuthUser, Depends(require_roles("admin"))],
+        ) -> dict[str, object]: ...
+    reflectionPrompts:
+      - "What is the exact semantic difference between HTTP `401 Unauthorized` and `403 Forbidden`?"
+      - "Why is `contextvars.ContextVar` safe for `asyncio` request tracing whereas `threading.local` breaks?"

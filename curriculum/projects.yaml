@@ -82,3 +82,87 @@ projects:
     aiReviewPrompts:
       - "Review my `src/reconciler/` modules (`models.py`, `parser.py`, `engine.py`, `report.py`) for floating-point leaks, mutable default traps, non-atomic file writes, and duplicated validation. List risks first before suggesting edits."
       - "Critique my `pytest` suite for `CLI Financial Ledger Reconciler`: what boundary cases (empty CSVs, duplicate IDs across both ledgers, $0.01 rounding drift, malformed decimal strings, negative refunds) am I missing?"
+
+  - id: "proj-02-inventory-audit-service"
+    order: 2
+    title: "High-Concurrency Inventory & Audit Service"
+    milestoneLabel: "Gate #2 // After Module 9 (SQL & ORM Engineering Capstone)"
+    requiredModulesCompleted: 9
+    prerequisiteModuleIds:
+      - "module-01"
+      - "module-02"
+      - "module-03"
+      - "module-04"
+      - "module-05"
+      - "module-06"
+      - "module-07"
+      - "module-08"
+      - "module-09"
+    techStack:
+      - "Python 3.13"
+      - "PostgreSQL 16"
+      - "SQLAlchemy 2.0"
+      - "Alembic"
+      - "FastAPI"
+      - "Docker Compose"
+    businessContext: |
+      Flash-sale inventory checkouts fail catastrophically when concurrent requests read stale stock
+      counts and oversell SKUs—or when order listings trigger N+1 SQL storms under load. Build a
+      production-grade Inventory & Audit microservice backed by PostgreSQL 16 (via Docker Compose),
+      SQLAlchemy 2.0 (`Mapped`/`mapped_column`, `selectinload` zero-N+1 queries, `version_id_col`
+      optimistic locking), reversible Alembic migrations, and FastAPI endpoints—verified with
+      concurrency tests proving zero oversell and strict query-count budgets.
+    packageLayout: |
+      inventory-audit-service/
+      ├── .github/workflows/ci.yml        # Spins up Postgres 16 service, runs alembic upgrade + pytest
+      ├── docker-compose.yml              # FastAPI app + PostgreSQL 16 with healthcheck
+      ├── pyproject.toml                  # Python 3.13 + uv (fastapi, sqlalchemy, alembic, psycopg)
+      ├── alembic.ini
+      ├── migrations/
+      │   ├── env.py
+      │   └── versions/
+      │       ├── 0001_initial_inventory.py
+      │       └── 0002_add_audit_indexes.py
+      ├── src/inventory/
+      │   ├── config.py                   # pydantic-settings DATABASE_URL + pool config
+      │   ├── models.py                   # DeclarativeBase Sku, Reservation, AuditEntry (version_id_col)
+      │   ├── schemas.py                  # Pydantic v2 DTOs (no detached ORM leakage)
+      │   ├── repository.py               # Zero-N+1 selectinload + optimistic lock stock decrement
+      │   └── app.py                      # FastAPI endpoints + RFC 7807 conflict handlers
+      └── tests/
+          ├── test_migrations.py          # alembic upgrade head -> downgrade base roundtrip
+          ├── test_zero_n1.py             # before_cursor_execute query-count <= 2 assertions
+          └── test_concurrency.py         # Concurrent reservation barrier proving zero oversell
+    sprints:
+      - id: "sprint-1"
+        title: "Sprint 1: Docker Compose PostgreSQL 16 & Alembic Baseline"
+        items:
+          - id: "s1-1"
+            text: "Configure `docker-compose.yml` with PostgreSQL 16 + healthcheck and `pydantic-settings` `DATABASE_URL`."
+          - id: "s1-2"
+            text: "Create reversible Alembic migrations (`0001_initial_inventory`, `0002_add_audit_indexes`) verified with `upgrade`/`downgrade` tests."
+      - id: "sprint-2"
+        title: "Sprint 2: SQLAlchemy 2.0 Domain, Zero-N+1 & Optimistic Locking"
+        items:
+          - id: "s2-1"
+            text: "Define `Sku` (`version_id_col`), `Reservation`, and `AuditEntry` using SQLAlchemy 2.0 `Mapped`/`mapped_column` only."
+          - id: "s2-2"
+            text: "Implement `list_reservations_dto` with `selectinload` (`<= 2` SQL queries enforced by `before_cursor_execute`) and `begin_nested()` savepoint audit logging."
+      - id: "sprint-3"
+        title: "Sprint 3: FastAPI Endpoints & Concurrency Verification"
+        items:
+          - id: "s3-1"
+            text: "Expose `POST /reservations`, `GET /reservations` (keyset cursor pagination), and map `StaleDataError` / stock shortages to HTTP `409 Conflict` RFC 7807 responses."
+          - id: "s3-2"
+            text: "Run a multi-threaded / async concurrent checkout test against PostgreSQL proving 0 negative stock and deterministic conflict handling."
+    reviewCriteria:
+      - "Zero legacy SQLAlchemy 1.x `session.query()` or untyped `Column(...)` usage."
+      - "Hard SQL query budget asserted in tests via `before_cursor_execute` (`<= 2` queries on list endpoints)."
+      - "No ORM objects returned past repository/service boundaries; every API response uses Pydantic v2 DTOs."
+      - "Concurrent barrier test proves zero oversell under optimistic locking or `SELECT ... FOR UPDATE`."
+    showcaseTips:
+      - "Share a `before_cursor_execute` query-count before/after benchmark in your README."
+      - "LinkedIn angle: 'How I proved zero-N+1 queries and zero oversell in a FastAPI + SQLAlchemy 2.0 + PostgreSQL 16 service.'"
+    aiReviewPrompts:
+      - "Audit my SQLAlchemy 2.0 `models.py` and `repository.py` for detached ORM leaks, hidden N+1 relationship accesses, missing savepoint handling, and optimistic lock edge cases. List risks before rewriting."
+      - "Review my Alembic migrations and concurrency test suite: do my `downgrade()` steps cleanly reverse every index/column, and does my concurrent reservation test genuinely trigger contention?"

@@ -1,0 +1,13 @@
+id: "09-04"
+moduleId: "module-09"
+moduleTitle: "Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic"
+title: "Schema Evolution & Real Alembic Migrations (upgrade & downgrade)"
+objective: "Write reversible Alembic schema migrations adding columns, safe backfills, and composite indexes with clean upgrade() and downgrade() steps."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Alembic"
+  - "Migrations"
+  - "Schema Evolution"
+entryFile: "migrations/versions/0002_add_plan_and_index.py"

@@ -1,0 +1,4 @@
+hints:
+  - "In `errors.py`, give `DomainProblemError` class/init attributes `status_code`, `error_type`, `title`, and `detail`, with subclasses `NotFoundError` (`404`, `'urn:problem:not-found'`), `ConflictError` (`409`, `'urn:problem:conflict'`), and `ForbiddenError` (`403`, `'urn:problem:forbidden'`)."
+  - "In `register_problem_handlers(app)`, attach `@app.exception_handler(DomainProblemError)` returning `JSONResponse(..., media_type='application/problem+json')`."
+  - "Also attach `@app.exception_handler(RequestValidationError)` returning `status_code=422`, `media_type='application/problem+json'`, `type='urn:problem:validation-error'`, `title='Validation Failed'`, `instance=request.url.path`, and `errors=[{'loc': ..., 'msg': ..., 'type': ...} for e in exc.errors()]`."

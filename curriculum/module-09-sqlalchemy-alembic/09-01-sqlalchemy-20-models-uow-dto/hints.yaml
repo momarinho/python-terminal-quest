@@ -1,0 +1,4 @@
+hints:
+  - "In `models.py`, define `Customer.subscriptions: Mapped[list['Subscription']] = relationship(back_populates='customer', cascade='all, delete-orphan')` and `Subscription.customer: Mapped[Customer] = relationship(back_populates='subscriptions')`."
+  - "In `schemas.py`, add `model_config = ConfigDict(from_attributes=True)` to both `SubscriptionDTO` and `CustomerDTO` (with `subscriptions: list[SubscriptionDTO]`)."
+  - "In `service.py`, wrap mutations in `with Session(engine) as session, session.begin():` (adding `Customer` with `Subscription` in one Unit of Work) and materialize `CustomerDTO.model_validate(customer)` before exiting the `with` block!"

@@ -1,0 +1,4 @@
+hints:
+  - "In `domain.py`, define Pydantic models `TicketCreate(title: str = Field(min_length=1), priority: int = Field(ge=1, le=5))` and `TicketOut(id: str, title: str, priority: int)` plus `TicketRepoPort(Protocol)`."
+  - "In `service.py`, `TicketService.create_ticket` constructs `TicketOut`, calls `self.repo.save(ticket)`, and returns it; `get_ticket` calls `self.repo.get(ticket_id)`."
+  - "In `app.py`, define `get_repo()` and `get_service(repo: Annotated[TicketRepoPort, Depends(get_repo)])`, mount routes on `APIRouter(prefix='/tickets')`, and raise `HTTPException(status_code=404)` when `get_ticket` returns `None`."

@@ -36,6 +36,7 @@ interface PhaseSpec {
 
 const GATE_AFTER_MODULE_ID: Record<string, string> = {
   'module-05': 'proj-01-cli-ledger-reconciler',
+  'module-09': 'proj-02-inventory-audit-service',
 };
 
 const PHASES: PhaseSpec[] = [
@@ -53,14 +54,14 @@ const PHASES: PhaseSpec[] = [
   },
   {
     number: 3,
-    title: 'SQL & Data Engineering',
-    subtitle: 'Module 8 · Analytic CTEs, Indexes, Keyset Pagination & ACID Optimistic Locking',
+    title: 'SQL & ORM Engineering',
+    subtitle: 'Modules 8–9 · Analytic CTEs, Indexes, SQLAlchemy 2.0, Zero-N+1 & Alembic',
     moduleRange: [8, 9],
   },
   {
     number: 4,
-    title: 'FastAPI, Auth & AI Systems',
-    subtitle: 'Upcoming · FastAPI, SQLAlchemy, RAG, Embeddings & Production Observability',
+    title: 'FastAPI & Distributed Systems',
+    subtitle: 'Module 10+ · Production FastAPI, Auth/RBAC, RFC 7807, Observability & AI RAG',
     moduleRange: [10, 20],
   },
 ];

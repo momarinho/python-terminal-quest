@@ -1,0 +1,4 @@
+hints:
+  - "Keep `REQUEST_ID_CTX` in `middleware.py` (or import it into `errors.py`) so `errors.py` can include `'request_id': REQUEST_ID_CTX.get()` inside RFC 7807 responses without circular imports."
+  - "Have `security.py` raise `UnauthorizedError` (`401`) and `ForbiddenError` (`403`) from `errors.py` so even auth/RBAC failures return `application/problem+json` RFC 7807 payloads!"
+  - "In `app.py`, call `register_problem_handlers(app)` and `install_request_context_middleware(app, sink)` before returning `app`."

@@ -1,0 +1,4 @@
+hints:
+  - "Import `joinedload` and `selectinload` from `sqlalchemy.orm`."
+  - "Attach `.options(joinedload(Order.buyer), selectinload(Order.items))` to `select(Order).order_by(Order.id).limit(limit)`."
+  - "Execute via `session.scalars(stmt).all()` (note: with `joinedload` on a to-one relation and `selectinload` on to-many, there is no Cartesian row duplication, and calling `.unique()` is also safe)."

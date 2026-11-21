@@ -22,17 +22,17 @@ def test_health_and_curriculum_endpoints(tmp_path: Path) -> None:
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["modules"] == 8
-    assert health.json()["lessons"] == 52
+    assert health.json()["modules"] == 10
+    assert health.json()["lessons"] == 62
 
     curr = client.get("/api/curriculum")
     assert curr.status_code == 200
     body = curr.json()
-    assert body["totalLessons"] == 52
+    assert body["totalLessons"] == 62
     assert body["completedLessons"] == 0
     assert body["hero"]["tier"] == 1
     assert body["hero"]["title"] == "Apprentice"
-    assert len(body["modules"]) == 8
+    assert len(body["modules"]) == 10
 
 
 def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
@@ -96,8 +96,11 @@ def test_projects_endpoint(tmp_path: Path) -> None:
     resp = client.get("/api/projects")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["totalProjects"] == 1
-    gate = data["projects"][0]
-    assert gate["id"] == "proj-01-cli-ledger-reconciler"
-    assert gate["requiredModulesCompleted"] == 5
-    assert gate["milestoneUnlocked"] is False
+    assert data["totalProjects"] == 2
+    assert [p["id"] for p in data["projects"]] == [
+        "proj-01-cli-ledger-reconciler",
+        "proj-02-inventory-audit-service",
+    ]
+    assert data["projects"][0]["requiredModulesCompleted"] == 5
+    assert data["projects"][1]["requiredModulesCompleted"] == 9
+    assert all(not p["milestoneUnlocked"] for p in data["projects"])

@@ -1,0 +1,4 @@
+hints:
+  - "In `create_access_token(sub, role, secret, ttl_seconds=300)`: set `'sub'`, `'role'`, and `'exp': int(time.time()) + ttl_seconds` (use `ttl_seconds` directly so negative TTL creates an already-expired token for testing!) and encode with `algorithm='HS256'`."
+  - "In `decode_access_token(token, secret)`: call `jwt.decode(token, secret, algorithms=['HS256'], options={'require': ['exp', 'sub', 'role']})`, catching `jwt.PyJWTError` and raising `HTTPException(status_code=401, ...)`."
+  - "In `get_current_user`, parse `Authorization: Bearer <token>` (401 if missing/non-Bearer); in `require_roles(*allowed)`, return a dependency `def _guard(user: Annotated[AuthUser, Depends(get_current_user)]) -> AuthUser:` raising `HTTPException(403)` if `user.role not in allowed`."

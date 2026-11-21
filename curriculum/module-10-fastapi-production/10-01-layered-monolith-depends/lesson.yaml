@@ -1,0 +1,14 @@
+id: "10-01"
+moduleId: "module-10"
+moduleTitle: "Module 10: FastAPI as a Production System"
+title: "Layered Modular Monolith (api -> service -> domain -> repo) & Depends Injection"
+objective: "Structure a FastAPI service with clean Depends(...) dependency injection, status_code discipline, Pydantic schemas, and dependency_overrides testability."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "FastAPI"
+  - "Depends()"
+  - "Modular Monolith"
+entryFile: "app.py"

@@ -1,0 +1,4 @@
+hints:
+  - "In `models.py`, put `__mapper_args__ = {'version_id_col': version}` on `Product` and define bidirectional `Order.lines` <-> `OrderLine.order` relationships."
+  - "In `repository.py` (`place_order`), fetch products cleanly (e.g., `select(Product).where(Product.sku.in_(...))`), validate stock for every item before or while decrementing, flush inside `try ... except StaleDataError as exc: raise OrderConflictError(...) from exc`, and return `OrderDTO.model_validate(order)`."
+  - "In `list_orders_dto`, attach `.options(selectinload(Order.lines))` so `Order` + all `OrderLine`s load in at most 2 SQL statements regardless of how many orders are returned."

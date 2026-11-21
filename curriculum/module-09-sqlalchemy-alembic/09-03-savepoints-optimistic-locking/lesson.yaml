@@ -1,0 +1,13 @@
+id: "09-03"
+moduleId: "module-09"
+moduleTitle: "Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic"
+title: "Transactions, Savepoints (begin_nested) & Optimistic Locking (version_id_col)"
+objective: "Isolate partial failures using session.begin_nested() savepoints and detect concurrent lost updates via SQLAlchemy version_id_col + StaleDataError."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Savepoints"
+  - "version_id_col"
+  - "StaleDataError"
+entryFile: "service.py"

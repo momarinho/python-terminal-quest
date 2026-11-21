@@ -1,0 +1,15 @@
+id: "10-05"
+moduleId: "module-10"
+moduleTitle: "Module 10: FastAPI as a Production System"
+title: "Hardened Admin Gateway API"
+objective: "Assemble a production FastAPI microservice combining PyJWT auth + RBAC, RFC 7807 ProblemDetail errors, X-Request-ID correlation middleware, and structured audit logging."
+mode: PYTEST_TDD
+kind: BOSS
+runtime: WEB_INTEGRATION
+xp: 250
+tags:
+  - "Boss Fight"
+  - "FastAPI"
+  - "JWT + RBAC"
+  - "RFC 7807"
+entryFile: "app.py"

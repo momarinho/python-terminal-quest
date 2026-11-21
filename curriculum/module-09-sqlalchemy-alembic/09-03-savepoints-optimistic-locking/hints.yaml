@@ -1,0 +1,4 @@
+hints:
+  - "In `models.py`, add `version: Mapped[int] = mapped_column(nullable=False, default=1)` and `__mapper_args__ = {'version_id_col': version}` on `Wallet`."
+  - "In `credit_with_optional_audit(session, wallet_id, amount_cents, audit_note)`: credit `wallet.balance_cents += amount_cents`, then wrap `session.add(AuditEntry(wallet_id=wallet_id, note=audit_note))` + `session.flush()` inside `try: with session.begin_nested(): ... except IntegrityError: ...`."
+  - "In `update_wallet_stale_safe(session, wallet, delta_cents)`: update `wallet.balance_cents += delta_cents`, call `session.flush()`, catch `StaleDataError as exc`, and `raise WalletConflictError(...) from exc`."

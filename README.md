@@ -2,7 +2,7 @@
 
 A calm Obsidian 16-bit RPG workspace for mastering modern **Python 3.13**, **Data Structures**, **OOP**, **Advanced Python**, **Libraries & Frameworks**, **FastAPI**, and **AI Engineering**.
 
-**Current Curriculum (Waves 1A + 1B + 2A):** 8 modules • 52 interactive lessons (44 core + 8 Boss Fights) • Portfolio Gate #1 (`CLI Financial Ledger Reconciler`).
+**Current Curriculum (Waves 1A–2B):** 10 modules • 62 interactive lessons (52 core + 10 Boss Fights) • 2 Portfolio Guild PRDs (`CLI Financial Ledger Reconciler`, `High-Concurrency Inventory & Audit Service`).
 
 ## Quick Start (Local Development)
 

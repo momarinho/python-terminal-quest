@@ -1,0 +1,14 @@
+id: "10-02"
+moduleId: "module-10"
+moduleTitle: "Module 10: FastAPI as a Production System"
+title: "Boundary Validation & RFC 7807 ProblemDetail Error Handling"
+objective: "Map domain exceptions and FastAPI RequestValidationError into standardized RFC 7807 application/problem+json responses."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "FastAPI"
+  - "RFC 7807"
+  - "Error Handlers"
+entryFile: "app.py"

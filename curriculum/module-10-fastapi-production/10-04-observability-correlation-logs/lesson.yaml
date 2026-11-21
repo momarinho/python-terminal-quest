@@ -1,0 +1,14 @@
+id: "10-04"
+moduleId: "module-10"
+moduleTitle: "Module 10: FastAPI as a Production System"
+title: "Observability — contextvars Correlation ID Middleware, Structured JSON Logs & Metrics"
+objective: "Propagate X-Request-ID safely across async requests via contextvars.ContextVar (reset in finally), emit structured JSON request logs, and expose in-memory /metrics."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "Observability"
+  - "contextvars"
+  - "JSON Logging"
+entryFile: "observability.py"

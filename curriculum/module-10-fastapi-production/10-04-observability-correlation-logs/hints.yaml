@@ -1,0 +1,4 @@
+hints:
+  - "In `observability.py`, define `REQUEST_ID_CTX: ContextVar[str | None] = ContextVar('request_id', default=None)`."
+  - "In `ObservabilityMiddleware` (`@app.middleware('http')` or `BaseHTTPMiddleware`), read `req_id = request.headers.get('X-Request-ID') or str(uuid.uuid4())`, bind `tok = REQUEST_ID_CTX.set(req_id)`, run `response = await call_next(request)` in `try:`, set `response.headers['X-Request-ID'] = req_id`, record JSON log + metrics, and `REQUEST_ID_CTX.reset(tok)` in `finally:`."
+  - "Note: in `MetricsRegistry`, track `requests_total`, `errors_total` (`status_code >= 400`), and `by_path: dict[str, int]`."

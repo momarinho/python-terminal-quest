@@ -1,0 +1,13 @@
+id: "09-02"
+moduleId: "module-09"
+moduleTitle: "Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic"
+title: "Detecting & Eliminating N+1 Queries (selectinload & joinedload)"
+objective: "Eliminate N+1 lazy-loading storms using SQLAlchemy 2.0 joinedload (to-one) and selectinload (to-many), verified with a SQL query counter."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Zero-N+1"
+  - "selectinload"
+  - "joinedload"
+entryFile: "repository.py"
