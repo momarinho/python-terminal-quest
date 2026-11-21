@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /app/.pyquest
 
-COPY pyproject.toml uv.lock* ./
+COPY pyproject.toml uv.lock* README.md ./
 COPY src/ /app/src/
 
 RUN uv sync --no-dev --frozen || uv sync --no-dev
