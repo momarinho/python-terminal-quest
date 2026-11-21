@@ -1,0 +1,4 @@
+hints:
+  - "In `extract_json_block(raw_text)`, first check for a fenced ` ```(?:json)?\\s*(\\{.*?\\})\\s*``` ` regex match (`re.DOTALL`), then fall back to slicing between `raw_text.find('{')` and `raw_text.rfind('}')`."
+  - "Validate with `IncidentTriage.model_validate_json(json_str)` inside `try ... except (ValidationError, ValueError) as exc:`."
+  - "On error during attempts `<= max_retries`, append `f'Previous output failed validation: {exc}. Fix and return ONLY valid JSON.'` to the next prompt passed to `client.complete(...)`; after `1 + max_retries` total attempts fail, raise `StructuredOutputExhaustedError`."

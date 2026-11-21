@@ -1,0 +1,13 @@
+id: "12-04"
+moduleId: "module-12"
+moduleTitle: "Module 12: AI Engineering & Production RAG"
+title: "Read-Only Tool Calling, Prompt-Injection Guardrails & Cost/Latency Evals"
+objective: "Enforce read-only tool allowlists with Pydantic argument validation, block prompt-injection directives, and compute evaluation pass rates, p50/p95 latencies, and token cost metrics."
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 100
+tags:
+  - "Tool Calling"
+  - "Guardrails"
+  - "Evals"
+entryFile: "evaluator.py"

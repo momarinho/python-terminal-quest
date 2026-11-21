@@ -1,0 +1,4 @@
+hints:
+  - "In `service.py`, validate `amount_cents > 0` first, then run both `INSERT INTO invoices` and `INSERT INTO outbox_events` inside a single `with self._conn:` block."
+  - "In `outbox_events`, store `id = f'evt-{invoice_id}'`, `aggregate_type = 'invoice'`, `aggregate_id = invoice_id`, `event_type = 'InvoiceIssued'`, and canonical `payload_json`."
+  - "In `relay.py`, catch publish exceptions per row: update `attempts = attempts + 1, last_error = str(exc)` while keeping `status = 'PENDING'`; only set `status = 'PUBLISHED'` when `broker.publish(...)` succeeds."

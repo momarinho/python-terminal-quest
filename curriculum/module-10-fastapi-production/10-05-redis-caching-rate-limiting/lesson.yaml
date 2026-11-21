@@ -1,0 +1,14 @@
+id: "10-05"
+moduleId: "module-10"
+moduleTitle: "Module 10: FastAPI as a Production System"
+title: "Redis Caching (Cache-Aside, TTL, Invalidation) & Sliding-Window Rate Limiting"
+objective: "Implement a TTL-aware Redis-style cache-aside store with explicit write invalidation alongside a FastAPI sliding-window rate limiter returning HTTP 429 and Retry-After headers."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "Redis"
+  - "Caching"
+  - "Rate Limiting"
+entryFile: "app.py"

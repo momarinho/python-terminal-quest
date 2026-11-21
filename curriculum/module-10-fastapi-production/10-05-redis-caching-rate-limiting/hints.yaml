@@ -1,0 +1,4 @@
+hints:
+  - "In `cache.py`, store `(value, expires_at)` in `InMemoryRedisCache` where `expires_at = self._clock() + ttl_seconds`; treat `self._clock() >= expires_at` as expired (delete key and return `None`)."
+  - "In `rate_limiter.py`, pop timestamps `<= now - self._window_seconds` from the client's `deque[float]`. If `len(dq) >= self._limit`, calculate `retry_after = max(1, math.ceil((dq[0] + self._window_seconds) - now))` and return `(False, retry_after)`."
+  - "In `app.py`, guard routes with the sliding-window rate limiter (`HTTP 429` + `Retry-After` header), serve `GET /products/{sku}` with `X-Cache: HIT|MISS` (`ttl_seconds=30`), and call `cache.delete(f'product:{sku}')` inside `PUT /products/{sku}`."

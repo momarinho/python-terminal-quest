@@ -1,0 +1,4 @@
+hints:
+  - "In `compute_backoff_seconds(attempt, base_seconds=0.5, cap_seconds=8.0)`, validate `attempt >= 0` and return `min(cap_seconds, base_seconds * (2 ** attempt))`."
+  - "In `EventConsumer.consume(event_id, payload)`, check `if event_id in self.processed_ids: return 'DUPLICATE'` before incrementing attempts or calling `self._handler`."
+  - "Track attempts in `self._attempts[event_id]`: when `self._handler` raises an exception, increment attempts; if `attempts >= self._max_attempts`, append a `DeadLetterRecord(event_id=..., payload=..., attempts=attempts, reason=str(exc))` to `self.dlq` and return `'DLQ'`, else return `'RETRY'`."

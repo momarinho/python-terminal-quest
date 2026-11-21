@@ -1,0 +1,4 @@
+hints:
+  - "In `indexer.py`, raise `SolutionLeakError` if `is_solution` is True or `'solution/'` / `'\\\\solution\\\\'` appears in `source_path.lower()` inside `add_document(...)`."
+  - "In `guardrails.py`, scrub secrets BEFORE checking or forwarding text, and return a triggered reason string for injection phrases OR direct-solution requests like `'full solution'` / `'complete answer'` / `'give me the solution'`."
+  - "In `tutor.py`, retrieve top chunks with `current_lesson_id` relevance boost, ensure citations use `[chunk.lesson_id]` format, and if `llm_client` is provided, pass ONLY the scrubbed question + retrieved chunks (falling back gracefully if `llm_client` raises)."

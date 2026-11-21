@@ -1,0 +1,13 @@
+id: "12-03"
+moduleId: "module-12"
+moduleTitle: "Module 12: AI Engineering & Production RAG"
+title: "Document Chunking, Hybrid Retrieval & Verified Grounding Citations"
+objective: "Build sentence-aware overlapping chunking, hybrid lexical + embedding retrieval, and a citation verifier rejecting fabricated chunk IDs or ungrounded answers."
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 100
+tags:
+  - "RAG"
+  - "Hybrid Search"
+  - "Citations"
+entryFile: "grounding.py"

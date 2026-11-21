@@ -1,0 +1,13 @@
+id: "12-02"
+moduleId: "module-12"
+moduleTitle: "Module 12: AI Engineering & Production RAG"
+title: "Structured Outputs with Pydantic v2 & Validation Repair Loop"
+objective: "Extract JSON from noisy LLM markdown responses, validate against a Pydantic v2 schema, and run a bounded self-correction retry loop feeding validation errors back to the model."
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 100
+tags:
+  - "Pydantic v2"
+  - "Structured Outputs"
+  - "Repair Loop"
+entryFile: "structured_llm.py"

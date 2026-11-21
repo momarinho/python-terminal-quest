@@ -1,0 +1,4 @@
+hints:
+  - "In `store.py`, serialize `{'account_id': account_id, 'amount_cents': amount_cents, 'currency': currency}` with `json.dumps(..., sort_keys=True, separators=(',', ':'))` before calling `hashlib.sha256(...).hexdigest()`."
+  - "In `handler.py`, validate `if not request.idempotency_key.strip(): raise EmptyIdempotencyKeyError(...)` before checking the store."
+  - "If `existing := self._store.get(request.idempotency_key)` is found, compare `existing.payload_hash != fingerprint` -> raise `IdempotencyConflictError`; otherwise return `CommandResponse(..., replayed=True)` without calling `self._executor`."

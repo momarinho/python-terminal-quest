@@ -33,7 +33,13 @@ import {
   PixelTerminalIcon,
   PixelTrophyIcon,
 } from '../components/PixelIcons';
-import type { Diagnostic, GradeResult, HeroStatus, LessonDetail } from '../types/api';
+import type {
+  Diagnostic,
+  GradeResult,
+  HeroStatus,
+  LessonDetail,
+  OracleCitation,
+} from '../types/api';
 
 type CodeEditorInstance = Parameters<OnMount>[0];
 type MonacoInstance = Parameters<OnMount>[1];
@@ -99,7 +105,11 @@ interface ChatMessage {
   role: 'user' | 'oracle';
   text: string;
   provider?: string;
+  mode?: 'stub' | 'offline-rag' | 'live-llm';
+  citations?: OracleCitation[];
   sources?: string[];
+  guardrailTriggered?: boolean;
+  latencyMs?: number;
 }
 
 type SaveState = 'SAVED' | 'UNSAVED' | 'SAVING';
@@ -518,7 +528,11 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
           role: 'oracle',
           text: res.answer,
           provider: res.provider,
+          mode: res.mode,
+          citations: res.citations,
           sources: res.citedSources,
+          guardrailTriggered: res.guardrailTriggered,
+          latencyMs: res.latencyMs,
         },
       ]);
     } catch (err) {
@@ -1012,18 +1026,83 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                       className={`p-4 text-xs space-y-2 rounded-lg border ${
                         msg.role === 'user'
                           ? 'bg-[#1C2230] border-[#F5B942]/35 text-[#FDE68A] ml-6'
-                          : 'bg-[#151923] border-white/[0.08] text-[#F8FAFC] mr-2'
+                          : msg.guardrailTriggered
+                            ? 'bg-[#231219] border-[#F45D78]/45 text-[#FECDD3] mr-2'
+                            : 'bg-[#151923] border-white/[0.08] text-[#F8FAFC] mr-2'
                       }`}
                     >
-                      <div className="text-[11px] font-semibold text-slate-400">
-                        {msg.role === 'user' ? 'You' : `Oracle (${msg.provider ?? 'rag'})`}
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-semibold text-slate-400">
+                        <span>
+                          {msg.role === 'user' ? 'You' : `Oracle · ${msg.provider ?? 'rag'}`}
+                        </span>
+                        {msg.role === 'oracle' && (
+                          <div className="flex items-center gap-1.5">
+                            {msg.guardrailTriggered ? (
+                              <span className="px-2 py-0.5 rounded bg-[#F45D78]/20 text-[#FDA4AF] font-medium">
+                                Guardrail Blocked
+                              </span>
+                            ) : (
+                              <span
+                                className={`px-2 py-0.5 rounded font-medium ${
+                                  msg.mode === 'live-llm'
+                                    ? 'bg-[#A78BFA]/20 text-[#DDD6FE]'
+                                    : msg.mode === 'stub'
+                                      ? 'bg-[#F5B942]/15 text-[#FDE68A]'
+                                      : 'bg-[#2DD4A0]/15 text-[#2DD4A0]'
+                                }`}
+                              >
+                                {msg.mode === 'live-llm'
+                                  ? 'Live LLM'
+                                  : msg.mode === 'stub'
+                                    ? 'DIY Capstone Stub'
+                                    : 'Offline RAG'}
+                              </span>
+                            )}
+                            {typeof msg.latencyMs === 'number' && (
+                              <span className="font-mono text-[10px] text-slate-500">
+                                {msg.latencyMs}ms
+                              </span>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <MarkdownRenderer markdown={msg.text} />
-                      {msg.sources && msg.sources.length > 0 && (
-                        <div className="pt-2 border-t border-white/[0.06] text-[11px] font-mono text-slate-400">
-                          Sources: {msg.sources.join(', ')}
+                      {msg.citations && msg.citations.length > 0 && (
+                        <div className="pt-2 border-t border-white/[0.06] space-y-1.5">
+                          <div className="text-[11px] font-semibold text-slate-400">
+                            Grounded Citations
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            {msg.citations.map((c, idx) => (
+                              <button
+                                key={`${c.lessonId}-${idx}`}
+                                type="button"
+                                onClick={() => onNavigateLesson(c.lessonId)}
+                                className="text-left p-2 rounded-md bg-[#0D1017] border border-white/[0.06] hover:border-[#38BDF8]/40 transition cursor-pointer"
+                              >
+                                <div className="flex items-center justify-between gap-2 text-[11px]">
+                                  <span className="font-mono text-[#38BDF8] font-semibold">
+                                    [{c.lessonId}] {c.title}
+                                  </span>
+                                  <span className="font-mono text-slate-500">
+                                    {Math.round(c.score * 100)}%
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-400 mt-0.5 line-clamp-2">
+                                  {c.snippet}
+                                </p>
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       )}
+                      {(!msg.citations || msg.citations.length === 0) &&
+                        msg.sources &&
+                        msg.sources.length > 0 && (
+                          <div className="pt-2 border-t border-white/[0.06] text-[11px] font-mono text-slate-400">
+                            Sources: {msg.sources.join(', ')}
+                          </div>
+                        )}
                     </div>
                   ))}
                 </div>

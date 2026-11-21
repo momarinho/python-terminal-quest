@@ -1,0 +1,13 @@
+id: "11-03"
+moduleId: "module-11"
+moduleTitle: "Module 11: Distributed Resilience, Docker & 12-Factor"
+title: "Transactional Outbox Pattern (Atomic State + Event Persistence)"
+objective: "Persist domain state and outbox events inside a single atomic SQL transaction, then relay pending events without dropping messages during broker outages."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Outbox Pattern"
+  - "SQLite"
+  - "Transactions"
+entryFile: "service.py"

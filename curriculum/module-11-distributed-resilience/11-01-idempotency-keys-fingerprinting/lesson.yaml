@@ -1,0 +1,13 @@
+id: "11-01"
+moduleId: "module-11"
+moduleTitle: "Module 11: Distributed Resilience, Docker & 12-Factor"
+title: "Idempotency Keys & SHA-256 Request Fingerprinting"
+objective: "Implement an idempotent command handler that replays cached responses on matching (idempotency_key, payload_sha256) retries and raises a conflict error on mismatched payloads."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Idempotency"
+  - "SHA-256"
+  - "Distributed Systems"
+entryFile: "handler.py"

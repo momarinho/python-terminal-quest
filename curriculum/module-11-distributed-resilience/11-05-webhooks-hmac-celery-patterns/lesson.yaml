@@ -1,0 +1,13 @@
+id: "11-05"
+moduleId: "module-11"
+moduleTitle: "Module 11: Distributed Resilience, Docker & 12-Factor"
+title: "Webhook HMAC-SHA256 Security & Celery/Redis Background Worker Patterns"
+objective: "Verify inbound webhook payloads with constant-time HMAC-SHA256 + replay-window enforcement, and build a Celery-style background worker supporting acks_late, bounded exponential backoff, and result-backend state tracking."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Webhooks HMAC"
+  - "Celery"
+  - "Workers"
+entryFile: "webhook.py"

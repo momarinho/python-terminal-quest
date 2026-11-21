@@ -1,0 +1,14 @@
+id: "11-06"
+moduleId: "module-11"
+moduleTitle: "Module 11: Distributed Resilience, Docker & 12-Factor"
+title: "Resilient Event Relay Engine"
+objective: "Build an end-to-end event relay pipeline combining idempotent command ingestion, atomic SQLite outbox persistence, Circuit Breaker delivery protection, and DLQ quarantine."
+mode: PYTEST_TDD
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "Outbox"
+  - "Circuit Breaker"
+  - "DLQ"
+entryFile: "engine.py"

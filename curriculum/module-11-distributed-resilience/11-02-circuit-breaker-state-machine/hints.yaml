@@ -1,0 +1,4 @@
+hints:
+  - "Protect shared counters (`_state`, `_failure_count`, `_opened_at`, `_half_open_in_flight`) with a `threading.Lock()`—and release the lock before executing `fn()` so slow upstreams don't freeze other callers."
+  - "In both `@property def state` and `call()`, check whether `_state == 'OPEN' and (self._clock() - self._opened_at) >= self._recovery_timeout` to enter `'HALF_OPEN'`."
+  - "In `'HALF_OPEN'`, reject surplus concurrent probes when `_half_open_in_flight >= self._half_open_max_calls`, close the circuit on probe success, and trip straight back to `'OPEN'` with a fresh `_opened_at = self._clock()` on probe failure."

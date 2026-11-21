@@ -1,0 +1,4 @@
+hints:
+  - "In `chunker.py`, split text into sentences via `re.split(r'(?<=[.!?])\\s+', text.strip())` (filtering empties), accumulate sentences while `len(joined) <= max_chars`, and carry `current[-overlap_sentences:]` into the next chunk when `overlap_sentences > 0`."
+  - "In `retriever.py`, implement normalized `cosine_similarity` + token Jaccard/recall overlap, then rank `(chunk, alpha * cos + (1 - alpha) * lex)` descending."
+  - "In `grounding.py`, extract `[chunk_id]` citations via `re.findall(r'\\[([a-zA-Z0-9_.:-]+)\\]', answer)`, fail if `invalid_citations` is non-empty, fail if zero valid citations exist, and fail if significant prose tokens (`len >= 4`, not stopwords) lack support in cited chunk text."

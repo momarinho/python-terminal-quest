@@ -1,0 +1,14 @@
+id: "05-07"
+moduleId: "module-05"
+moduleTitle: "Module 5: Libraries & Frameworks Base"
+title: "Django & DRF Essentials — Serializers, APIView & Zero-N+1 QuerySets"
+objective: "Implement a Django REST Framework Serializer with custom field validation, an APIView supporting GET/POST, and select_related eager loading verified via CaptureQueriesContext."
+mode: PYTEST_TDD
+kind: STANDARD
+runtime: WEB_INTEGRATION
+xp: 100
+tags:
+  - "Django"
+  - "DRF"
+  - "Zero-N+1"
+entryFile: "views.py"

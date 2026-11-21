@@ -1,0 +1,14 @@
+id: "12-05"
+moduleId: "module-12"
+moduleTitle: "Module 12: AI Engineering & Production RAG"
+title: "Socratic RAG Tutor Pipeline"
+objective: "Build an offline Socratic RAG pipeline that indexes lesson concept docs without ever touching solution code, scrubs secrets, blocks prompt injection/solution leaks, and returns grounded [lesson-id] citations."
+mode: AI_SYSTEMS
+kind: BOSS
+xp: 250
+tags:
+  - "Boss Fight"
+  - "RAG"
+  - "Guardrails"
+  - "Socratic Tutor"
+entryFile: "tutor.py"

@@ -1,0 +1,4 @@
+hints:
+  - "In `idempotency.py`, serialize `{'event_type': event_type, 'payload': payload}` with `json.dumps(..., sort_keys=True, separators=(',', ':'))` for the SHA-256 fingerprint, persisting keys in SQLite `idempotency_keys` inside `submit_command`."
+  - "In `breaker.py`, return the result of `fn()` when `CLOSED` or probing `HALF_OPEN`; raise `CircuitOpenError` when `OPEN` and elapsed `< recovery_timeout`."
+  - "In `engine.py`, catch `CircuitOpenError` separately from general `Exception` in `dispatch_pending`: increment `skipped_circuit_open` and leave the event `PENDING` with its `attempts` unchanged, whereas general exceptions increment `attempts` and move the row to `'DEAD_LETTER'` when `attempts >= max_attempts`."

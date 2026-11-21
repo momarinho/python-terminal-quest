@@ -1,0 +1,4 @@
+hints:
+  - "In `webhook.py`, format the signed message as `f'{ts}.'.encode('utf-8') + raw_body` inside `sign_payload`, then validate `abs(self._clock() - ts) <= self._max_age_seconds` and `hmac.compare_digest(expected_header, signature_header.strip())` in `verify_and_parse`."
+  - "Note how `WebhookSignatureVerifier` expects `signature_header` in the format `f'sha256={hex_digest}'`; use `hmac.compare_digest` rather than `==` and raise `WebhookSecurityError` on malformed headers, stale timestamps, or signature mismatches."
+  - "In `worker.py`, implement `acks_late`: only remove the popped task after completion on `SUCCESS`/`FAILURE`, and on failure when `attempts <= max_retries` update state to `'RETRY'`, record bounded backoff `min(max_delay, base_delay * (2 ** (attempts - 1)))`, and re-append to the broker queue."

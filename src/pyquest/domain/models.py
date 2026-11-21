@@ -269,10 +269,21 @@ class OracleRequest(CamelModel):
     last_diagnostics: str = ""
 
 
+class OracleCitation(CamelModel):
+    lesson_id: str
+    title: str
+    snippet: str
+    score: float
+
+
 class OracleResponse(CamelModel):
     answer: str
     provider: str
+    mode: Literal["stub", "offline-rag", "live-llm"] = "stub"
+    citations: list[OracleCitation] = Field(default_factory=list)
     cited_sources: list[str] = Field(default_factory=list)
+    guardrail_triggered: bool = False
+    latency_ms: int = 0
 
 
 class ChecklistUpdateRequest(CamelModel):

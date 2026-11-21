@@ -1,0 +1,14 @@
+id: "11-04"
+moduleId: "module-11"
+moduleTitle: "Module 11: Distributed Resilience, Docker & 12-Factor"
+title: "Idempotent Consumers, Bounded Backoff & DLQ + 12-Factor Container Hardening"
+objective: "Implement an event consumer that deduplicates by event_id, computes capped exponential backoff, routes poison messages to a Dead-Letter Queue (DLQ), and honors 12-factor container shutdown signals."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "DLQ"
+  - "Backoff"
+  - "Docker"
+  - "12-Factor"
+entryFile: "consumer.py"

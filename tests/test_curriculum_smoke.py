@@ -3,16 +3,17 @@ from pathlib import Path
 import pytest
 
 from pyquest.curriculum.loader import CurriculumLoader
+from pyquest.persistence.store import HERO_TIERS, compute_hero_status
 from pyquest.runner.grader import PytestGrader
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 CURRICULUM_DIR = REPO_ROOT / "curriculum"
 
 
-def test_curriculum_loads_wave2b_with_10_modules_and_62_lessons() -> None:
+def test_curriculum_loads_all_12_modules_75_lessons_and_3_gates() -> None:
     loaded = CurriculumLoader(CURRICULUM_DIR).load()
-    assert len(loaded.modules) == 10
-    assert len(loaded.lessons) == 62
+    assert len(loaded.modules) == 12
+    assert len(loaded.lessons) == 75
 
     boss_lessons = [lesson for lesson in loaded.lessons if lesson.kind == "BOSS"]
     assert [b.id for b in boss_lessons] == [
@@ -20,26 +21,45 @@ def test_curriculum_loads_wave2b_with_10_modules_and_62_lessons() -> None:
         "02-08",
         "03-06",
         "04-07",
-        "05-07",
+        "05-08",
         "06-05",
         "07-05",
         "08-05",
         "09-05",
-        "10-05",
+        "10-06",
+        "11-06",
+        "12-05",
     ]
     assert all(b.xp == 250 for b in boss_lessons)
 
-    assert len(loaded.projects) == 2
+    assert len(loaded.projects) == 3
     assert [p.id for p in loaded.projects] == [
         "proj-01-cli-ledger-reconciler",
         "proj-02-inventory-audit-service",
+        "proj-03-mini-sidekiq-ai-triage",
     ]
-    assert [p.required_modules_completed for p in loaded.projects] == [5, 9]
+    assert [p.required_modules_completed for p in loaded.projects] == [5, 9, 12]
 
+    # Pedagogical hygiene: all modules carry Dual-Angle LinkedIn Insights
+    for mod in loaded.modules:
+        assert mod.insight is not None, f"{mod.id} missing insight metadata"
+        assert mod.insight.linkedin_angle.hook.strip(), f"{mod.id} missing linkedinAngle.hook"
+        assert mod.insight.linkedin_angle.python_insight.strip()
+        assert mod.insight.boss_linkedin_angle is not None, f"{mod.id} missing bossLinkedinAngle"
+        assert len(mod.insight.reflection_prompts) >= 1, f"{mod.id} missing reflectionPrompts"
+
+    # Hero tier thresholds align cleanly across 0 -> 12 modules
+    assert [threshold for _, threshold, _, _ in HERO_TIERS] == [0, 3, 6, 9, 12]
+    assert compute_hero_status(12, 72, 9000).title == "AI Grandmaster"
+
+    # Pedagogical hygiene: concept depth, hints, and valid file sets
     for lesson in loaded.lessons:
         assert len(lesson.hints) == 3, f"{lesson.id} must have exactly 3 hints"
+        assert all(h.strip() for h in lesson.hints), f"{lesson.id} contains blank hint"
         assert len(set(lesson.hints)) == 3, f"{lesson.id} hints must be distinct"
-        assert lesson.concept_markdown.strip()
+        assert len(lesson.concept_markdown.strip()) >= 400, (
+            f"{lesson.id} concept.md too short ({len(lesson.concept_markdown.strip())} chars)"
+        )
         assert lesson.entry_file in lesson.starter_files
         assert lesson.entry_file in lesson.solution_files
 

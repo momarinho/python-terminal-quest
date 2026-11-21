@@ -148,10 +148,21 @@ export interface HintResponse {
   progress: LessonProgress;
 }
 
+export interface OracleCitation {
+  lessonId: string;
+  title: string;
+  snippet: string;
+  score: number;
+}
+
 export interface OracleResponse {
   answer: string;
   provider: string;
+  mode: 'stub' | 'offline-rag' | 'live-llm';
+  citations: OracleCitation[];
   citedSources: string[];
+  guardrailTriggered: boolean;
+  latencyMs: number;
 }
 
 export type ProjectStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED';

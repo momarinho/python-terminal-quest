@@ -314,3 +314,54 @@ modules:
     reflectionPrompts:
       - "What is the exact semantic difference between HTTP `401 Unauthorized` and `403 Forbidden`?"
       - "Why is `contextvars.ContextVar` safe for `asyncio` request tracing whereas `threading.local` breaks?"
+
+  - moduleId: "module-11"
+    order: 11
+    phase: 4
+    title: "Module 11: Distributed Resilience, Docker & 12-Factor"
+    subtitle: "Idempotency SHA-256 keys, Circuit Breakers, Transactional Outbox, DLQ & container hardening"
+    linkedinAngle:
+      hook: "Publishing to Kafka inside an HTTP handler creates split-brain bugs. Putting an Outbox row inside the same DB transaction turns 'sometimes lost' into 'provably delivered'."
+      pythonInsight: "Production backend resilience pairs canonical SHA-256 Idempotency-Key deduplication with atomic Transactional Outbox writes, monotonic-clock Circuit Breakers (`CLOSED -> OPEN -> HALF_OPEN`), bounded backoff DLQ consumers, and non-root `SIGTERM`-aware Docker images."
+      codeComparison: |
+        # Dual-write trap: DB commit succeeds, broker publish crashes -> event lost!
+        # Resilient Outbox + Circuit Breaker relay:
+        with conn:
+            conn.execute("INSERT INTO invoices (...) VALUES (...)")
+            conn.execute("INSERT INTO outbox_events (..., status) VALUES (..., 'PENDING')")
+    bossLinkedinAngle:
+      hook: "I built a Resilient Event Relay Engine in Python 3.13 combining SHA-256 Idempotency-Key ingestion, atomic SQLite Outbox writes, an injectable-clock Circuit Breaker, and DLQ quarantine."
+      pythonInsight: "Catching `CircuitOpenError` separately from transport exceptions pauses downstream delivery during outages WITHOUT burning an event's DLQ retry budget."
+      codeComparison: |
+        try:
+            breaker.call(lambda: transport.send(event_id, event_type, payload))
+        except CircuitOpenError:
+            skipped_open += 1  # Keep PENDING without incrementing attempts
+    reflectionPrompts:
+      - "Why must a Circuit Breaker fast-fail (`CircuitOpenError`) NOT consume a queued event's DLQ retry count?"
+      - "Why should an Idempotency-Key endpoint hash the request payload with canonical JSON instead of trusting only the client's key string?"
+
+  - moduleId: "module-12"
+    order: 12
+    phase: 5
+    title: "Module 12: AI Engineering & Production RAG"
+    subtitle: "Zero-PII token budgets, Pydantic v2 repair loops, hybrid citations, guardrails & evals"
+    linkedinAngle:
+      hook: "Calling an LLM is 10 lines of code. Shipping production AI without PII leaks, hallucinated citations, or prompt-injection RCE is pure systems engineering."
+      pythonInsight: "Production AI pipelines scrub secrets before prompt assembly, run Pydantic v2 `ValidationError` self-correction loops, enforce hybrid retrieval + post-generation citation checks, restrict tools to read-only allowlists, and track pass rate, p95 latency, and USD cost evals."
+      codeComparison: |
+        # Fragile: json.loads(llm.complete(raw_prompt))
+        # Production Guarded Pipeline:
+        clean_q = scrub_pii_and_secrets(question)
+        if rule := detect_prompt_injection(clean_q):
+            return GuardrailRefusal(reason=rule)
+        triage, attempts = generate_structured_triage(client, clean_q, max_retries=2)
+    bossLinkedinAngle:
+      hook: "Built an offline-first Socratic RAG Tutor Pipeline for Python Terminal Quest: TF-IDF + char-trigram hybrid retrieval, solution-leak prevention, PII scrubbing, and dual-mode LLM fallback."
+      pythonInsight: "Refusing any `solution/` path at index time and detecting prompt-injection / solution-dump requests before retrieval prevents AI tutors from ever becoming cheat engines."
+      codeComparison: |
+        if "/solution/" in normalized_path:
+            raise SolutionLeakError("Refusing to index reference solution content")
+    reflectionPrompts:
+      - "Why is post-generation citation verification needed even when you instruct an LLM to only quote retrieved chunks?"
+      - "How do you prevent indirect prompt injections hidden inside retrieved RAG documents from triggering write tools?"

@@ -37,6 +37,7 @@ interface PhaseSpec {
 const GATE_AFTER_MODULE_ID: Record<string, string> = {
   'module-05': 'proj-01-cli-ledger-reconciler',
   'module-09': 'proj-02-inventory-audit-service',
+  'module-12': 'proj-03-mini-sidekiq-ai-triage',
 };
 
 const PHASES: PhaseSpec[] = [
@@ -60,9 +61,15 @@ const PHASES: PhaseSpec[] = [
   },
   {
     number: 4,
-    title: 'FastAPI & Distributed Systems',
-    subtitle: 'Module 10+ · Production FastAPI, Auth/RBAC, RFC 7807, Observability & AI RAG',
-    moduleRange: [10, 20],
+    title: 'FastAPI & Distributed Resilience',
+    subtitle: 'Modules 10–11 · Production FastAPI, Auth/RBAC, Outbox, Circuit Breakers & Docker',
+    moduleRange: [10, 11],
+  },
+  {
+    number: 5,
+    title: 'AI Engineering & Production RAG',
+    subtitle: 'Module 12 · Zero-PII Budgets, Repair Loops, Hybrid Citations, Guardrails & Evals',
+    moduleRange: [12, 20],
   },
 ];
 

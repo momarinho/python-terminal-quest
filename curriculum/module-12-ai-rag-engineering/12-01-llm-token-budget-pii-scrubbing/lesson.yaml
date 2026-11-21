@@ -1,0 +1,13 @@
+id: "12-01"
+moduleId: "module-12"
+moduleTitle: "Module 12: AI Engineering & Production RAG"
+title: "LLM API Discipline — Token Budgeting, Context Window Trimming & PII Scrubbing"
+objective: "Implement pre-prompt PII/secret scrubbing and deterministic token-budget history trimming that preserves the system prompt and latest user query."
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 100
+tags:
+  - "AI Engineering"
+  - "PII Scrubbing"
+  - "Token Budget"
+entryFile: "prompt_guard.py"

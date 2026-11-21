@@ -1,0 +1,13 @@
+id: "11-02"
+moduleId: "module-11"
+moduleTitle: "Module 11: Distributed Resilience, Docker & 12-Factor"
+title: "Circuit Breaker State Machine (CLOSED -> OPEN -> HALF_OPEN)"
+objective: "Build a thread-safe Circuit Breaker using an injectable monotonic clock that trips on consecutive failures, fast-fails during cooldown, probes in HALF_OPEN, and recovers to CLOSED."
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 100
+tags:
+  - "Circuit Breaker"
+  - "Resilience"
+  - "State Machine"
+entryFile: "breaker.py"

@@ -1,0 +1,4 @@
+hints:
+  - "Compile regexes with `re.compile` for emails, `\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}|\\d{3}-\\d{2}-\\d{4}` (gov IDs), `Bearer\\s+[A-Za-z0-9._~+/-]+=*`, and `(?:sk-|AIza|ghp_)[A-Za-z0-9_-]{8,}`."
+  - "In `trim_conversation_history`, scrub every history item's `content` and `current_query` BEFORE counting tokens so redaction placeholders don't misalign budget math."
+  - "Calculate `remaining = max_tokens - (estimate_tokens(system_prompt) + estimate_tokens(scrubbed_query))`; raise `ValueError` if `remaining < 0`, otherwise iterate `reversed(history)` appending turns that fit, then reverse them back between system and current query."

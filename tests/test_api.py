@@ -22,17 +22,17 @@ def test_health_and_curriculum_endpoints(tmp_path: Path) -> None:
     health = client.get("/api/health")
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
-    assert health.json()["modules"] == 10
-    assert health.json()["lessons"] == 62
+    assert health.json()["modules"] == 12
+    assert health.json()["lessons"] == 75
 
     curr = client.get("/api/curriculum")
     assert curr.status_code == 200
     body = curr.json()
-    assert body["totalLessons"] == 62
+    assert body["totalLessons"] == 75
     assert body["completedLessons"] == 0
     assert body["hero"]["tier"] == 1
     assert body["hero"]["title"] == "Apprentice"
-    assert len(body["modules"]) == 10
+    assert len(body["modules"]) == 12
 
 
 def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
@@ -71,7 +71,7 @@ def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
     assert run_body["progress"]["status"] == "COMPLETED"
     assert run_body["hero"]["earnedXp"] == 250
 
-    # Oracle ask endpoint
+    # DIY RAG Capstone Stub Oracle ask endpoint
     oracle_resp = client.post(
         "/api/oracle/ask",
         json={
@@ -82,8 +82,11 @@ def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
     )
     assert oracle_resp.status_code == 200
     oracle_body = oracle_resp.json()
-    assert oracle_body["provider"] == "stub-local"
-    assert "Decimal" in oracle_body["answer"]
+    assert oracle_body["mode"] == "stub"
+    assert oracle_body["provider"] == "stub"
+    assert oracle_body["guardrailTriggered"] is False
+    assert oracle_body["citations"][0]["lessonId"] == "01-09"
+    assert "CAPSTONE_README.md" in oracle_body["answer"]
 
     # Reset restores starter files
     reset_resp = client.post("/api/lessons/01-09/reset")
@@ -96,11 +99,11 @@ def test_projects_endpoint(tmp_path: Path) -> None:
     resp = client.get("/api/projects")
     assert resp.status_code == 200
     data = resp.json()
-    assert data["totalProjects"] == 2
+    assert data["totalProjects"] == 3
     assert [p["id"] for p in data["projects"]] == [
         "proj-01-cli-ledger-reconciler",
         "proj-02-inventory-audit-service",
+        "proj-03-mini-sidekiq-ai-triage",
     ]
-    assert data["projects"][0]["requiredModulesCompleted"] == 5
-    assert data["projects"][1]["requiredModulesCompleted"] == 9
+    assert [p["requiredModulesCompleted"] for p in data["projects"]] == [5, 9, 12]
     assert all(not p["milestoneUnlocked"] for p in data["projects"])

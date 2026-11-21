@@ -166,3 +166,91 @@ projects:
     aiReviewPrompts:
       - "Audit my SQLAlchemy 2.0 `models.py` and `repository.py` for detached ORM leaks, hidden N+1 relationship accesses, missing savepoint handling, and optimistic lock edge cases. List risks before rewriting."
       - "Review my Alembic migrations and concurrency test suite: do my `downgrade()` steps cleanly reverse every index/column, and does my concurrent reservation test genuinely trigger contention?"
+
+  - id: "proj-03-mini-sidekiq-ai-triage"
+    order: 3
+    title: "Mini-Sidekiq Distributed Job Engine + AI Triage"
+    milestoneLabel: "After Module 12 (Graduation Capstone)"
+    requiredModulesCompleted: 12
+    prerequisiteModuleIds:
+      - "module-10"
+      - "module-11"
+      - "module-12"
+    techStack:
+      - "Python 3.13"
+      - "FastAPI"
+      - "PostgreSQL 16"
+      - "Alembic"
+      - "Testcontainers"
+      - "RAG + LLM Evals"
+      - "GitHub Actions"
+      - "AWS (RDS / SQS / S3 / ECS)"
+    businessContext: |
+      Build a capstone distributed background-job platform ("Mini-Sidekiq") as a clean modular
+      monolith with FastAPI, PostgreSQL 16, Alembic, and Testcontainers. Accept job submissions
+      protected by SHA-256 `Idempotency-Key` deduplication, persist domain records + outbox jobs in
+      single ACID transactions, dispatch webhooks behind an injectable-clock Circuit Breaker with
+      exponential backoff + Dead-Letter Queue (DLQ), and embed an AI RAG Triage Assistant (with PII
+      scrubbing, prompt-injection guardrails, Pydantic v2 structured output repair, and eval suite)
+      that summarizes DLQ failures citing your architectural runbooks.
+
+      AWS Production Mapping:
+      - PostgreSQL 16 -> Amazon RDS (Multi-AZ PostgreSQL)
+      - Webhook / Outbox Queue + DLQ -> Amazon SQS + SQS Dead-Letter Queue
+      - Audit & Report Artifacts -> Amazon S3 (scoped bucket prefix + lifecycle rules)
+      - FastAPI API + Celery/Relay Workers -> Amazon ECS Fargate / AWS App Runner
+      - Credentials & Signing Keys -> AWS Secrets Manager (zero plaintext secrets in task defs)
+    packageLayout: |
+      mini-sidekiq-ai-triage/
+      ├── .github/workflows/ci.yml        # ruff, pytest + Testcontainers Postgres, multi-stage Docker build
+      ├── docs/adr/
+      │   ├── 0001-transactional-outbox.md
+      │   ├── 0002-rag-triage-guardrails.md
+      │   └── 0003-local-vs-aws-parity.md # LocalStack/MinIO & Protocol ports vs RDS/SQS/S3/ECS
+      ├── docker-compose.yml              # FastAPI API + worker container + PostgreSQL 16
+      ├── Dockerfile                      # Multi-stage non-root uv runtime with HEALTHCHECK + SIGTERM
+      ├── pyproject.toml
+      ├── src/sidekiq_py/
+      │   ├── api/app.py                  # FastAPI + PyJWT RBAC + RFC 7807 + X-Request-ID contextvars
+      │   ├── persistence/outbox.py       # SQLAlchemy 2.0 Outbox, Idempotency & DLQ repositories
+      │   ├── worker/relay.py             # CircuitBreaker, bounded backoff & graceful SIGTERM loop
+      │   └── triage/                     # Hybrid RAG runbook indexer, PII scrub, Pydantic repair + evals
+      └── tests/
+          ├── test_outbox_testcontainers.py
+          ├── test_resilience_breaker_dlq.py
+          └── test_ai_triage_evals.py
+    sprints:
+      - id: "sprint-1"
+        title: "Sprint 1: Hardened FastAPI Gateway & Transactional Outbox"
+        items:
+          - id: "s1-1"
+            text: "Stand up FastAPI API with PyJWT RBAC (`401` vs `403`), RFC 7807 errors, `X-Request-ID` middleware, and SHA-256 `Idempotency-Key` job ingestion."
+          - id: "s1-2"
+            text: "Persist job + `outbox_events` in PostgreSQL 16 (RDS-ready connection pooling) via SQLAlchemy 2.0 + Alembic, verified against Testcontainers."
+      - id: "sprint-2"
+        title: "Sprint 2: Circuit Breaker Relay, Backoff, Containers & AWS Parity"
+        items:
+          - id: "s2-1"
+            text: "Implement worker relay with `CLOSED -> OPEN -> HALF_OPEN` Circuit Breaker, capped exponential backoff, and DLQ quarantine (clean `QueuePort`/`BlobStore` abstractions swappable to Amazon SQS + SQS DLQ & S3)."
+          - id: "s2-2"
+            text: "Package multi-stage non-root `Dockerfile` (ECS Fargate / App Runner ready), `HEALTHCHECK`, graceful `SIGTERM` drain, Secrets Manager env mapping, and 3 ADRs under `docs/adr/` (including LocalStack/MinIO local-vs-AWS parity)."
+      - id: "sprint-3"
+        title: "Sprint 3: AI DLQ Triage Assistant & Automated Evals"
+        items:
+          - id: "s3-1"
+            text: "Index incident runbooks into a hybrid RAG store; scrub PII/tokens before LLM calls and validate structured `TriageReport` outputs with Pydantic v2 repair retries."
+          - id: "s3-2"
+            text: "Write a GitHub Actions CI pipeline running `ruff`, Testcontainers integration tests, and automated AI evals (`pass_rate`, `p95_latency_ms`, USD cost)."
+    reviewCriteria:
+      - "Circuit Breaker fast-fails do NOT consume job retry attempts before DLQ quarantine."
+      - "Docker runtime runs as non-root user with multi-stage `uv sync --no-dev` and `SIGTERM` graceful stop (ECS Fargate / App Runner compatible)."
+      - "Storage/queue ports isolate infrastructure so local Docker/MinIO/LocalStack swaps cleanly to Amazon RDS, SQS (+ SQS DLQ), S3, and Secrets Manager with least-privilege IAM."
+      - "RAG triage assistant refuses prompt-injection attempts and cites only retrieved runbook chunks."
+      - "CI workflow passes lint, unit, Testcontainers Postgres, and offline AI eval checks green."
+    showcaseTips:
+      - "Record a 90-second demo triggering a downstream 503 outage -> breaker OPEN -> DLQ -> AI Triage citation summary."
+      - "Include an architecture diagram mapping local Docker services (`Postgres`, `Outbox/Redis`, `MinIO/LocalStack`) to AWS (`RDS`, `SQS + DLQ`, `S3`, `ECS Fargate`, `Secrets Manager`)."
+    aiReviewPrompts:
+      - "Perform a Staff Engineer production-readiness audit of my `sidekiq_py` outbox relay, Circuit Breaker state transitions, Docker hardening, and `SIGTERM` shutdown loop. Highlight any race conditions or silent failure modes."
+      - "Audit my AWS Production Deployment architecture (`RDS`, `SQS + SQS DLQ`, `S3`, `ECS Fargate`, `Secrets Manager`) and `0003-local-vs-aws-parity.md` ADR for IAM least-privilege gaps, queue visibility-timeout vs. `acks_late` mismatches, and zero-secret container config."
+      - "Red-team my `triage/` RAG pipeline for PII leaks, indirect prompt injections inside DLQ error messages, fabricated citations, and unbounded LLM retry costs."
