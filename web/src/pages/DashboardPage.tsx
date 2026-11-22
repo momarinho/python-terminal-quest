@@ -1,8 +1,9 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { Download, RefreshCw, StickyNote, Upload } from 'lucide-react';
+import { Download, RefreshCw, Shield, StickyNote, Upload } from 'lucide-react';
 import { api } from '../api/client';
 import {
   HERO_TIER_CATALOG,
+  HeroArmoryModal,
   HeroCompanionSprite,
 } from '../components/HeroCompanion';
 import {
@@ -30,6 +31,7 @@ interface DashboardPageProps {
   onSelectLesson: (lessonId: string) => void;
   onNavigateRoadmap: () => void;
   onNavigateProjects: () => void;
+  onOpenCommandPalette?: () => void;
   onProgressUpdated?: () => void;
   completedProjectsCount?: number;
   totalProjectsCount?: number;
@@ -41,6 +43,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   onSelectLesson,
   onNavigateRoadmap,
   onNavigateProjects,
+  onOpenCommandPalette,
   onProgressUpdated,
   completedProjectsCount = 0,
   totalProjectsCount = 1,
@@ -49,6 +52,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [statusFilter, setStatusFilter] = useState<'ALL' | LessonStatus | 'FLAGGED' | 'REVIEW'>('ALL');
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
   const [backupBusy, setBackupBusy] = useState(false);
+  const [armoryOpen, setArmoryOpen] = useState(false);
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
   const completionPercent = useMemo(() => {
@@ -109,6 +113,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     for (const mod of curriculum.modules) {
       for (const l of mod.lessons) {
         if (l.needsReview) count++;
+      }
+    }
+    return count;
+  }, [curriculum.modules]);
+
+  const coldClearsCount = useMemo(() => {
+    let count = 0;
+    for (const mod of curriculum.modules) {
+      for (const l of mod.lessons) {
+        if (l.status === 'COMPLETED' && !l.needsReview) count++;
       }
     }
     return count;
@@ -207,6 +221,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         onNavigateWorldMap={() => {}}
         onNavigateRoadmap={onNavigateRoadmap}
         onNavigateProjects={onNavigateProjects}
+        onOpenCommandPalette={onOpenCommandPalette}
         completedProjectsCount={completedProjectsCount}
         totalProjectsCount={totalProjectsCount}
         streak={curriculum.streak}
@@ -247,22 +262,37 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           {/* Right 5-Tier Hero Companion Character Sheet */}
           <div className="lg:col-span-6 rpg-panel-gold p-5 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3.5">
-              <div className="flex items-center gap-3.5">
-                <div className="p-2 rounded-lg bg-[#0D1017] border border-[#F5B942]/35">
+              <button
+                type="button"
+                onClick={() => setArmoryOpen(true)}
+                title="Open 5-Tier Hero Evolution Armory"
+                className="flex items-center gap-3.5 text-left group cursor-pointer"
+              >
+                <div className="p-2 rounded-lg bg-[#0D1017] border border-[#F5B942]/35 group-hover:border-[#F5B942] transition">
                   <HeroCompanionSprite tier={hero.tier} className="w-12 h-12" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[#F8FAFC]">{hero.title}</span>
+                    <span className="text-sm font-semibold text-[#F8FAFC] group-hover:text-[#F5B942] transition">
+                      {hero.title}
+                    </span>
                     <span className="px-2 py-0.5 rounded bg-[#F5B942]/15 text-[#F5B942] text-[11px] font-semibold">
                       Tier {hero.tier}/5
                     </span>
                   </div>
                   <div className="text-xs text-slate-400 mt-0.5">{hero.subtitle}</div>
                 </div>
-              </div>
+              </button>
 
-              <div className="flex items-center gap-3 text-xs font-medium">
+              <div className="flex flex-wrap items-center gap-2.5 text-xs font-medium">
+                <button
+                  type="button"
+                  onClick={() => setArmoryOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0D1017] border border-white/[0.08] hover:border-[#F5B942]/50 text-[#F5B942] cursor-pointer transition"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Armory</span>
+                </button>
                 <span
                   title={`Longest streak: ${curriculum.streak?.longestStreakDays ?? 0} day(s)`}
                   className="inline-flex items-center gap-1.5 text-amber-300"
@@ -281,9 +311,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             </div>
 
             {/* Tier Evolution Strip */}
-            <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setArmoryOpen(true)}
+              title="Click to inspect all 5 Hero Companion Tiers"
+              className="w-full text-left space-y-1.5 cursor-pointer group"
+            >
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">
+                <span className="text-slate-400 group-hover:text-slate-200 transition">
                   {hero.nextTierTitle
                     ? `Next evolution: Tier ${hero.nextTier} (${hero.nextTierTitle})`
                     : 'Maximum evolution unlocked'}
@@ -311,7 +346,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   {nextTierPct}% toward {hero.nextTierTitle}
                 </div>
               )}
-            </div>
+            </button>
 
             {/* Progress Bars */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -726,6 +761,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
         )}
       </main>
+
+      <HeroArmoryModal
+        open={armoryOpen}
+        onClose={() => setArmoryOpen(false)}
+        hero={hero}
+        completedLessons={curriculum.completedLessons}
+        totalLessons={curriculum.totalLessons}
+        coldClearsCount={coldClearsCount}
+        bossesDefeated={bossStats.defeated}
+        totalBosses={bossStats.total}
+        streakDays={curriculum.streak?.currentStreakDays ?? 0}
+      />
     </div>
   );
 };

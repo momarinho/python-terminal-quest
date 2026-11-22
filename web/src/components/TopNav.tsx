@@ -1,4 +1,5 @@
 import React from 'react';
+import { Search } from 'lucide-react';
 import {
   PixelCampfireIcon,
   PixelGateIcon,
@@ -13,6 +14,7 @@ interface TopNavProps {
   onNavigateWorldMap: () => void;
   onNavigateRoadmap?: () => void;
   onNavigateProjects: () => void;
+  onOpenCommandPalette?: () => void;
   completedProjectsCount?: number;
   totalProjectsCount?: number;
   streak?: StreakStats | null;
@@ -23,6 +25,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   onNavigateWorldMap,
   onNavigateRoadmap,
   onNavigateProjects,
+  onOpenCommandPalette,
   completedProjectsCount = 0,
   totalProjectsCount = 1,
   streak = null,
@@ -57,6 +60,20 @@ export const TopNav: React.FC<TopNavProps> = ({
         </button>
 
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {onOpenCommandPalette && (
+            <button
+              type="button"
+              onClick={onOpenCommandPalette}
+              title="Quick Jump (Ctrl+K)"
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-[#151923] border border-white/[0.08] hover:border-[#F5B942]/50 text-xs text-slate-400 hover:text-white cursor-pointer transition"
+            >
+              <Search className="w-3.5 h-3.5 text-[#F5B942]" />
+              <span>Jump</span>
+              <kbd className="px-1 py-0.5 rounded bg-[#0D1017] text-[10px] font-mono text-slate-400">
+                Ctrl+K
+              </kbd>
+            </button>
+          )}
           {streak && (
             <div
               title={`Current Streak: ${streakDays} day(s) | Longest: ${bestStreak} day(s) | Active Days: ${streak.activeDaysTotal}`}

@@ -44,6 +44,7 @@ interface ModulePageProps {
   onBackToDashboard: () => void;
   onNavigateRoadmap: () => void;
   onNavigateProjects: () => void;
+  onOpenCommandPalette?: () => void;
   onSelectModule: (moduleId: string) => void;
   onSelectLesson: (lessonId: string) => void;
   completedProjectsCount?: number;
@@ -92,6 +93,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({
   onBackToDashboard,
   onNavigateRoadmap,
   onNavigateProjects,
+  onOpenCommandPalette,
   onSelectModule,
   onSelectLesson,
   completedProjectsCount = 0,
@@ -145,6 +147,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({
           onNavigateWorldMap={onBackToDashboard}
           onNavigateRoadmap={onNavigateRoadmap}
           onNavigateProjects={onNavigateProjects}
+          onOpenCommandPalette={onOpenCommandPalette}
           completedProjectsCount={completedProjectsCount}
           totalProjectsCount={totalProjectsCount}
           streak={curriculum.streak}
@@ -217,6 +220,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({
         onNavigateWorldMap={onBackToDashboard}
         onNavigateRoadmap={onNavigateRoadmap}
         onNavigateProjects={onNavigateProjects}
+        onOpenCommandPalette={onOpenCommandPalette}
         completedProjectsCount={completedProjectsCount}
         totalProjectsCount={totalProjectsCount}
         streak={curriculum.streak}

@@ -1,10 +1,60 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Check, Copy } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 interface MarkdownRendererProps {
   markdown: string;
 }
+
+const CodeBlockWithCopy: React.FC<{ lang?: string; rawCode: string }> = ({ lang, rawCode }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(rawCode);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = rawCode;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    }
+  };
+
+  return (
+    <div className="relative my-4 group rounded-lg border border-white/[0.07] bg-[#0B0E14] overflow-hidden">
+      <div className="flex items-center justify-between px-3 py-1.5 bg-[#121620] border-b border-white/[0.06] text-[10px] font-mono text-slate-400">
+        <span className="uppercase tracking-wider">{lang || 'code'}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 hover:text-[#F5B942] cursor-pointer transition"
+        >
+          {copied ? (
+            <>
+              <Check className="w-3 h-3 text-[#2DD4A0]" />
+              <span className="text-[#2DD4A0]">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3 h-3" />
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <pre className="p-4 overflow-x-auto text-[13px] leading-[1.6] text-[#E2E8F0] font-mono">
+        <code>{rawCode}</code>
+      </pre>
+    </div>
+  );
+};
 
 export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdown }) => {
   return (
@@ -28,6 +78,16 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdown }) 
             </h3>
           ),
           p: ({ children }) => <p className="text-slate-300 leading-7">{children}</p>,
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#38BDF8] underline underline-offset-2 hover:text-[#F5B942] transition"
+            >
+              {children}
+            </a>
+          ),
           ul: ({ children }) => (
             <ul className="list-disc list-outside space-y-1.5 text-slate-300 pl-5">
               {children}
@@ -63,33 +123,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdown }) 
               {children}
             </td>
           ),
-          a: ({ href, children }) => (
-            <a
-              href={href}
-              target="_blank"
-              rel="noreferrer"
-              className="text-[#38BDF8] underline underline-offset-2 hover:text-[#F5B942] transition"
-            >
-              {children}
-            </a>
-          ),
           code: ({ className, children }) => {
+            const rawText = String(children).replace(/\n$/, '');
             const isBlock = Boolean(className) || String(children).includes('\n');
             if (isBlock) {
               const langMatch = className?.match(/language-([A-Za-z0-9_-]+)/);
-              const lang = langMatch?.[1];
-              return (
-                <div className="relative my-4">
-                  {lang && (
-                    <span className="absolute top-2 right-3 text-[10px] font-mono uppercase tracking-wider text-slate-500 select-none">
-                      {lang}
-                    </span>
-                  )}
-                  <pre className="bg-[#0B0E14] border border-white/[0.07] rounded-lg p-4 overflow-x-auto text-[13px] leading-[1.6] text-[#E2E8F0] font-mono">
-                    <code>{children}</code>
-                  </pre>
-                </div>
-              );
+              return <CodeBlockWithCopy lang={langMatch?.[1]} rawCode={rawText} />;
             }
             return (
               <code className="bg-slate-400/[0.14] text-[#BAE6FD] px-1.5 py-[1px] rounded-[4px] text-[13px] font-mono">

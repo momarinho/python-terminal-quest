@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { api } from './api/client';
+import { CommandPaletteModal } from './components/CommandPaletteModal';
 import { DashboardPage } from './pages/DashboardPage';
 import { LessonWorkspacePage } from './pages/LessonWorkspacePage';
 import { ModulePage } from './pages/ModulePage';
@@ -47,6 +48,7 @@ export const App: React.FC = () => {
   });
   const [route, setRoute] = useState<RouteState>(() => parseHashRoute());
   const [error, setError] = useState<string | null>(null);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   const loadCurriculum = useCallback(() => {
     api
@@ -84,40 +86,59 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  const navigateToDashboard = () => {
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && !e.altKey && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        e.stopPropagation();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown, true);
+    return () => window.removeEventListener('keydown', onKeyDown, true);
+  }, []);
+
+  const navigateToDashboard = useCallback(() => {
     window.location.hash = '#/';
     setRoute({ view: 'dashboard' });
     loadCurriculum();
     loadProjectCounts();
-  };
+  }, [loadCurriculum, loadProjectCounts]);
 
-  const navigateToModule = (moduleId: string, openCampfire = false) => {
-    window.location.hash = openCampfire
-      ? `#/modules/${moduleId}?campfire=1`
-      : `#/modules/${moduleId}`;
-    setRoute({ view: 'module', moduleId, openCampfire });
-    loadCurriculum();
-  };
+  const navigateToModule = useCallback(
+    (moduleId: string, openCampfire = false) => {
+      window.location.hash = openCampfire
+        ? `#/modules/${moduleId}?campfire=1`
+        : `#/modules/${moduleId}`;
+      setRoute({ view: 'module', moduleId, openCampfire });
+      loadCurriculum();
+    },
+    [loadCurriculum]
+  );
 
-  const navigateToLesson = (lessonId: string) => {
+  const navigateToLesson = useCallback((lessonId: string) => {
     window.location.hash = `#/lessons/${lessonId}`;
     setRoute({ view: 'lesson', lessonId });
-  };
+  }, []);
 
-  const navigateToProjects = () => {
+  const navigateToProjects = useCallback(() => {
     window.location.hash = '#/projects';
     setRoute({ view: 'projects' });
-  };
+  }, []);
 
-  const navigateToRoadmap = () => {
+  const navigateToRoadmap = useCallback(() => {
     window.location.hash = '#/roadmap';
     setRoute({ view: 'roadmap' });
     loadCurriculum();
     loadProjectCounts();
-  };
+  }, [loadCurriculum, loadProjectCounts]);
+
+  const openCommandPalette = useCallback(() => setCommandPaletteOpen(true), []);
+
+  let pageContent: React.ReactNode;
 
   if (route.view === 'lesson') {
-    return (
+    pageContent = (
       <LessonWorkspacePage
         lessonId={route.lessonId}
         hero={curriculum?.hero ?? null}
@@ -125,24 +146,22 @@ export const App: React.FC = () => {
         onBackToModule={(modId) => navigateToModule(modId, false)}
         onOpenModuleCampfire={(modId) => navigateToModule(modId, true)}
         onNavigateLesson={navigateToLesson}
+        onOpenCommandPalette={openCommandPalette}
         onProgressUpdated={loadCurriculum}
       />
     );
-  }
-
-  if (route.view === 'projects') {
-    return (
+  } else if (route.view === 'projects') {
+    pageContent = (
       <ProjectsPage
         onNavigateWorldMap={navigateToDashboard}
         onNavigateRoadmap={navigateToRoadmap}
+        onOpenCommandPalette={openCommandPalette}
         onProjectsLoaded={setProjectCounts}
         streak={curriculum?.streak ?? null}
       />
     );
-  }
-
-  if (!curriculum) {
-    return (
+  } else if (!curriculum) {
+    pageContent = (
       <div className="min-h-screen bg-[#0D1017] text-[#F8FAFC] flex flex-col items-center justify-center gap-3 p-4 text-center">
         {error ? (
           <div className="text-[#F45D78] text-sm font-medium">
@@ -158,24 +177,21 @@ export const App: React.FC = () => {
         )}
       </div>
     );
-  }
-
-  if (route.view === 'roadmap') {
-    return (
+  } else if (route.view === 'roadmap') {
+    pageContent = (
       <RoadmapPage
         curriculum={curriculum}
         onSelectModule={(modId) => navigateToModule(modId, false)}
         onSelectLesson={navigateToLesson}
         onNavigateWorldMap={navigateToDashboard}
         onNavigateProjects={navigateToProjects}
+        onOpenCommandPalette={openCommandPalette}
         completedProjectsCount={projectCounts.completed}
         totalProjectsCount={projectCounts.total}
       />
     );
-  }
-
-  if (route.view === 'module') {
-    return (
+  } else if (route.view === 'module') {
+    pageContent = (
       <ModulePage
         curriculum={curriculum}
         moduleId={route.moduleId}
@@ -183,8 +199,26 @@ export const App: React.FC = () => {
         onBackToDashboard={navigateToDashboard}
         onNavigateRoadmap={navigateToRoadmap}
         onNavigateProjects={navigateToProjects}
+        onOpenCommandPalette={openCommandPalette}
         onSelectModule={(modId) => navigateToModule(modId, false)}
         onSelectLesson={navigateToLesson}
+        completedProjectsCount={projectCounts.completed}
+        totalProjectsCount={projectCounts.total}
+      />
+    );
+  } else {
+    pageContent = (
+      <DashboardPage
+        curriculum={curriculum}
+        onSelectModule={(modId) => navigateToModule(modId, false)}
+        onSelectLesson={navigateToLesson}
+        onNavigateRoadmap={navigateToRoadmap}
+        onNavigateProjects={navigateToProjects}
+        onOpenCommandPalette={openCommandPalette}
+        onProgressUpdated={() => {
+          loadCurriculum();
+          loadProjectCounts();
+        }}
         completedProjectsCount={projectCounts.completed}
         totalProjectsCount={projectCounts.total}
       />
@@ -192,19 +226,19 @@ export const App: React.FC = () => {
   }
 
   return (
-    <DashboardPage
-      curriculum={curriculum}
-      onSelectModule={(modId) => navigateToModule(modId, false)}
-      onSelectLesson={navigateToLesson}
-      onNavigateRoadmap={navigateToRoadmap}
-      onNavigateProjects={navigateToProjects}
-      onProgressUpdated={() => {
-        loadCurriculum();
-        loadProjectCounts();
-      }}
-      completedProjectsCount={projectCounts.completed}
-      totalProjectsCount={projectCounts.total}
-    />
+    <>
+      {pageContent}
+      <CommandPaletteModal
+        open={commandPaletteOpen}
+        curriculum={curriculum}
+        onClose={() => setCommandPaletteOpen(false)}
+        onNavigateDashboard={navigateToDashboard}
+        onNavigateRoadmap={navigateToRoadmap}
+        onNavigateProjects={navigateToProjects}
+        onSelectModule={(modId) => navigateToModule(modId, false)}
+        onSelectLesson={navigateToLesson}
+      />
+    </>
   );
 };
 

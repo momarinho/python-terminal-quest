@@ -1,15 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Editor, { DiffEditor, type BeforeMount, type OnMount } from '@monaco-editor/react';
 import {
+  ArrowRight,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Eye,
   FileCheck2,
   FileCode2,
   Loader2,
   RotateCcw,
   Save,
+  Search,
   Send,
+  Sparkles,
   StickyNote,
   Trash2,
 } from 'lucide-react';
@@ -17,6 +22,7 @@ import { api } from '../api/client';
 import {
   type CompanionMood,
   HeroCompanionFloating,
+  HeroCompanionSprite,
 } from '../components/HeroCompanion';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
 import {
@@ -100,6 +106,7 @@ interface LessonWorkspacePageProps {
   onBackToModule: (moduleId: string) => void;
   onOpenModuleCampfire: (moduleId: string) => void;
   onNavigateLesson: (lessonId: string) => void;
+  onOpenCommandPalette?: () => void;
   onProgressUpdated: () => void;
 }
 
@@ -172,18 +179,26 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
   onBackToModule,
   onOpenModuleCampfire,
   onNavigateLesson,
+  onOpenCommandPalette,
   onProgressUpdated,
 }) => {
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
   const [files, setFiles] = useState<Record<string, string>>({});
   const [activeFile, setActiveFile] = useState<string>('');
   const [leftTab, setLeftTab] = useState<'concept' | 'hints' | 'tests' | 'oracle' | 'notes'>('concept');
+  const [mobilePane, setMobilePane] = useState<'guide' | 'code'>('code');
+  const [terminalCollapsed, setTerminalCollapsed] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [runningTests, setRunningTests] = useState<boolean>(false);
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [companionMood, setCompanionMood] = useState<CompanionMood>('idle');
+  const [liveHero, setLiveHero] = useState<HeroStatus | null>(hero);
+  const [tierUpModal, setTierUpModal] = useState<{
+    previousTier: number;
+    nextHero: HeroStatus;
+  } | null>(null);
 
   const [notesText, setNotesText] = useState<string>('');
   const [notesSaveState, setNotesSaveState] = useState<SaveState>('SAVED');
@@ -213,9 +228,18 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
 
   const filesRef = useRef<Record<string, string>>({});
   filesRef.current = files;
+  const initialFilesRef = useRef<Record<string, string>>({});
   const lessonRef = useRef<LessonDetail | null>(null);
   lessonRef.current = lesson;
+  const liveHeroRef = useRef<HeroStatus | null>(liveHero);
+  liveHeroRef.current = liveHero;
   const autoSaveTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (hero) {
+      setLiveHero(hero);
+    }
+  }, [hero]);
 
   useEffect(() => {
     let cancelled = false;
@@ -245,6 +269,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
         if (cancelled) return;
         setLesson(data);
         setFiles(data.files);
+        initialFilesRef.current = { ...data.files };
         setNotesText(data.progress.notes ?? '');
         const fileKeys = Object.keys(data.files);
         const preferred =
@@ -297,6 +322,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     }
     runningTestsRef.current = true;
     setRunningTests(true);
+    setTerminalCollapsed(false);
     setCompanionMood('running');
     setSaveState('SAVING');
     setErrorBanner(null);
@@ -305,6 +331,13 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
       setGradeResult(res.result);
       setSaveState('SAVED');
       setCompanionMood(res.result.passed ? 'victory' : 'fail');
+      const prevTier = liveHeroRef.current?.tier ?? 1;
+      if (res.hero && res.hero.tier > prevTier) {
+        setTierUpModal({ previousTier: prevTier, nextHero: res.hero });
+      }
+      if (res.hero) {
+        setLiveHero(res.hero);
+      }
       setLesson((prev) => (prev ? { ...prev, progress: res.progress } : prev));
       onProgressUpdated();
     } catch (err) {
@@ -507,6 +540,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     try {
       const res = await api.resetLesson(lesson.id);
       setFiles(res.files);
+      initialFilesRef.current = { ...res.files };
       setGradeResult(null);
       setSaveState('SAVED');
       setEditorMode('CODE');
@@ -674,6 +708,38 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
   const isCleared = lesson.progress.status === 'COMPLETED';
   const isFlagged = lesson.progress.flagged;
 
+  let companionSpeech: string | null = null;
+  if (runningTests) {
+    companionSpeech = 'Running isolated pytest suite...';
+  } else if (gradeResult) {
+    if (gradeResult.passed) {
+      if (isBossLesson) {
+        companionSpeech =
+          'Boss defeated! Visit the Realm Campfire to lock in your engineering takeaway.';
+      } else if (
+        lesson.progress.needsReview ||
+        lesson.progress.hintsRevealed > 0 ||
+        lesson.progress.solutionRevealed
+      ) {
+        companionSpeech =
+          'Stage cleared (Assisted)! Try Reset later for a Cold Clear without hints.';
+      } else {
+        companionSpeech = 'Cold Clear! Zero hints, zero solution peeks — pure mastery.';
+      }
+    } else if (gradeResult.stage === 'SYNTAX' && gradeResult.diagnostics.length > 0) {
+      const firstDiag = gradeResult.diagnostics[0];
+      companionSpeech = `Syntax error at ${firstDiag.file}:${firstDiag.line} — click Jump in the Battle Log.`;
+    } else if (gradeResult.stage === 'EXECUTION') {
+      companionSpeech = `Execution halted: ${gradeResult.summary}`;
+    } else if (gradeResult.testCases.length > 0) {
+      const passedCount = gradeResult.testCases.filter((tc) => tc.passed).length;
+      const firstFail = gradeResult.testCases.find((tc) => !tc.passed);
+      companionSpeech = `${passedCount}/${gradeResult.testCases.length} tests passing. Inspect ${firstFail?.name ?? 'the failing assertion'} or open the Tests tab.`;
+    } else {
+      companionSpeech = gradeResult.summary;
+    }
+  }
+
   return (
     <div className="h-screen flex flex-col bg-[#0D1017] text-[#F8FAFC] overflow-hidden">
       {/* Slim Workspace Header with Ghost Secondary Actions */}
@@ -732,6 +798,17 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
         </div>
 
         <div className="flex items-center gap-1 shrink-0">
+          {onOpenCommandPalette && (
+            <button
+              type="button"
+              onClick={onOpenCommandPalette}
+              title="Quick Jump (Ctrl+K)"
+              className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white hover:bg-[#1C2230] cursor-pointer transition"
+            >
+              <Search className="w-3.5 h-3.5 text-[#F5B942]" />
+              <span className="hidden xl:inline">Jump</span>
+            </button>
+          )}
           <div className="hidden md:flex items-center mr-1">
             <button
               type="button"
@@ -822,6 +899,62 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
         </div>
       </header>
 
+      {/* Hero Companion Tier-Up Evolution Modal */}
+      {tierUpModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Hero Evolution Unlocked"
+        >
+          <div className="rpg-panel-gold max-w-md w-full p-6 space-y-5 text-center shadow-2xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F5B942]/15 text-[#F5B942] text-xs font-semibold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Hero Evolution Unlocked!</span>
+            </div>
+
+            <div className="flex items-center justify-center gap-5 py-2">
+              <div className="p-2.5 rounded-xl bg-[#0D1017] border border-white/[0.08] opacity-70">
+                <HeroCompanionSprite
+                  tier={tierUpModal.previousTier}
+                  mood="idle"
+                  className="w-14 h-14"
+                />
+              </div>
+              <ArrowRight className="w-5 h-5 text-[#F5B942]" />
+              <div className="p-3 rounded-xl bg-[#0D1017] border border-[#F5B942]/60 shadow-lg">
+                <HeroCompanionSprite
+                  tier={tierUpModal.nextHero.tier}
+                  mood="victory"
+                  className="w-16 h-16"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-[#F8FAFC]">
+                Tier {tierUpModal.nextHero.tier}: {tierUpModal.nextHero.title}
+              </h2>
+              <p className="text-xs text-[#38BDF8] font-medium">
+                {tierUpModal.nextHero.subtitle}
+              </p>
+              <p className="text-xs text-slate-400 pt-1">
+                {tierUpModal.nextHero.completedModules} realms mastered •{' '}
+                {tierUpModal.nextHero.earnedXp} XP earned
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setTierUpModal(null)}
+              className="w-full py-2.5 px-4 text-xs font-semibold rpg-btn-gold cursor-pointer"
+            >
+              Continue Quest
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Reference Solution Confirmation Modal */}
       {showSolutionConfirm && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-[2px] flex items-center justify-center p-4">
@@ -871,12 +1004,40 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
         </div>
       )}
 
+      {/* Mobile / Half-Screen Pane Toggle (< 1024px) */}
+      <div className="lg:hidden shrink-0 border-b border-white/[0.08] bg-[#121620] px-3 py-2 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setMobilePane('guide')}
+          className={`flex-1 py-1.5 rounded-md text-xs font-semibold cursor-pointer transition ${
+            mobilePane === 'guide'
+              ? 'bg-[#F5B942] text-[#0D1017]'
+              : 'bg-[#0D1017] text-slate-300 border border-white/[0.08]'
+          }`}
+        >
+          Guide, Tests &amp; Oracle
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobilePane('code')}
+          className={`flex-1 py-1.5 rounded-md text-xs font-semibold cursor-pointer transition ${
+            mobilePane === 'code'
+              ? 'bg-[#2DD4A0] text-[#07130F]'
+              : 'bg-[#0D1017] text-slate-300 border border-white/[0.08]'
+          }`}
+        >
+          Code &amp; Battle Log
+        </button>
+      </div>
+
       {/* Resizable Split-Screen Workspace */}
       <div ref={splitContainerRef} className="flex-1 flex flex-col lg:flex-row min-h-0">
         {/* LEFT PANE */}
         <div
           style={{ '--left-pane-w': `${leftPanePct}%` } as React.CSSProperties}
-          className="w-full lg:w-[var(--left-pane-w)] shrink-0 flex flex-col min-h-0 bg-[#0D1017]"
+          className={`${
+            mobilePane === 'guide' ? 'flex flex-1 min-h-0' : 'hidden'
+          } lg:flex w-full lg:w-[var(--left-pane-w)] shrink-0 flex-col min-h-0 bg-[#0D1017]`}
         >
           <div className="h-11 shrink-0 border-b border-white/[0.08] bg-[#121620] px-3 flex items-center gap-1 overflow-x-auto whitespace-nowrap">
             <button
@@ -1271,18 +1432,37 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
         />
 
         {/* RIGHT PANE: Obsidian Monaco Editor + Battle Log */}
-        <div ref={rightPaneRef} className="flex-1 flex flex-col min-h-0 min-w-0 bg-[#0F131C]">
+        <div
+          ref={rightPaneRef}
+          className={`${
+            mobilePane === 'code' ? 'flex' : 'hidden'
+          } lg:flex flex-1 flex-col min-h-0 min-w-0 bg-[#0F131C]`}
+        >
           <div className="h-11 shrink-0 border-b border-white/[0.08] bg-[#121620] px-3 flex items-center justify-between gap-2 overflow-x-auto">
             <div className="flex items-center gap-1.5">
               {fileList.map((filePath) => {
                 const simpleName = filePath.split('/').pop() ?? filePath;
                 const isSelected = filePath === activeFile;
+                const hasDiag = Boolean(
+                  gradeResult &&
+                    !gradeResult.passed &&
+                    gradeResult.diagnostics?.some(
+                      (d) => d.file === filePath || filePath.endsWith(d.file)
+                    )
+                );
+                const isDirty = files[filePath] !== initialFilesRef.current[filePath];
                 return (
                   <button
                     key={filePath}
                     type="button"
                     onClick={() => setActiveFile(filePath)}
-                    title={filePath}
+                    title={
+                      hasDiag
+                        ? `${filePath} (syntax diagnostic)`
+                        : isDirty
+                          ? `${filePath} (modified)`
+                          : filePath
+                    }
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono cursor-pointer transition ${
                       isSelected
                         ? 'bg-[#1C2230] text-[#F5B942] border border-white/[0.08]'
@@ -1291,6 +1471,17 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                   >
                     <FileCode2 className="w-3.5 h-3.5 text-[#F5B942]" />
                     <span>{simpleName}</span>
+                    {hasDiag ? (
+                      <span
+                        className="w-2 h-2 rounded-full bg-[#F45D78]"
+                        aria-label="Syntax diagnostic"
+                      />
+                    ) : isDirty ? (
+                      <span
+                        className="w-1.5 h-1.5 rounded-full bg-[#F5B942]"
+                        aria-label="Modified from initial"
+                      />
+                    ) : null}
                   </button>
                 );
               })}
@@ -1418,44 +1609,63 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
             )}
           </div>
 
-          <div
-            onMouseDown={startVerticalResize}
-            title="Drag to resize editor / battle log"
-            className="h-1.5 shrink-0 bg-[#121620] hover:bg-[#F5B942]/40 border-y border-white/[0.06] cursor-row-resize flex items-center justify-center transition select-none"
-          />
+          {!terminalCollapsed && (
+            <div
+              onMouseDown={startVerticalResize}
+              title="Drag to resize editor / battle log"
+              className="h-1.5 shrink-0 bg-[#121620] hover:bg-[#F5B942]/40 border-y border-white/[0.06] cursor-row-resize flex items-center justify-center transition select-none"
+            />
+          )}
 
           {/* Battle Log (JetBrains Mono 13px) */}
           <div
-            style={{ height: `${terminalHeightPx}px` }}
-            className="shrink-0 bg-[#0B0E14] flex flex-col"
+            style={terminalCollapsed ? undefined : { height: `${terminalHeightPx}px` }}
+            className={`shrink-0 bg-[#0B0E14] flex flex-col ${terminalCollapsed ? 'h-10 border-t border-white/[0.08]' : ''}`}
           >
-            <div className="h-10 shrink-0 px-4 bg-[#121620] border-b border-white/[0.08] flex items-center justify-between text-xs">
-              <div className="flex items-center gap-2 font-mono text-[13px] text-slate-300">
-                <PixelTerminalIcon className="w-4 h-4" />
-                <span>Battle Log — Python 3.13 + pytest (isolated temp workspace)</span>
+            <div className="h-10 shrink-0 px-4 bg-[#121620] border-b border-white/[0.08] flex items-center justify-between gap-2 text-xs">
+              <div className="flex items-center gap-2 font-mono text-[13px] text-slate-300 min-w-0">
+                <PixelTerminalIcon className="w-4 h-4 shrink-0" />
+                <span className="truncate">
+                  Battle Log — Python 3.13 + pytest (isolated temp workspace)
+                </span>
               </div>
 
-              {gradeResult && (
-                <span
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md font-mono text-xs font-medium ${
-                    gradeResult.passed
-                      ? 'bg-[#2DD4A0]/15 text-[#2DD4A0]'
-                      : 'bg-[#F45D78]/15 text-[#F45D78]'
-                  }`}
-                >
-                  {gradeResult.passed ? (
-                    <PixelCheckIcon className="w-3 h-3" />
-                  ) : (
-                    <PixelCrossIcon className="w-3 h-3" />
-                  )}
-                  <span>
-                    {gradeResult.stage} — {gradeResult.summary}
+              <div className="flex items-center gap-2 shrink-0">
+                {gradeResult && (
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md font-mono text-xs font-medium ${
+                      gradeResult.passed
+                        ? 'bg-[#2DD4A0]/15 text-[#2DD4A0]'
+                        : 'bg-[#F45D78]/15 text-[#F45D78]'
+                    }`}
+                  >
+                    {gradeResult.passed ? (
+                      <PixelCheckIcon className="w-3 h-3" />
+                    ) : (
+                      <PixelCrossIcon className="w-3 h-3" />
+                    )}
+                    <span className="max-w-[320px] truncate">
+                      {gradeResult.stage} — {gradeResult.summary}
+                    </span>
                   </span>
-                </span>
-              )}
+                )}
+                <button
+                  type="button"
+                  onClick={() => setTerminalCollapsed((prev) => !prev)}
+                  title={terminalCollapsed ? 'Expand Battle Log' : 'Minimize Battle Log'}
+                  className="p-1 rounded text-slate-400 hover:text-white hover:bg-[#1C2230] cursor-pointer transition"
+                >
+                  {terminalCollapsed ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 font-mono text-[13px] leading-[1.6] space-y-3">
+            {!terminalCollapsed && (
+              <div className="flex-1 overflow-y-auto p-4 font-mono text-[13px] leading-[1.6] space-y-3">
               {!gradeResult && !runningTests && (
                 <div className="text-slate-400">
                   Ready. Press <strong className="text-[#F5B942]">Ctrl+Enter</strong> or click{' '}
@@ -1614,18 +1824,30 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                   )}
                 </>
               )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Collapsible Floating 5-Tier Hero Companion */}
       <HeroCompanionFloating
-        tier={hero?.tier ?? 1}
-        tierTitle={hero?.title ?? 'Apprentice'}
+        tier={liveHero?.tier ?? hero?.tier ?? 1}
+        tierTitle={liveHero?.title ?? hero?.title ?? 'Apprentice'}
         mood={companionMood}
-        onJumpHints={() => setLeftTab('hints')}
-        onJumpOracle={() => setLeftTab('oracle')}
+        speechText={companionSpeech}
+        onJumpTests={() => {
+          setLeftTab('tests');
+          setMobilePane('guide');
+        }}
+        onJumpHints={() => {
+          setLeftTab('hints');
+          setMobilePane('guide');
+        }}
+        onJumpOracle={() => {
+          setLeftTab('oracle');
+          setMobilePane('guide');
+        }}
       />
     </div>
   );

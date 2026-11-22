@@ -20,6 +20,7 @@ interface RoadmapPageProps {
   onSelectLesson?: (lessonId: string) => void;
   onNavigateWorldMap: () => void;
   onNavigateProjects: () => void;
+  onOpenCommandPalette?: () => void;
   completedProjectsCount?: number;
   totalProjectsCount?: number;
 }
@@ -98,6 +99,7 @@ export const RoadmapPage: React.FC<RoadmapPageProps> = ({
   onSelectLesson,
   onNavigateWorldMap,
   onNavigateProjects,
+  onOpenCommandPalette,
   completedProjectsCount = 0,
   totalProjectsCount = 1,
 }) => {
@@ -219,6 +221,7 @@ export const RoadmapPage: React.FC<RoadmapPageProps> = ({
         onNavigateWorldMap={onNavigateWorldMap}
         onNavigateRoadmap={() => {}}
         onNavigateProjects={onNavigateProjects}
+        onOpenCommandPalette={onOpenCommandPalette}
         completedProjectsCount={completedProjectsCount}
         totalProjectsCount={totalProjectsCount}
         streak={curriculum.streak}

@@ -24,6 +24,7 @@ import type { PortfolioProject, ProjectsResponse, StreakStats } from '../types/a
 interface ProjectsPageProps {
   onNavigateWorldMap: () => void;
   onNavigateRoadmap: () => void;
+  onOpenCommandPalette?: () => void;
   onProjectsLoaded?: (summary: { completed: number; total: number }) => void;
   streak?: StreakStats | null;
 }
@@ -31,6 +32,7 @@ interface ProjectsPageProps {
 export const ProjectsPage: React.FC<ProjectsPageProps> = ({
   onNavigateWorldMap,
   onNavigateRoadmap,
+  onOpenCommandPalette,
   onProjectsLoaded,
   streak = null,
 }) => {
@@ -130,6 +132,7 @@ export const ProjectsPage: React.FC<ProjectsPageProps> = ({
         onNavigateWorldMap={onNavigateWorldMap}
         onNavigateRoadmap={onNavigateRoadmap}
         onNavigateProjects={() => {}}
+        onOpenCommandPalette={onOpenCommandPalette}
         completedProjectsCount={data?.completedProjects ?? 0}
         totalProjectsCount={data?.totalProjects ?? 1}
         streak={streak}
