@@ -1,4 +1,4 @@
 hints:
-  - "Match the highest-priority patterns first: `status` 5xx events with `critical=True` and `retries` (`int`) `< 3` should return `'P1_RETRY'`."
-  - "Remember `bool` is a subclass of `int` in Python! Use `type(val) is int` or guard `not isinstance(retries, bool)` if needed, or match `int(retries)` with a guard."
-  - "Order `case` arms from most specific (with `if` guards) to general fallback `case _:` -> `'IGNORE'`."
+  - "Match a specific status code directly with `case {'type': 'http', 'status': 429}: return 'RATE_LIMIT'`."
+  - "For billing events, capture `int(amount)` and add a guard: `case {'type': 'billing', 'amount_cents': int(amount)} if amount > 0: return 'LEDGER_POST'`."
+  - "Dict patterns in `match`/`case` ignore extra keys automatically, so `case {'type': 'heartbeat'}: return 'OK'` matches even when `'extra'` keys are present."

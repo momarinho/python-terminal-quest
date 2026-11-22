@@ -27,4 +27,7 @@ In Python, `bool(value)` tests **truthiness**, not string spelling:
 * Always normalize booleans explicitly (`raw.strip().lower() in {"1", "true", "yes", "on"}`) and reject unknown strings if strict parsing is required.
 
 ### Challenge
-Implement `parse_service_config` in `config_parser.py` to convert raw service environment strings into typed values (`service_name: str`, `port: int`, `timeout_sec: float`, `tls_enabled: bool`, and optional `region: str | None`).
+Complete `parse_service_config` in `config_parser.py` by replacing the placeholder values for `port`, `timeout_sec`, and `tls_enabled`:
+1. Cast `raw_port.strip()` to an `int`.
+2. Cast `raw_timeout.strip()` to a `float`.
+3. Parse `raw_tls` safely into a `bool` (`True` when `raw_tls.strip().lower()` is in `{"1", "true", "yes", "on"}`, and `False` otherwise—never `bool(raw_tls)`!).

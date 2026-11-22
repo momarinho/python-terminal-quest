@@ -6,15 +6,13 @@ def route_event(event: dict[str, object]) -> str:
             "status": int(status),
             "critical": True,
             "retries": int(retries),
-        } if not isinstance(retries, bool) and 500 <= status < 600 and 0 <= retries < 3:
+        } if 500 <= status < 600 and 0 <= retries < 3:
             return "P1_RETRY"
         case {"type": "http", "status": int(status)} if 500 <= status < 600:
             return "P1_PAGE"
         case {"type": "http", "status": 429}:
             return "RATE_LIMIT"
-        case {"type": "billing", "amount_cents": int(amount)} if (
-            not isinstance(amount, bool) and amount > 0
-        ):
+        case {"type": "billing", "amount_cents": int(amount)} if amount > 0:
             return "LEDGER_POST"
         case {"type": "heartbeat"}:
             return "OK"

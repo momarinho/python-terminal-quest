@@ -1,4 +1,4 @@
 hints:
-  - "Remember that `bool('false')` is `True` in Python! Normalize `raw_tls.strip().lower()` and compare explicitly against truthy and falsy string sets."
-  - "Validate that `port` is between `1` and `65535` inclusive and `timeout_sec > 0`; raise `ValueError` if invalid."
-  - "For `raw_region`: strip whitespace and return `None` when empty or `None`, otherwise return the stripped string."
+  - "Convert `raw_port` with `int(raw_port.strip())` and `raw_timeout` with `float(raw_timeout.strip())`."
+  - "Remember that `bool('false')` is `True` in Python because any non-empty string is truthy!"
+  - "Compute `tls_enabled = raw_tls.strip().lower() in _TRUTHY` so `'false'` and `'0'` evaluate to `False`."

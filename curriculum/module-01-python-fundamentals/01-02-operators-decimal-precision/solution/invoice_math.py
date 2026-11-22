@@ -17,8 +17,6 @@ def compute_invoice_total(
     price = Decimal(unit_price)
     discount = Decimal(discount_pct)
     tax = Decimal(tax_pct)
-    if price < 0 or not (Decimal("0") <= discount <= _HUNDRED) or tax < 0:
-        raise ValueError("Invalid monetary or percentage parameter")
 
     subtotal = price * quantity
     discounted = subtotal * (Decimal("1") - discount / _HUNDRED)
@@ -28,10 +26,8 @@ def compute_invoice_total(
 
 def split_installments(total: Decimal, count: int) -> list[Decimal]:
     """Split total into `count` exact cent-balanced installments."""
-    if count <= 0:
-        raise ValueError("count must be positive")
-    if total < 0:
-        raise ValueError("total must be non-negative")
+    if count <= 0 or total < 0:
+        raise ValueError("count must be positive and total non-negative")
 
     total_cents = int((total * _HUNDRED).to_integral_value(rounding=ROUND_HALF_UP))
     base_cents, remainder = divmod(total_cents, count)

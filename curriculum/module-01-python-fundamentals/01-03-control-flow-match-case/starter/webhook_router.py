@@ -1,10 +1,18 @@
 def route_event(event: dict[str, object]) -> str:
     """Route a webhook event dict to a dispatch action."""
-    # TODO: implement structural match/case rules:
-    # 1. {"type": "http", "status": int(s), "critical": True, "retries": int(r)} with 500 <= s < 600 and r < 3 -> "P1_RETRY"
-    # 2. {"type": "http", "status": int(s)} with 500 <= s < 600 -> "P1_PAGE"
-    # 3. {"type": "http", "status": 429} -> "RATE_LIMIT"
-    # 4. {"type": "billing", "amount_cents": int(a)} with a > 0 -> "LEDGER_POST"
-    # 5. {"type": "heartbeat"} -> "OK"
-    # 6. fallback -> "IGNORE"
-    return "IGNORE"
+    match event:
+        case {
+            "type": "http",
+            "status": int(status),
+            "critical": True,
+            "retries": int(retries),
+        } if 500 <= status < 600 and 0 <= retries < 3:
+            return "P1_RETRY"
+        case {"type": "http", "status": int(status)} if 500 <= status < 600:
+            return "P1_PAGE"
+        # Add the remaining 3 cases before the fallback:
+        # - {"type": "http", "status": 429} -> "RATE_LIMIT"
+        # - {"type": "billing", "amount_cents": int(amount)} with amount > 0 -> "LEDGER_POST"
+        # - {"type": "heartbeat"} -> "OK"
+        case _:
+            return "IGNORE"
