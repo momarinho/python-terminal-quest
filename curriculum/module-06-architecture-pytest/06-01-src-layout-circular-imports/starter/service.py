@@ -7,6 +7,14 @@ class DispatchService:
         self.carrier = carrier
 
     def dispatch(self, order_id: str, destination: str) -> tuple[ShipmentOrder, str]:
-        # TODO: construct ShipmentOrder and delegate booking to self.carrier
+        """Strip inputs, build ShipmentOrder, book via carrier, record history, and return (order, tracking)."""
         _ = (ShipmentOrder, order_id, destination)
         return ShipmentOrder("TODO", "TODO"), ""
+
+    def dispatch_batch(self, items: list[tuple[str, str]]) -> list[tuple[ShipmentOrder, str]]:
+        """Dispatch each (order_id, destination) item in order."""
+        return []
+
+    def booked_history(self) -> list[tuple[str, str]]:
+        """Return recorded [(order_id, tracking_code), ...] in dispatch order."""
+        return []

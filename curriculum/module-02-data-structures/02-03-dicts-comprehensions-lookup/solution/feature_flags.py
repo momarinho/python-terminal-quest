@@ -26,3 +26,15 @@ def invert_unique_aliases(aliases: dict[str, str]) -> dict[str, str]:
             raise ValueError(f"Duplicate target service_id: {service_id}")
         inverted[service_id] = alias
     return inverted
+
+
+def diff_flag_snapshots(
+    before: dict[str, bool],
+    after: dict[str, bool],
+) -> dict[str, tuple[bool | None, bool | None]]:
+    """Return {flag: (old_val, new_val)} sorted by flag name for keys that were added, removed, or changed."""
+    return {
+        key: (before.get(key), after.get(key))
+        for key in sorted(before.keys() | after.keys())
+        if before.get(key) != after.get(key)
+    }

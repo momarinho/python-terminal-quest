@@ -1,4 +1,4 @@
 hints:
-  - "Decorate `SemVer` with `@total_ordering` and store `(major, minor, patch)` ints (validating all `>= 0`). Return `NotImplemented` in `__eq__` and `__lt__` when `not isinstance(other, SemVer)`."
-  - "Implement `__hash__(self) -> int` returning `hash((self.major, self.minor, self.patch))`, `__str__` returning `f'{self.major}.{self.minor}.{self.patch}'`, and `__repr__` returning `f'SemVer({self.major}, {self.minor}, {self.patch})'`."
-  - "On `ReleaseQueue`, store versions internally (e.g., in a `set[SemVer]` or `list`), return count in `__len__`, and `return iter(sorted(self._items))` in `__iter__`."
+  - "In `SemVer`, return `NotImplemented` from `__eq__`/`__lt__` when `not isinstance(other, SemVer)`, and keep `__hash__` consistent with `(self.major, self.minor, self.patch)`."
+  - "In `SemVer.parse(raw)`: strip whitespace and optional leading `'v'`/`'V'`, split on `'.'` into 3 non-negative integer parts, and raise `ValueError` on malformed inputs; in `bump(part)`, return a new `SemVer` resetting lower components to `0`."
+  - "On `ReleaseQueue`, implement `__contains__(self, item: object) -> bool` checking `isinstance(item, SemVer) and item in self._versions` and yield `sorted(self._versions)` from `__iter__`."

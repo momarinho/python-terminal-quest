@@ -2,7 +2,7 @@
 
 Pre-compiling patterns once at module load with `re.compile(...)` avoids re-parsing the regex engine bytecode inside tight loops, and `(?P<name>...)` named groups turn positional `group(1)` guesses into self-documenting `.groupdict()` dicts.
 
-### Compiled Patterns & `re.VERBOSE`
+### Compiled Patterns, `.fullmatch()` & `.finditer()`
 ```python
 import re
 
@@ -17,7 +17,7 @@ if match:
 
 ### Guardrails
 * Always use raw strings (`r"..."`) so backslashes (`\d`, `\s`, `\b`) aren't interpreted by Python string escaping.
-* Anchor full-line parsers with `^...$` or `.fullmatch(...)` when validating entire tokens.
+* Anchor full-line parsers with `^...$` or `.fullmatch(...)` when validating entire tokens, and use `.finditer(...)` to extract all structured `key=value` tags across a line.
 
 ### Challenge
-Implement `parse_access_entry` (using compiled regex + named groups) and `mask_bearer_tokens` (using compiled `re.sub` preserving `"Bearer "`) in `regex_extractor.py`.
+Implement `parse_access_entry`, `mask_bearer_tokens`, and `extract_trace_tags` in `regex_extractor.py`.

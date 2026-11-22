@@ -1,4 +1,4 @@
 hints:
-  - "Import `joinedload` and `selectinload` from `sqlalchemy.orm`."
-  - "Attach `.options(joinedload(Order.buyer), selectinload(Order.items))` to `select(Order).order_by(Order.id).limit(limit)`."
-  - "Execute via `session.scalars(stmt).all()` (note: with `joinedload` on a to-one relation and `selectinload` on to-many, there is no Cartesian row duplication, and calling `.unique()` is also safe)."
+  - "In `count_queries(engine)`: use `@contextmanager`, register a `before_cursor_execute` listener on `engine` that appends `statement` to a `queries: list[str]`, `yield queries`, and remove the listener in `finally:`."
+  - "In `fetch_orders_summary` and `fetch_high_volume_orders`: attach `.options(joinedload(Order.buyer), selectinload(Order.items))` and call `session.scalars(stmt).unique().all()`."
+  - "In `fetch_high_volume_orders`: compute `total_qty = sum(it.qty for it in o.items)` on the eager-loaded items and include only orders with `total_qty >= min_total_qty`."

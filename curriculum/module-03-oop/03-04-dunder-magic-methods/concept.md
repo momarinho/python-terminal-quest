@@ -1,6 +1,6 @@
 ## Concept: Python Data Model & Magic (Dunder) Methods
 
-Python's operators (`==`, `<`), built-ins (`len()`, `sorted()`, `repr()`), and `for` loops delegate directly to double-underscore ("dunder") methods.
+Python's operators (`==`, `<`), built-ins (`len()`, `sorted()`, `repr()`), membership (`in`), and `for` loops delegate directly to double-underscore ("dunder") methods.
 
 ### Value Equality, Hashing & Ordering
 * `__repr__` should return an unambiguous developer string, e.g., `f"Ticket({self.priority}, {self.code!r})"`.
@@ -8,7 +8,6 @@ Python's operators (`==`, `<`), built-ins (`len()`, `sorted()`, `repr()`), and `
 * Always return `NotImplemented` from `__eq__` and `__lt__` when `other` is not a compatible type.
 
 ```python
-from collections.abc import Iterator
 from functools import total_ordering
 
 @total_ordering
@@ -31,8 +30,8 @@ class PriorityTicket:
         return hash((self.priority, self.code))
 ```
 
-### Container Protocol (`__len__`, `__iter__`)
-Implementing `__len__` and `__iter__(self) -> Iterator[T]` lets callers pass your object to `len(container)`, `for item in container:`, and `list(container)`.
+### Container Protocol (`__len__`, `__iter__`, `__contains__`)
+Implementing `__len__`, `__iter__(self) -> Iterator[T]`, and `__contains__(self, item: object) -> bool` lets callers use `len(container)`, `for item in container:`, and `item in container` cleanly.
 
 ### Challenge
-Implement `SemVer` (`__repr__`, `__str__`, `__eq__`, `__hash__`, `__lt__`) and `ReleaseQueue` (`add`, `__len__`, `__iter__` yielding sorted versions) in `semver.py`.
+Implement `SemVer` (`__repr__`, `__str__`, `__eq__`, `__hash__`, `__lt__`, `parse`, `bump`) and `ReleaseQueue` (`add`, `__len__`, `__iter__`, `__contains__`) in `semver.py`.

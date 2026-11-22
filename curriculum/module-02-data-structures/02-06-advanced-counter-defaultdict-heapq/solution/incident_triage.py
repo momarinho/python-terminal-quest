@@ -27,11 +27,25 @@ class IncidentPriorityQueue:
         self._seq = 0
 
     def enqueue(self, priority: int, incident_id: str) -> None:
+        """Push an incident preserving FIFO order among equal priorities."""
         heapq.heappush(self._heap, (priority, self._seq, incident_id))
         self._seq += 1
 
+    def peek_next(self) -> str | None:
+        """Return the highest-urgency incident_id without removing it, or None if empty."""
+        return self._heap[0][2] if self._heap else None
+
     def pop_next(self) -> str | None:
+        """Remove and return the highest-urgency incident_id, or None if empty."""
         if not self._heap:
             return None
         _, _, incident_id = heapq.heappop(self._heap)
         return incident_id
+
+    def drain_urgent(self, max_priority: int) -> list[str]:
+        """Pop and return all incident_ids with priority <= max_priority in heap/FIFO order."""
+        urgent: list[str] = []
+        while self._heap and self._heap[0][0] <= max_priority:
+            _, _, incident_id = heapq.heappop(self._heap)
+            urgent.append(incident_id)
+        return urgent

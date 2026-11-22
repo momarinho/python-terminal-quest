@@ -1,4 +1,4 @@
 hints:
-  - "Have `EmailChannel` and `SlackChannel` inherit from `NotificationChannel` and call `super().__init__(name)` in `__init__`."
-  - "Override `format_payload(self, severity: str, message: str) -> str`: `EmailChannel` formats `f'[{severity.upper()}] to={self.recipient} :: {message}'`, `SlackChannel` formats `f'#{self.channel} [{severity.upper()}] {message}'`."
-  - "In `AlertDispatcher.dispatch(severity, message)`, loop over composed `self.channels` (skipping channels whose `min_severity` is higher than `severity`, where `info < warn < critical`) and return the list of formatted payloads."
+  - "In `NotificationChannel.supports(severity)`: map `'info' < 'warn' < 'critical'` ranks and return `True` when `severity` rank >= `self.min_severity` rank (case-insensitive)."
+  - "Subclass `NotificationChannel` in `EmailChannel`, `SlackChannel`, and `WebhookChannel` (`super().__init__(name, min_severity=min_severity)`), implementing `format_payload` for each channel format."
+  - "In `AlertDispatcher.dispatch` and `dispatch_by_channel`: validate `severity` first (raise `ValueError` if unknown), then collect outputs only from channels where `channel.supports(severity)` is `True`."

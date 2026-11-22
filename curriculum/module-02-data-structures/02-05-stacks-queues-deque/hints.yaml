@@ -1,4 +1,4 @@
 hints:
-  - "In `is_balanced_expression(text)`: map closing -> opening `{')': '(', ']': '[', '}': '{'}` and check `stack` is empty at the end."
-  - "In `BoundedEventQueue.__init__(self, maxlen: int)`: validate `maxlen >= 1` (raise `ValueError`) and initialize `self._q: deque[str] = deque(maxlen=maxlen)`."
-  - "Implement `push(event)` with `self._q.append(event)`, `pop_oldest()` returning `self._q.popleft() if self._q else None`, and `snapshot()` returning `list(self._q)`."
+  - "In `is_balanced_expression(text)`: map closing -> opening `{')': '(', ']': '[', '}': '{'}` and ensure the stack is empty after scanning the entire string."
+  - "In `BoundedEventQueue`: validate `maxlen >= 1`, track `self._evicted = 0`, and increment `self._evicted += 1` inside `push()` whenever `len(self._queue) == self._queue.maxlen` before appending."
+  - "In `drain_matching(prefix)`: iterate `popleft()` across the current length of `self._queue`, appending matching items to `drained` and non-matching items back to the right of `self._queue`."

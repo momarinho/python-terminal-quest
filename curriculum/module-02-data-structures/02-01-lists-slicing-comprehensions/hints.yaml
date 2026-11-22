@@ -1,4 +1,4 @@
 hints:
-  - "In `recent_tail(samples, count)`: guard `if count <= 0: return []` before slicing `samples[-count:]`, because `samples[-0:]` returns the whole list!"
-  - "In `every_nth_sample(samples, step)`: validate `step >= 1` (raise `ValueError` otherwise) and return `samples[::step]`."
-  - "In `normalize_latencies(raw_ms, cap_ms)`: use a list comprehension `[min(x, cap_ms) for x in raw_ms if x >= 0]`."
+  - "In `recent_tail(samples, count)`: guard `count <= 0` before slicing `samples[-count:]`, because `samples[-0:]` returns the entire list."
+  - "In `every_nth_sample(samples, step)`: raise `ValueError` when `step < 1`, and use step slicing `[::step]`."
+  - "In `moving_window_averages(samples, window_size)`: validate `window_size >= 1`, return `[]` if `len(samples) < window_size`, and slice `samples[i : i + window_size]` for `i` in `range(len(samples) - window_size + 1)`."

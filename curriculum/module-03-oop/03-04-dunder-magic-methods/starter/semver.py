@@ -11,24 +11,28 @@ class SemVer:
         self.minor = minor
         self.patch = patch
 
+    @classmethod
+    def parse(cls, raw: str) -> "SemVer":
+        """Parse 'v1.2.3' or '1.2.3' into SemVer; raise ValueError on malformed versions."""
+        raise NotImplementedError
+
+    def bump(self, part: str) -> "SemVer":
+        """Return a new SemVer bumping 'major', 'minor', or 'patch'; raise ValueError otherwise."""
+        raise NotImplementedError
+
     def __repr__(self) -> str:
-        # TODO: return 'SemVer(major, minor, patch)'
         return ""
 
     def __str__(self) -> str:
-        # TODO: return 'major.minor.patch'
         return ""
 
     def __eq__(self, other: object) -> bool:
-        # TODO: return NotImplemented for non-SemVer, else tuple equality
         return False
 
     def __lt__(self, other: object) -> bool:
-        # TODO: return NotImplemented for non-SemVer, else tuple comparison
         return False
 
     def __hash__(self) -> int:
-        # TODO: hash the (major, minor, patch) tuple
         return 0
 
 
@@ -42,9 +46,10 @@ class ReleaseQueue:
         self._versions.add(version)
 
     def __len__(self) -> int:
-        # TODO: return number of queued unique versions
         return 0
 
+    def __contains__(self, item: object) -> bool:
+        return False
+
     def __iter__(self) -> Iterator[SemVer]:
-        # TODO: yield sorted versions
         return iter(())

@@ -1,9 +1,11 @@
 from functools import partial
 
+import pytest
 from callbacks import (
     bind_alert_formatter,
     build_threshold_checks,
     make_moving_counter,
+    make_rate_limited_callback,
 )
 
 
@@ -25,3 +27,21 @@ def test_bind_alert_formatter_uses_partial() -> None:
     fmt = bind_alert_formatter("payments", "prod")
     assert isinstance(fmt, partial)
     assert fmt("high latency") == "[prod] payments: high latency"
+
+
+def test_make_rate_limited_callback_enforces_quota() -> None:
+    seen: list[str] = []
+
+    def emit(tag: str) -> str:
+        seen.append(tag)
+        return f"ok:{tag}"
+
+    limited = make_rate_limited_callback(emit, max_calls=2)
+    assert limited("a") == "ok:a"
+    assert limited("b") == "ok:b"
+    assert limited("c") is None
+    assert limited("d") is None
+    assert seen == ["a", "b"]
+
+    with pytest.raises(ValueError):
+        make_rate_limited_callback(emit, max_calls=0)

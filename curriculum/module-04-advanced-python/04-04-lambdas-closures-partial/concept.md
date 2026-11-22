@@ -15,9 +15,9 @@ def emit(val: int) -> int:
 handlers = [partial(emit, i) for i in range(3)]
 ```
 
-### `nonlocal` State & `functools.partial`
-* Use `nonlocal count` inside an inner function when rebinding a scalar variable from the enclosing function.
+### `nonlocal` State, Quota Closures & `functools.partial`
+* Use `nonlocal count` inside an inner function when rebinding a scalar variable from the enclosing function (e.g., counters or rate-limited callback quotas).
 * `functools.partial(fn, *args, **kwargs)` creates clean, inspectable callbacks with pre-filled arguments—prefer it over complex lambdas.
 
 ### Challenge
-Fix the late-binding loop trap in `build_threshold_checks`, implement `make_moving_counter` (using `nonlocal`), and build `bind_alert_formatter` (using `functools.partial`) in `callbacks.py`.
+Fix `build_threshold_checks`, and implement `make_moving_counter`, `bind_alert_formatter`, and `make_rate_limited_callback` in `callbacks.py`.

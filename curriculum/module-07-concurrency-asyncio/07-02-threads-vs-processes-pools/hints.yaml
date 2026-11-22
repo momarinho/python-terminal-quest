@@ -1,4 +1,4 @@
 hints:
-  - "In `ThreadSafeCounter`, store `self._lock = threading.Lock()` and wrap reads/increments in `with self._lock:` (even `+= 1` is non-atomic across threads without a lock!)."
-  - "In `run_io_batch(tasks, max_workers)`: use `with ThreadPoolExecutor(max_workers=max_workers) as pool: futures = [pool.submit(fn) for fn in tasks]; return [f.result() for f in futures]` to preserve input order."
-  - "In `hash_payloads_parallel(payloads, max_workers)`: define top-level `def sha256_hex(text: str) -> str:` and run `with ProcessPoolExecutor(max_workers=max_workers) as pool: return list(pool.map(sha256_hex, payloads))`."
+  - "In `ThreadSafeCounter`, protect `increment`, `value`, and `reset` with `with self._lock:` so reading and zeroing the counter happen atomically."
+  - "In `run_io_batch` and `run_io_batch_resilient`: submit tasks in order and collect `[fut.result() ...]` in input order, catching `Exception` per future in `run_io_batch_resilient` to substitute `fallback` and increment `error_count`."
+  - "In `hash_payloads_parallel(payloads, max_workers)`: guard empty `payloads` and run `ProcessPoolExecutor(max_workers=max_workers).map(sha256_hex, payloads)`."

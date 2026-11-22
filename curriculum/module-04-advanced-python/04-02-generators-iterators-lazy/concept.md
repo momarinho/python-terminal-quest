@@ -2,7 +2,7 @@
 
 Materializing intermediate `[...]` lists at every stage of an ETL pipeline forces the entire dataset into RAM. Generators (`yield`) and `itertools` compute **one item on demand**.
 
-### Streaming `yield` & `itertools.batched` / `islice`
+### Streaming `yield`, Eager Validation & `itertools.batched` / `islice`
 ```python
 from collections.abc import Iterable, Iterator
 from itertools import batched, islice
@@ -16,9 +16,8 @@ def stream_active_stations(lines: Iterable[str]) -> Iterator[str]:
 first_two = list(islice(stream_active_stations(raw_lines), 2))
 chunks = batched(stream_active_stations(raw_lines), 100)  # Python 3.12+
 ```
-* Python 3.12+ includes `itertools.batched(iterable, n)` to yield fixed-size tuple chunks lazily without loading the stream into a list!
-* Use `itertools.islice(iter, n)` instead of slicing (`list(iter)[:n]`) so upstream generators stop pulling once `n` items are consumed.
-* Note: a generator is **single-pass**; callers consume it incrementally via `next()`, `islice()`, or `for`.
+* **Generator validation trap:** A function containing `yield` directly does **not** run its body until `next()` is called! Validate arguments (`size < 1`, `limit < 0`) in an eager outer function and return an inner generator expression or helper generator.
+* Stop pulling immediately once a `limit` is reached so infinite upstream streams terminate cleanly.
 
 ### Challenge
-Implement `iter_non_empty_events`, `iter_error_records`, and `batch_records` as true lazy generators/iterators in `lazy_pipeline.py`.
+Implement `iter_non_empty_events`, `iter_error_records`, `batch_records`, and `take_unique_messages` as true lazy generators/iterators in `lazy_pipeline.py`.

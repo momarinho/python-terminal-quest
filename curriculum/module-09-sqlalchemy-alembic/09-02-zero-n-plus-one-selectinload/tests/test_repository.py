@@ -1,5 +1,5 @@
 from models import Base, Buyer, Order, OrderItem
-from repository import fetch_orders_summary
+from repository import count_queries, fetch_high_volume_orders, fetch_orders_summary
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session
 
@@ -33,6 +33,27 @@ def test_fetch_orders_summary_executes_at_most_two_queries() -> None:
     assert rows[0]["buyer"] == "Buyer-1"
     assert rows[0]["item_skus"] == ["SKU-1-A", "SKU-1-B"]
     assert len(queries) <= 2, f"Expected <= 2 SQL queries (zero-N+1), got {len(queries)}"
+
+
+def test_count_queries_and_high_volume_orders() -> None:
+    engine = create_engine("sqlite:///:memory:")
+    Base.metadata.create_all(engine)
+
+    with Session(engine) as session, session.begin():
+        buyer = Buyer(name="Acme")
+        session.add_all([
+            Order(buyer=buyer, items=[OrderItem(sku="A1", qty=1)]),
+            Order(buyer=buyer, items=[OrderItem(sku="B2", qty=4), OrderItem(sku="B3", qty=3)]),
+            Order(buyer=buyer, items=[OrderItem(sku="C3", qty=5)]),
+        ])
+
+    with count_queries(engine) as recorded, Session(engine) as session:
+        high = fetch_high_volume_orders(session, min_total_qty=5, limit=10)
+        assert len(recorded) <= 2
+
+    assert len(recorded) >= 1
+    assert [row["total_qty"] for row in high] == [7, 5]
+    assert high[0]["item_skus"] == ["B2", "B3"]
 
 
 def test_fetch_orders_summary_respects_limit_and_empty_db() -> None:

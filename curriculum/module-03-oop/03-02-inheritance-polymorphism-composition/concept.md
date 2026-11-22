@@ -20,7 +20,7 @@ class ThermalSensor(VehicleSensor):
         return f"thermal:{self.sensor_id}({self.unit})"
 ```
 
-An orchestrator (`TelemetryUnit`) **composes** a list of `VehicleSensor` objects rather than subclassing `ThermalSensor` + `GpsSensor`!
+An orchestrator (`AlertDispatcher`) **composes** a list of `NotificationChannel` objects (`EmailChannel`, `SlackChannel`, `WebhookChannel`) and delegates formatting polymorphically without `isinstance` chains.
 
 ### Challenge
-Implement `NotificationChannel`, `EmailChannel`, `SlackChannel`, and `AlertDispatcher` (composing channels and routing by severity) in `notifier.py`.
+Implement `NotificationChannel.supports`, `EmailChannel`, `SlackChannel`, `WebhookChannel`, and `AlertDispatcher` (`dispatch`, `dispatch_by_channel`) in `notifier.py`.

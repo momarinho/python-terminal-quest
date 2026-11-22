@@ -7,7 +7,8 @@ class NotificationChannel:
         self.min_severity = min_severity.lower()
 
     def supports(self, severity: str) -> bool:
-        return _SEVERITY_RANK.get(severity.lower(), 0) >= _SEVERITY_RANK.get(self.min_severity, 1)
+        """Return True iff `severity` meets or exceeds this channel's `min_severity`."""
+        return False
 
     def format_payload(self, severity: str, message: str) -> str:
         raise NotImplementedError
@@ -19,7 +20,7 @@ class EmailChannel(NotificationChannel):
         self.recipient = recipient
 
     def format_payload(self, severity: str, message: str) -> str:
-        # TODO: return '[SEVERITY] to=<recipient> :: <message>'
+        """Format '[SEVERITY] to=<recipient> :: <message>'."""
         return ""
 
 
@@ -29,7 +30,17 @@ class SlackChannel(NotificationChannel):
         self.channel = channel.lstrip("#")
 
     def format_payload(self, severity: str, message: str) -> str:
-        # TODO: return '#<channel> [SEVERITY] <message>'
+        """Format '#<channel> [SEVERITY] <message>'."""
+        return ""
+
+
+class WebhookChannel(NotificationChannel):
+    def __init__(self, name: str, endpoint: str, min_severity: str = "critical") -> None:
+        super().__init__(name, min_severity=min_severity)
+        self.endpoint = endpoint.strip()
+
+    def format_payload(self, severity: str, message: str) -> str:
+        """Format 'POST <endpoint> [SEVERITY] <message>'."""
         return ""
 
 
@@ -43,5 +54,9 @@ class AlertDispatcher:
         self.channels.append(channel)
 
     def dispatch(self, severity: str, message: str) -> list[str]:
-        # TODO: collect format_payload() outputs for all channels supporting `severity`
+        """Validate severity and return formatted payloads for all supporting channels."""
         return []
+
+    def dispatch_by_channel(self, severity: str, message: str) -> dict[str, str]:
+        """Validate severity and return {channel.name: formatted_payload} for supporting channels."""
+        return {}

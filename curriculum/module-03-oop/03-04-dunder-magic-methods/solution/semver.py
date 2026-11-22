@@ -11,6 +11,29 @@ class SemVer:
         self.minor = minor
         self.patch = patch
 
+    @classmethod
+    def parse(cls, raw: str) -> "SemVer":
+        """Parse 'v1.2.3' or '1.2.3' into SemVer; raise ValueError on malformed versions."""
+        cleaned = raw.strip()
+        if cleaned.startswith(("v", "V")):
+            cleaned = cleaned[1:]
+        parts = cleaned.split(".")
+        if len(parts) != 3 or any(not (p.isascii() and p.isdigit()) for p in parts):
+            raise ValueError(f"Invalid semantic version: {raw!r}")
+        major, minor, patch = (int(p) for p in parts)
+        return cls(major, minor, patch)
+
+    def bump(self, part: str) -> "SemVer":
+        """Return a new SemVer bumping 'major', 'minor', or 'patch'; raise ValueError otherwise."""
+        normalized = part.strip().lower()
+        if normalized == "major":
+            return SemVer(self.major + 1, 0, 0)
+        if normalized == "minor":
+            return SemVer(self.major, self.minor + 1, 0)
+        if normalized == "patch":
+            return SemVer(self.major, self.minor, self.patch + 1)
+        raise ValueError(f"Unknown version part: {part!r}")
+
     def _key(self) -> tuple[int, int, int]:
         return (self.major, self.minor, self.patch)
 
@@ -45,6 +68,9 @@ class ReleaseQueue:
 
     def __len__(self) -> int:
         return len(self._versions)
+
+    def __contains__(self, item: object) -> bool:
+        return isinstance(item, SemVer) and item in self._versions
 
     def __iter__(self) -> Iterator[SemVer]:
         return iter(sorted(self._versions))

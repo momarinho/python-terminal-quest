@@ -11,8 +11,8 @@ Production Python packages use a **`src/` layout** (`src/mypkg/`) configured by 
 
 ### Breaking Circular Imports (`domain` ← `ports` ← `service`)
 Circular imports happen when `domain.py` imports `service.py` while `service.py` imports `domain.py`. Fix them with **Dependency Inversion**:
-1. `domain.py` defines pure models/entities with **zero** imports from `ports.py` or `service.py`.
-2. `ports.py` defines `Protocol` contracts referencing `domain` types (or `if TYPE_CHECKING:` for type-only references).
+1. `domain.py` defines pure models/entities (with `__post_init__` domain invariants) and **zero** imports from `ports.py` or `service.py`.
+2. `ports.py` defines `Protocol` contracts referencing `domain` types via `if TYPE_CHECKING:`.
 3. `service.py` imports both `domain` and `ports`—never the reverse!
 
 ```python
@@ -27,4 +27,4 @@ def format_catalog_entry(isbn: str, title: str) -> str:
 ```
 
 ### Challenge
-Break the circular import across `domain.py`, `ports.py`, and `service.py` so `ShipmentOrder`, `CarrierPort`, and `DispatchService` import cleanly in any order.
+Break the circular import across `domain.py`, `ports.py`, and `service.py`, add non-empty invariant checks to `ShipmentOrder`, and implement `DispatchService` (`dispatch`, `dispatch_batch`, `booked_history`).

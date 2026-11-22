@@ -52,3 +52,28 @@ def summarize_eval_run(
         p95_latency_ms=_percentile(latencies, 95.0),
         total_cost_usd=round(cost, 6),
     )
+
+
+def compute_retrieval_metrics(
+    rankings: list[tuple[str, list[str]]],
+    k: int = 3,
+) -> dict[str, float]:
+    """Compute {'recall_at_k': float, 'mrr_at_k': float} over (expected_doc_id, retrieved_doc_ids) pairs."""
+    if not rankings:
+        raise ValueError("rankings must not be empty")
+    if k < 1:
+        raise ValueError(f"k must be >= 1, got {k}")
+
+    hits = 0
+    rr_total = 0.0
+    for expected_id, retrieved in rankings:
+        top_k = retrieved[:k]
+        if expected_id in top_k:
+            hits += 1
+            rr_total += 1.0 / (top_k.index(expected_id) + 1)
+
+    total = len(rankings)
+    return {
+        "recall_at_k": round(hits / total, 4),
+        "mrr_at_k": round(rr_total / total, 4),
+    }

@@ -1,4 +1,4 @@
 hints:
-  - "In `ACCESS_LOG_RE = re.compile(...)`, match `(?P<method>GET|POST|PUT|DELETE|PATCH) (?P<path>/\\S+) -> (?P<status>\\d{3}) \\((?P<latency_ms>\\d+)ms\\)` and convert `status` and `latency_ms` to `int`."
-  - "Return `None` from `parse_access_entry(line)` when `ACCESS_LOG_RE.fullmatch(line.strip())` does not match."
-  - "For `mask_bearer_tokens(text)`, compile `re.compile(r'\\b(Bearer)\\s+[A-Za-z0-9._-]+', re.IGNORECASE)` and replace with `r'\\1 [REDACTED]'` (or preserve exact matched prefix via `m.group(1)`)."
+  - "In `parse_access_entry(line)`: compile a regex with named groups `method`, `path`, `status`, and `latency_ms` and validate with `.fullmatch(line.strip())`."
+  - "In `mask_bearer_tokens(text)`: compile a case-insensitive pattern capturing the `Bearer` prefix word so `.sub()` preserves original casing (`Bearer` vs `bearer`)."
+  - "In `extract_trace_tags(log_line)`: compile `r'(?P<key>[a-z][a-z0-9_]*)=(?P<val>[A-Za-z0-9._:/-]+)'` and iterate `.finditer(log_line)` to build `{key: val}`."

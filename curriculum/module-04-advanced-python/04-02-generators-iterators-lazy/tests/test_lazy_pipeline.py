@@ -2,7 +2,12 @@ from collections.abc import Iterator
 from itertools import islice
 
 import pytest
-from lazy_pipeline import batch_records, iter_error_records, iter_non_empty_events
+from lazy_pipeline import (
+    batch_records,
+    iter_error_records,
+    iter_non_empty_events,
+    take_unique_messages,
+)
 
 
 def test_pipeline_is_truly_lazy_on_infinite_stream() -> None:
@@ -38,3 +43,33 @@ def test_iter_non_empty_and_batch_records() -> None:
     ]
     with pytest.raises(ValueError):
         batch_records([], 0)
+
+
+def test_take_unique_messages_stops_early_on_infinite_stream() -> None:
+    pulls = 0
+
+    def repeating_infinite_records() -> Iterator[dict[str, str]]:
+        nonlocal pulls
+        items = [
+            {"level": "ERROR", "message": "timeout"},
+            {"level": "ERROR", "message": "timeout"},
+            {"level": "ERROR", "message": "oom"},
+            {"level": "ERROR", "message": "disk"},
+        ]
+        while True:
+            for item in items:
+                pulls += 1
+                yield item
+
+    assert list(take_unique_messages(repeating_infinite_records(), 0)) == []
+    assert pulls == 0
+
+    unique_two = list(take_unique_messages(repeating_infinite_records(), 2))
+    assert unique_two == [
+        {"level": "ERROR", "message": "timeout"},
+        {"level": "ERROR", "message": "oom"},
+    ]
+    assert pulls == 3
+
+    with pytest.raises(ValueError):
+        take_unique_messages([], -1)

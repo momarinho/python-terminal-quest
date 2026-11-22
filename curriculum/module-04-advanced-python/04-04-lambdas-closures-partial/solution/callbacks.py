@@ -30,3 +30,22 @@ def _format_alert(service: str, env: str, message: str) -> str:
 def bind_alert_formatter(service: str, env: str) -> Callable[[str], str]:
     """Use functools.partial to pre-bind `service` and `env` on `_format_alert`."""
     return partial(_format_alert, service, env)
+
+
+def make_rate_limited_callback[T](
+    fn: Callable[[T], str],
+    max_calls: int,
+) -> Callable[[T], str | None]:
+    """Return a wrapper calling `fn(arg)` at most `max_calls` times, then returning None; raise ValueError if max_calls < 1."""
+    if max_calls < 1:
+        raise ValueError(f"max_calls must be >= 1, got {max_calls}")
+    remaining = max_calls
+
+    def wrapper(arg: T) -> str | None:
+        nonlocal remaining
+        if remaining <= 0:
+            return None
+        remaining -= 1
+        return fn(arg)
+
+    return wrapper

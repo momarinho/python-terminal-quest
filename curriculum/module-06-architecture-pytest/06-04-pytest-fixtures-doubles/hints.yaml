@@ -1,4 +1,4 @@
 hints:
-  - "In `notifier_service.py`, define `UserRepo(Protocol)`, `TokenGenerator(Protocol)`, and `EmailSender(Protocol)`."
-  - "In `PasswordResetService.request_reset(email)`: normalize `email.strip().lower()`, look up `self.users.exists(normalized)`; if `False` return `False` without calling `tokens` or `mailer`, else generate a token and call `self.mailer.send(normalized, token)` returning `True`."
-  - "In `doubles.py`, implement `FakeUserRepo` (set/dict of known emails), `StubTokenGenerator` (returns fixed token), and `SpyEmailSender` (appends `(to, token)` to `self.sent`)."
+  - "In `notifier_service.py`: normalize `email.strip().lower()`, return `False` without calling `tokens` or `mailer` if blank or unknown in `users`, else generate a token, call `mailer.send(normalized, token)`, and return `True`."
+  - "In `doubles.py`: `FakeUserRepo.exists` checks case-insensitive membership in `self._emails`, `StubTokenGenerator.next_token` returns `self.fixed_token`, and `SpyEmailSender.send` appends `(to, token)`."
+  - "In `verify_reset_service_contract(service_cls)`: wire `FakeUserRepo(['ana@acme.dev'])`, `StubTokenGenerator('tok-123')`, and `SpyEmailSender()`, then `assert` both return values and `spy.sent` contents across valid mixed-case, unknown, and blank emails."

@@ -1,4 +1,4 @@
 hints:
-  - "In `iter_non_empty_events(lines)`: loop `for raw in lines:`, strip whitespace, skip empty lines or lines starting with `'#'`, and `yield cleaned`."
-  - "In `iter_error_records(lines)`: chain lazily over `iter_non_empty_events(lines)`, split `'level:message'` (maxsplit=1), and `yield` dicts `{'level': lvl, 'message': msg}` only when `lvl == 'ERROR'`."
-  - "In `batch_records(records, size)`: validate `size >= 1` first (before yielding—or use a helper/non-generator validation wrapper so `batch_records(..., 0)` raises `ValueError` immediately!) and yield `list(chunk)` via `itertools.batched(records, size)`."
+  - "In `iter_non_empty_events` and `iter_error_records`: stream line-by-line with `yield` so infinite iterators never materialize into a list."
+  - "In `batch_records(records, size)`: validate `size >= 1` eagerly before returning `(list(chunk) for chunk in batched(records, size, strict=False))`."
+  - "In `take_unique_messages(records, limit)`: validate `limit >= 0` eagerly (returning `iter(())` when `limit == 0`), track `seen: set[str]`, and `return` immediately after yielding the `limit`-th unique record so infinite streams do not advance an extra step."

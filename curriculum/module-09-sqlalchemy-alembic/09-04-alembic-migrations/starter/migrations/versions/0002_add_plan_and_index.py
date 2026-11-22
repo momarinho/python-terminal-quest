@@ -8,11 +8,10 @@ depends_on = None
 
 
 def upgrade() -> None:
-    # TODO: add 'plan' column (String(32), nullable=False, server_default='free'),
-    # backfill 'enterprise' where name LIKE 'ent-%', and create index 'idx_tenants_plan_name' on ['plan', 'name'].
+    """Add plan & max_seats columns, backfill enterprise/pro rows, and create idx_tenants_plan_name."""
     _ = (op, sa)
 
 
 def downgrade() -> None:
-    # TODO: drop index 'idx_tenants_plan_name' and drop column 'plan' from 'tenants'
+    """Drop idx_tenants_plan_name, max_seats, and plan in reverse order."""
     pass

@@ -13,4 +13,4 @@ ON library_loans (branch_id, status, due_at DESC);
 ```
 
 ### Challenge
-Implement `create_audit_index(conn)`, `fetch_recent_alerts(conn, tenant_id, severity, limit)`, and `explain_alerts_plan(conn, tenant_id, severity, limit)` in `index_tuning.py` so `EXPLAIN QUERY PLAN` uses `SEARCH ... USING INDEX` with zero `SCAN`.
+Implement `create_audit_index`, `fetch_recent_alerts`, `explain_alerts_plan`, and `audit_index_health` in `index_tuning.py` so `EXPLAIN QUERY PLAN` uses `SEARCH ... USING INDEX` with zero `SCAN`.

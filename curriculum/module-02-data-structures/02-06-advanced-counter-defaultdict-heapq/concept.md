@@ -8,6 +8,7 @@ The Python standard library ships battle-tested tools in `collections` and `heap
 
 ### `heapq` Min-Heap & Deterministic Tie-Breaking
 `heapq` maintains a **min-heap** on a standard `list` (`heappush`, `heappop` in `O(log N)`).
+* `self._heap[0]` peeks at the minimum item in `O(1)` without popping.
 * To break ties cleanly by insertion order (FIFO for equal priority), store `(priority, seq, payload)` tuples—where `seq` is a monotonically increasing integer so `payload` itself never gets compared!
 
 ```python
@@ -20,4 +21,4 @@ _, _, first = heapq.heappop(hold_queue)  # "book-A"
 ```
 
 ### Challenge
-Implement `top_error_codes`, `group_alerts_by_service`, and `IncidentPriorityQueue` in `incident_triage.py`.
+Implement `top_error_codes`, `group_alerts_by_service`, and `IncidentPriorityQueue` (`enqueue`, `peek_next`, `pop_next`, `drain_urgent`) in `incident_triage.py`.

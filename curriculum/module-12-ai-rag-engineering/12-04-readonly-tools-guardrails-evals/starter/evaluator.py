@@ -28,5 +28,12 @@ def summarize_eval_run(
     price_per_1k_output: float = 0.0015,
 ) -> EvalSummary:
     """Aggregate pass rate, p50/p95 latencies (nearest-rank), and estimated USD token cost."""
-    # TODO: Compute EvalSummary cleanly (raise ValueError if results is empty)
     raise NotImplementedError("TODO: summarize_eval_run")
+
+
+def compute_retrieval_metrics(
+    rankings: list[tuple[str, list[str]]],
+    k: int = 3,
+) -> dict[str, float]:
+    """Compute {'recall_at_k': float, 'mrr_at_k': float} over (expected_doc_id, retrieved_doc_ids) pairs."""
+    raise NotImplementedError("TODO: compute_retrieval_metrics")

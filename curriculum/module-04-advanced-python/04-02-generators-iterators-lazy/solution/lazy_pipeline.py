@@ -25,3 +25,27 @@ def batch_records[T](records: Iterable[T], size: int) -> Iterator[list[T]]:
     if size < 1:
         raise ValueError(f"size must be >= 1, got {size}")
     return (list(chunk) for chunk in batched(records, size, strict=False))
+
+
+def take_unique_messages(
+    records: Iterable[dict[str, str]],
+    limit: int,
+) -> Iterator[dict[str, str]]:
+    """Lazily yield up to `limit` records deduplicated by `record['message']`; raise ValueError if limit < 0."""
+    if limit < 0:
+        raise ValueError(f"limit must be >= 0, got {limit}")
+    if limit == 0:
+        return iter(())
+
+    def _gen() -> Iterator[dict[str, str]]:
+        seen: set[str] = set()
+        for record in records:
+            msg = record["message"]
+            if msg in seen:
+                continue
+            seen.add(msg)
+            yield record
+            if len(seen) >= limit:
+                return
+
+    return _gen()

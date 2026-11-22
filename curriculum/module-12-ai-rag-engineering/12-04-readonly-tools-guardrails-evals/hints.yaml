@@ -1,4 +1,4 @@
 hints:
-  - "In `guardrails.py`, check normalized lowercase text against compiled patterns for `'ignore (?:all )?previous instructions'`, `'reveal (?:the )?system prompt'`, `'disregard (?:all )?(?:rules|guardrails)'`, `'system override'`, and `'bypass policy'`."
-  - "In `tools.py`, look up `tool_name` in `_allowlist` first (raising `ToolDeniedError` if absent), validate `raw_args` via `schema_cls.model_validate(raw_args)`, and invoke the registered read-only handler."
-  - "In `evaluator.py`, sort latencies ascending and use nearest-rank indexing `max(0, math.ceil((pct / 100.0) * n) - 1)` for `p50_latency_ms` and `p95_latency_ms`, while summing `(input_tokens / 1000) * price_per_1k_input + (output_tokens / 1000) * price_per_1k_output`."
+  - "In `guardrails.py`: compile case-insensitive regex rules (`re.I`) for `ignore_instructions`, `reveal_system_prompt`, `disregard_guardrails`, `system_override`, and `bypass_policy`, returning the first matched rule name."
+  - "In `tools.py`: look up `name` in `self._tools` (raising `ToolDeniedError` if missing), validate `raw_args` via `schema_cls.model_validate(raw_args)`, and invoke `handler(validated)`."
+  - "In `evaluator.py`: use nearest-rank `max(0, math.ceil((pct / 100.0) * n) - 1)` for `p50`/`p95`, and in `compute_retrieval_metrics(rankings, k)` scan `retrieved[:k]` to compute `recall_at_k` and `mrr_at_k` rounded to 4 decimals."

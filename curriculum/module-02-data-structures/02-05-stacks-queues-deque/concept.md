@@ -16,8 +16,9 @@ for job in ["doc-1", "doc-2", "doc-3", "doc-4"]:
 # Automatically evicts "doc-1" -> deque(["doc-2", "doc-3", "doc-4"])
 ```
 
-### Bracket Balancing with a Stack
-Push opening delimiters (`(`, `[`, `{`) onto a stack; when encountering a closing delimiter, verify the stack is non-empty and the top matches its pair!
+### Bracket Balancing & Selective Draining
+* Push opening delimiters (`(`, `[`, `{`) onto a stack; when encountering a closing delimiter, verify the stack is non-empty and matches its pair.
+* When draining matching items from a `deque`, pop from the left into either a `matched` list or a temporary `kept` deque preserving FIFO order for remaining events.
 
 ### Challenge
-Implement `is_balanced_expression` and `BoundedEventQueue` in `queue_buffers.py`.
+Implement `is_balanced_expression` and `BoundedEventQueue` (`push`, `pop_oldest`, `evicted_count`, `drain_matching`, `snapshot`) in `queue_buffers.py`.

@@ -19,6 +19,13 @@ class ThreadSafeCounter:
             self._value += delta
             return self._value
 
+    def reset(self) -> int:
+        """Atomically reset the counter to 0 and return its previous value."""
+        with self._lock:
+            previous = self._value
+            self._value = 0
+            return previous
+
     @property
     def value(self) -> int:
         with self._lock:
@@ -32,6 +39,27 @@ def run_io_batch[T](tasks: list[Callable[[], T]], max_workers: int = 4) -> list[
     with ThreadPoolExecutor(max_workers=max_workers) as pool:
         futures = [pool.submit(task) for task in tasks]
         return [fut.result() for fut in futures]
+
+
+def run_io_batch_resilient[T](
+    tasks: list[Callable[[], T]],
+    fallback: T,
+    max_workers: int = 4,
+) -> tuple[list[T], int]:
+    """Execute tasks concurrently, substituting `fallback` on task exceptions and returning `(results, error_count)`."""
+    if not tasks:
+        return [], 0
+    results: list[T] = []
+    errors = 0
+    with ThreadPoolExecutor(max_workers=max_workers) as pool:
+        futures = [pool.submit(task) for task in tasks]
+        for fut in futures:
+            try:
+                results.append(fut.result())
+            except Exception:
+                results.append(fallback)
+                errors += 1
+    return results, errors
 
 
 def hash_payloads_parallel(payloads: list[str], max_workers: int = 2) -> list[str]:

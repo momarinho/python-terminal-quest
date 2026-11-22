@@ -36,6 +36,22 @@ def explain_alerts_plan(
     severity: str,
     limit: int = 10,
 ) -> list[str]:
-    """Return EXPLAIN QUERY PLAN detail lines for the recent-alerts query."""
+    """Return EXPLAIN QUERY PLAN detail lines (column index 3) for the recent-alerts query."""
     rows = conn.execute(f"EXPLAIN QUERY PLAN {_QUERY}", (tenant_id, severity, limit)).fetchall()
     return [str(row[3]) for row in rows]
+
+
+def audit_index_health(
+    conn: sqlite3.Connection,
+    tenant_id: str,
+    severity: str,
+    limit: int = 10,
+) -> dict[str, object]:
+    """Return {'uses_index': bool, 'has_full_scan': bool, 'plan': list[str]} from EXPLAIN QUERY PLAN."""
+    plan = explain_alerts_plan(conn, tenant_id, severity, limit)
+    joined = " | ".join(plan).upper()
+    return {
+        "uses_index": "USING INDEX" in joined,
+        "has_full_scan": "SCAN " in joined,
+        "plan": plan,
+    }

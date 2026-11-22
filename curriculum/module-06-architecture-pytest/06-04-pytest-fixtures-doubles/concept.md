@@ -8,6 +8,9 @@ Overusing `unittest.mock.patch` couples tests to internal import paths. Inject `
 * **Stub:** Returns canned answers (`FixedTokenGen`).
 * **Spy:** Records outbound calls so tests assert side effects (`SpyEmailSender.sent`).
 
+### Writing Contract Verification Assertions
+A good test suite proves **both** that valid implementations pass and that subtle regressions (e.g. emailing unknown users, skipping case normalization, or silently dropping outbound mail) fail with `AssertionError`.
+
 ```python
 class SpyNotifier:
     def __init__(self) -> None:
@@ -18,4 +21,4 @@ class SpyNotifier:
 ```
 
 ### Challenge
-Implement `PasswordResetService` in `notifier_service.py` and the in-memory `FakeUserRepo`, `StubTokenGenerator`, and `SpyEmailSender` test doubles in `doubles.py`.
+Implement `PasswordResetService` in `notifier_service.py` and the in-memory `FakeUserRepo`, `StubTokenGenerator`, `SpyEmailSender`, and `verify_reset_service_contract` in `doubles.py`.

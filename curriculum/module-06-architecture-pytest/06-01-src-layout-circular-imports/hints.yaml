@@ -1,4 +1,4 @@
 hints:
-  - "Remove the top-level `from service import DispatchService` import from `domain.py`—domain models must not depend on the service layer."
-  - "Have `ports.py` import `ShipmentOrder` from `domain` (or use `from __future__ import annotations` + `TYPE_CHECKING`) and define `CarrierPort(Protocol)`."
-  - "Have `service.py` import `ShipmentOrder` from `domain` and `CarrierPort` from `ports`, implementing `DispatchService.dispatch(order_id, destination)` returning the created `ShipmentOrder`."
+  - "Remove `from service import DispatchService` from `domain.py` and validate in `__post_init__` that `self.order_id.strip()` and `self.destination.strip()` are non-empty (raising `ValueError`)."
+  - "Use `from __future__ import annotations` and `if TYPE_CHECKING: from domain import ShipmentOrder` in `ports.py` so `ports.py` has zero runtime circular coupling."
+  - "In `service.py`, keep an internal `self._history: list[tuple[str, str]] = []`, append `(order.order_id, tracking_code)` in `dispatch(...)`, implement `dispatch_batch(items)`, and return a copy in `booked_history()`."

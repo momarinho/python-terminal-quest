@@ -14,7 +14,9 @@ def test_bounded_event_queue_evicts_and_pops_fifo() -> None:
     q.push("e1")
     q.push("e2")
     q.push("e3")
+    assert q.evicted_count == 0
     q.push("e4")
+    assert q.evicted_count == 1
     assert q.snapshot() == ["e2", "e3", "e4"]
     assert q.pop_oldest() == "e2"
     assert q.pop_oldest() == "e3"
@@ -23,3 +25,13 @@ def test_bounded_event_queue_evicts_and_pops_fifo() -> None:
 
     with pytest.raises(ValueError):
         BoundedEventQueue(0)
+
+
+def test_drain_matching_preserves_fifo_order_for_remaining_events() -> None:
+    q = BoundedEventQueue(maxlen=5)
+    for ev in ["auth:login", "pay:charge", "auth:logout", "pay:refund", "auth:mfa"]:
+        q.push(ev)
+
+    drained = q.drain_matching("auth:")
+    assert drained == ["auth:login", "auth:logout", "auth:mfa"]
+    assert q.snapshot() == ["pay:charge", "pay:refund"]

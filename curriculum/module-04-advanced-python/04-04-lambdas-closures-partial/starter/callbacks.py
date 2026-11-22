@@ -16,7 +16,6 @@ def make_moving_counter(start: int = 0) -> Callable[[int], int]:
     count = start
 
     def inc(delta: int = 1) -> int:
-        # TODO: use nonlocal count and update by delta
         return count
 
     return inc
@@ -28,6 +27,13 @@ def _format_alert(service: str, env: str, message: str) -> str:
 
 def bind_alert_formatter(service: str, env: str) -> Callable[[str], str]:
     """Use functools.partial to pre-bind `service` and `env` on `_format_alert`."""
-    # TODO: return partial(...)
     _ = partial
     return lambda msg: msg
+
+
+def make_rate_limited_callback[T](
+    fn: Callable[[T], str],
+    max_calls: int,
+) -> Callable[[T], str | None]:
+    """Return a wrapper calling `fn(arg)` at most `max_calls` times, then returning None; raise ValueError if max_calls < 1."""
+    return lambda _arg: None

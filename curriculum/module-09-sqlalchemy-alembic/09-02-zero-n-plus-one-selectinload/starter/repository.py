@@ -1,6 +1,16 @@
+from collections.abc import Iterator
+from contextlib import contextmanager
+
 from models import Order
-from sqlalchemy import select
+from sqlalchemy import Engine, select
 from sqlalchemy.orm import Session
+
+
+@contextmanager
+def count_queries(engine: Engine) -> Iterator[list[str]]:
+    """Context manager recording executed SQL statements on `engine` via before_cursor_execute."""
+    queries: list[str] = []
+    yield queries
 
 
 def fetch_orders_summary(session: Session, limit: int = 25) -> list[dict[str, object]]:
@@ -15,3 +25,12 @@ def fetch_orders_summary(session: Session, limit: int = 25) -> list[dict[str, ob
         }
         for o in orders
     ]
+
+
+def fetch_high_volume_orders(
+    session: Session,
+    min_total_qty: int,
+    limit: int = 25,
+) -> list[dict[str, object]]:
+    """Return eager-loaded orders with total_qty >= min_total_qty in <= 2 SQL queries."""
+    return []

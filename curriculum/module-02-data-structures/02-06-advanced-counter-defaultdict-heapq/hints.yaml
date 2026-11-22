@@ -1,4 +1,4 @@
 hints:
-  - "In `top_error_codes(codes, k)`: if `k <= 0` return `[]`; tally with `Counter(codes)` and sort by `(-count, code)` before slicing `[:k]` so ties break alphabetically!"
-  - "In `group_alerts_by_service(alerts)`: use `groups: defaultdict[str, list[str]] = defaultdict(list)` and return `dict(groups)`."
-  - "In `IncidentPriorityQueue`: maintain `self._heap: list[tuple[int, int, str]] = []` and `self._seq = 0`, pushing `(priority, self._seq, incident_id)` and incrementing `self._seq` on each `enqueue`."
+  - "In `top_error_codes(codes, k)`: guard `k <= 0`, tally with `Counter(codes)`, and sort by `(-count, code)` for deterministic alphabetical tie-breaking."
+  - "In `IncidentPriorityQueue`: store `(priority, seq, incident_id)` tuples in `self._heap` so equal priorities pop in FIFO order, and use `self._heap[0][2]` in `peek_next()`."
+  - "In `drain_urgent(max_priority)`: loop `while self._heap and self._heap[0][0] <= max_priority:` popping into a result list."

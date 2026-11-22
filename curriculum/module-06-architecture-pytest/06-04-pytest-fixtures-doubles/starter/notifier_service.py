@@ -26,6 +26,5 @@ class PasswordResetService:
 
     def request_reset(self, email: str) -> bool:
         """Issue and email a reset token iff user exists; return True if sent else False."""
-        # TODO: normalize email, check users.exists, generate token, send email
         _ = email
         return False

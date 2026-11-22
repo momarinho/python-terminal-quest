@@ -20,12 +20,23 @@ def test_alembic_upgrade_backfills_and_creates_index(tmp_path: Path) -> None:
     command.upgrade(cfg, "0001")
     engine = create_engine(f"sqlite:///{db_path}")
     with engine.begin() as conn:
-        conn.execute(text("INSERT INTO tenants (id, name) VALUES (1, 'ent-acme'), (2, 'indie-dev')"))
+        conn.execute(
+            text(
+                "INSERT INTO tenants (id, name) VALUES "
+                "(1, 'ent-acme'), (2, 'pro-labs'), (3, 'indie-dev')"
+            )
+        )
 
     command.upgrade(cfg, "head")
     with engine.connect() as conn:
-        rows = conn.execute(text("SELECT id, plan FROM tenants ORDER BY id")).fetchall()
-        assert rows == [(1, "enterprise"), (2, "free")]
+        rows = conn.execute(
+            text("SELECT id, plan, max_seats FROM tenants ORDER BY id")
+        ).fetchall()
+        assert rows == [
+            (1, "enterprise", 100),
+            (2, "pro", 25),
+            (3, "free", 5),
+        ]
         indexes = {idx["name"] for idx in inspect(conn).get_indexes("tenants")}
         assert "idx_tenants_plan_name" in indexes
 
