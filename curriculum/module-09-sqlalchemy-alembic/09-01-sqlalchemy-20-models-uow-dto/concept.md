@@ -34,5 +34,8 @@ class AuthorDTO(BaseModel):
 
 *(In production PostgreSQL, pair SQLAlchemy 2.0 with `psycopg` + connection pooling `pool_size=10, max_overflow=20`.)*
 
+### Async SQLAlchemy 2.0 (`AsyncSession`) & FastAPI
+When building `async def` FastAPI routes, never run blocking sync `Session` I/O directly on the event loop—use `create_async_engine`, `async_sessionmaker`, and `await session.scalars(...)` (or keep sync `Session` endpoints as plain `def` so FastAPI offloads them to AnyIO's worker threadpool).
+
 ### Challenge
 Complete `models.py` (`Customer`, `Subscription`), `schemas.py` (`SubscriptionDTO`, `CustomerDTO`), and `service.py` (`register_customer_with_subscription`, `get_customer_summary`) so callers receive pure Pydantic DTOs after the `Session` closes.

@@ -53,10 +53,15 @@ export interface LessonSummary {
   totalHints: number;
   flagged: boolean;
   hasNotes: boolean;
+  solutionRevealed?: boolean;
+  needsReview?: boolean;
 }
 
 export interface ModuleGroup {
   id: string;
+  order?: number;
+  phase?: number;
+  subtitle?: string;
   title: string;
   totalLessons: number;
   completedLessons: number;
@@ -86,6 +91,9 @@ export interface LessonProgress {
   lastDiagnostics: string;
   notes: string;
   flagged: boolean;
+  solutionRevealed?: boolean;
+  completedAt?: string;
+  needsReview?: boolean;
   updatedAt: string;
 }
 
@@ -103,6 +111,7 @@ export interface LessonDetail {
   entryFile: string;
   conceptMarkdown: string;
   files: Record<string, string>;
+  testFiles: Record<string, string>;
   unlockedHints: string[];
   totalHints: number;
   progress: LessonProgress;
@@ -210,4 +219,13 @@ export interface ProjectsResponse {
   completedProjects: number;
   unlockedProjects: number;
   projects: PortfolioProject[];
+}
+
+export interface ProgressBackupPayload {
+  version: string;
+  exportedAt: string;
+  lessons: LessonProgress[];
+  drafts: Record<string, Record<string, string>>;
+  activityDays: string[];
+  projects: ProjectProgress[];
 }

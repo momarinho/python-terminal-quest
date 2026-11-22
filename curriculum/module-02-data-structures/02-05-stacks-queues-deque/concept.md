@@ -1,9 +1,11 @@
 ## Concept: Stacks (LIFO) & Queues (`collections.deque`)
 
-A Python `list` is great as a **LIFO stack** (`append()` and `pop()` at the end are $O(1)$), but terrible as a **FIFO queue** (`pop(0)` shifts every element in $O(N)$!).
+A Python `list` is great as a **LIFO stack** (`append()` and `pop()` at the end are `O(1)`), but terrible as a **FIFO queue** (`pop(0)` shifts every element in `O(N)`!).
 
-### `collections.deque` for $O(1)$ Queues & Ring Buffers
-`deque` (double-ended queue) provides $O(1)$ `append`, `appendleft`, `pop`, and `popleft`:
+### Why `collections.deque` Gives `O(1)` Queues & Ring Buffers
+Under the hood, CPython's `list` is a contiguous array of object pointers—removing index `0` requires shifting `N - 1` pointers. By contrast, `collections.deque` is implemented as a **doubly-linked list of fixed-size memory blocks**, giving `O(1)` `append`, `appendleft`, `pop`, and `popleft` at both ends.
+
+Passing `maxlen=K` turns `deque` into a bounded **ring buffer** that automatically evicts the oldest item when full—ideal for sliding time windows, rate limiters, and recent-history caches:
 
 ```python
 from collections import deque

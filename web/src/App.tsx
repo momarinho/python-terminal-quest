@@ -198,6 +198,10 @@ export const App: React.FC = () => {
       onSelectLesson={navigateToLesson}
       onNavigateRoadmap={navigateToRoadmap}
       onNavigateProjects={navigateToProjects}
+      onProgressUpdated={() => {
+        loadCurriculum();
+        loadProjectCounts();
+      }}
       completedProjectsCount={projectCounts.completed}
       totalProjectsCount={projectCounts.total}
     />

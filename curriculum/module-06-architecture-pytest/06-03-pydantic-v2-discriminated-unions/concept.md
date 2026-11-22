@@ -1,6 +1,6 @@
 ## Concept: Pydantic v2 Boundary Validation & Discriminated Unions
 
-Validating untrusted JSON at your service boundary with `Annotated[Union[...], Field(discriminator="kind")]` routes directly to the matching model in $O(1)$—producing crisp `ValidationError` diagnostics when fields are missing or malformed.
+Validating untrusted JSON at your service boundary with `Annotated[Union[...], Field(discriminator="kind")]` routes directly to the matching model in `O(1)`—producing crisp `ValidationError` diagnostics when fields are missing or malformed.
 
 ### Discriminated Unions & `model_validator`
 ```python

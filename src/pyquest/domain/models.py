@@ -73,6 +73,9 @@ class LessonProgress(CamelModel):
     last_diagnostics: str = ""
     notes: str = ""
     flagged: bool = False
+    solution_revealed: bool = False
+    completed_at: str = ""
+    needs_review: bool = False
     updated_at: str = ""
 
 
@@ -94,6 +97,8 @@ class LessonSummary(CamelModel):
     total_hints: int
     flagged: bool
     has_notes: bool
+    solution_revealed: bool = False
+    needs_review: bool = False
 
 
 class LessonDetail(CamelModel):
@@ -110,6 +115,7 @@ class LessonDetail(CamelModel):
     entry_file: str
     concept_markdown: str
     files: dict[str, str]
+    test_files: dict[str, str] = Field(default_factory=dict)
     unlocked_hints: list[str]
     total_hints: int
     progress: LessonProgress
@@ -171,6 +177,9 @@ class ProgressState(CamelModel):
 
 class ModuleGroup(CamelModel):
     id: str
+    order: int = 0
+    phase: int = 1
+    subtitle: str = ""
     title: str
     total_lessons: int
     completed_lessons: int
@@ -294,3 +303,12 @@ class ChecklistUpdateRequest(CamelModel):
 class RepoUpdateRequest(CamelModel):
     repo_url: str = ""
     completed: bool | None = None
+
+
+class ProgressBackupPayload(CamelModel):
+    version: str = "1.0"
+    exported_at: str = ""
+    lessons: list[LessonProgress] = Field(default_factory=list)
+    drafts: dict[str, dict[str, str]] = Field(default_factory=dict)
+    activity_days: list[str] = Field(default_factory=list)
+    projects: list[ProjectProgress] = Field(default_factory=list)

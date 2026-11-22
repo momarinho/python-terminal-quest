@@ -9,6 +9,11 @@ import tempfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
+try:
+    import resource
+except ImportError:  # pragma: no cover - non-POSIX platforms
+    resource = None  # type: ignore[assignment]
+
 from pyquest.domain.models import Diagnostic, GradeResult, LessonSpec, TestCaseResult
 
 SYNTAX_TRACE_RE = re.compile(
@@ -147,6 +152,30 @@ class PytestGrader:
         self.web_timeout_seconds = web_timeout_seconds
 
     def grade(self, lesson: LessonSpec, submitted_files: dict[str, str]) -> GradeResult:
+        # 0. Reject invalid/forbidden file paths before touching disk
+        for rel_path in sorted(submitted_files):
+            try:
+                safe_path = _safe_rel_path(rel_path)
+            except ValueError:
+                return GradeResult(
+                    passed=False,
+                    stage="SYNTAX",
+                    exit_code=2,
+                    summary=f"Forbidden file path in submission: {rel_path}",
+                )
+            posix_path = safe_path.as_posix()
+            if (
+                posix_path == "conftest.py"
+                or posix_path.endswith("/conftest.py")
+                or (safe_path.parts and safe_path.parts[0] == "tests")
+            ):
+                return GradeResult(
+                    passed=False,
+                    stage="SYNTAX",
+                    exit_code=2,
+                    summary=f"Forbidden file path in submission: {rel_path}",
+                )
+
         # 1. Fast AST syntax pre-check on learner files
         syntax_diags = check_python_syntax(submitted_files)
         if syntax_diags:
@@ -181,6 +210,23 @@ class PytestGrader:
                 "tests",
             ]
 
+            def _apply_posix_limits() -> None:
+                if resource is None:
+                    return
+                cpu_soft, cpu_hard = resource.getrlimit(resource.RLIMIT_CPU)
+                cpu_limit = timeout + 2
+                if cpu_hard != resource.RLIM_INFINITY:
+                    cpu_limit = min(cpu_limit, cpu_hard)
+                if cpu_soft == resource.RLIM_INFINITY or cpu_limit < cpu_soft:
+                    resource.setrlimit(resource.RLIMIT_CPU, (cpu_limit, cpu_hard))
+
+                fsize_soft, fsize_hard = resource.getrlimit(resource.RLIMIT_FSIZE)
+                fsize_limit = 16 * 1024 * 1024
+                if fsize_hard != resource.RLIM_INFINITY:
+                    fsize_limit = min(fsize_limit, fsize_hard)
+                if fsize_soft == resource.RLIM_INFINITY or fsize_limit < fsize_soft:
+                    resource.setrlimit(resource.RLIMIT_FSIZE, (fsize_limit, fsize_hard))
+
             try:
                 proc = subprocess.run(
                     cmd,
@@ -189,6 +235,7 @@ class PytestGrader:
                     capture_output=True,
                     text=True,
                     timeout=timeout,
+                    preexec_fn=_apply_posix_limits if os.name == "posix" else None,
                 )
             except subprocess.TimeoutExpired as exc:
                 stdout = (exc.stdout or "") if isinstance(exc.stdout, str) else ""

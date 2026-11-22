@@ -6,6 +6,7 @@ import type {
   ModuleGroup,
   OracleResponse,
   PortfolioProject,
+  ProgressBackupPayload,
   ProjectsResponse,
   RunResponse,
 } from '../types/api';
@@ -141,6 +142,17 @@ export const api = {
     return requestJson<PortfolioProject>(`/api/projects/${encodeURIComponent(projectId)}/repo`, {
       method: 'POST',
       body: JSON.stringify({ repoUrl, ...(completed !== undefined ? { completed } : {}) }),
+    });
+  },
+
+  exportProgress(): Promise<ProgressBackupPayload> {
+    return requestJson<ProgressBackupPayload>('/api/progress/export');
+  },
+
+  importProgress(payload: ProgressBackupPayload): Promise<{ status: string }> {
+    return requestJson<{ status: string }>('/api/progress/import', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 };

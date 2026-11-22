@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { StickyNote } from 'lucide-react';
+import React, { useMemo, useRef, useState } from 'react';
+import { Download, RefreshCw, StickyNote, Upload } from 'lucide-react';
+import { api } from '../api/client';
 import {
   HERO_TIER_CATALOG,
   HeroCompanionSprite,
@@ -29,6 +30,7 @@ interface DashboardPageProps {
   onSelectLesson: (lessonId: string) => void;
   onNavigateRoadmap: () => void;
   onNavigateProjects: () => void;
+  onProgressUpdated?: () => void;
   completedProjectsCount?: number;
   totalProjectsCount?: number;
 }
@@ -39,11 +41,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   onSelectLesson,
   onNavigateRoadmap,
   onNavigateProjects,
+  onProgressUpdated,
   completedProjectsCount = 0,
   totalProjectsCount = 1,
 }) => {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | LessonStatus | 'FLAGGED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | LessonStatus | 'FLAGGED' | 'REVIEW'>('ALL');
+  const [backupNotice, setBackupNotice] = useState<string | null>(null);
+  const [backupBusy, setBackupBusy] = useState(false);
+  const importInputRef = useRef<HTMLInputElement | null>(null);
 
   const completionPercent = useMemo(() => {
     if (curriculum.totalLessons === 0) return 0;
@@ -85,13 +91,24 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   const isSearchingLessons = search.trim().length > 0;
   const isFlaggedQueue = statusFilter === 'FLAGGED';
-  const showLessonGrid = isSearchingLessons || isFlaggedQueue;
+  const isReviewQueue = statusFilter === 'REVIEW';
+  const showLessonGrid = isSearchingLessons || isFlaggedQueue || isReviewQueue;
 
   const flaggedTotalCount = useMemo(() => {
     let count = 0;
     for (const mod of curriculum.modules) {
       for (const l of mod.lessons) {
         if (l.flagged) count++;
+      }
+    }
+    return count;
+  }, [curriculum.modules]);
+
+  const reviewTotalCount = useMemo(() => {
+    let count = 0;
+    for (const mod of curriculum.modules) {
+      for (const l of mod.lessons) {
+        if (l.needsReview) count++;
       }
     }
     return count;
@@ -104,7 +121,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     for (const mod of curriculum.modules) {
       for (const l of mod.lessons) {
         if (statusFilter === 'FLAGGED' && !l.flagged) continue;
-        if (statusFilter !== 'ALL' && statusFilter !== 'FLAGGED' && l.status !== statusFilter) {
+        if (statusFilter === 'REVIEW' && !l.needsReview) continue;
+        if (
+          statusFilter !== 'ALL' &&
+          statusFilter !== 'FLAGGED' &&
+          statusFilter !== 'REVIEW' &&
+          l.status !== statusFilter
+        ) {
           continue;
         }
         if (
@@ -123,9 +146,53 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   }, [curriculum.modules, search, showLessonGrid, statusFilter]);
 
   const filteredModules = useMemo<ModuleGroup[]>(() => {
-    if (statusFilter === 'ALL' || statusFilter === 'FLAGGED') return curriculum.modules;
+    if (statusFilter === 'ALL' || statusFilter === 'FLAGGED' || statusFilter === 'REVIEW') {
+      return curriculum.modules;
+    }
     return curriculum.modules.filter((mod) => deriveModuleStatus(mod) === statusFilter);
   }, [curriculum.modules, statusFilter]);
+
+  const handleExportBackup = async () => {
+    if (backupBusy) return;
+    setBackupBusy(true);
+    setBackupNotice(null);
+    try {
+      const payload = await api.exportProgress();
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pyquest-progress-backup.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setBackupNotice(`Exported ${payload.lessons.length} stage record(s).`);
+    } catch (err) {
+      setBackupNotice(`Export failed: ${(err as Error).message}`);
+    } finally {
+      setBackupBusy(false);
+    }
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || backupBusy) return;
+    setBackupBusy(true);
+    setBackupNotice(null);
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      await api.importProgress(parsed);
+      onProgressUpdated?.();
+      setBackupNotice('Progress & notes backup restored.');
+    } catch (err) {
+      setBackupNotice(`Import failed: ${(err as Error).message}`);
+    } finally {
+      setBackupBusy(false);
+    }
+  };
 
   const hero = curriculum.hero;
   const nextTierPct = useMemo(() => {
@@ -310,6 +377,21 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   <PixelFlagIcon className="w-3 h-3" />
                   <span>{flaggedTotalCount} flagged</span>
                 </button>
+                <span>•</span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setStatusFilter((prev) => (prev === 'REVIEW' ? 'ALL' : 'REVIEW'))
+                  }
+                  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md cursor-pointer transition ${
+                    statusFilter === 'REVIEW'
+                      ? 'bg-[#A78BFA]/20 text-[#A78BFA] font-medium'
+                      : 'hover:bg-white/[0.06] text-slate-300'
+                  }`}
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>{reviewTotalCount} review</span>
+                </button>
               </div>
 
               {nextRecommendedLesson && (
@@ -327,6 +409,40 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   </span>
                 </button>
               )}
+            </div>
+
+            {/* Progress & Notes Backup Strip */}
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/[0.06] text-[11px]">
+              <span className="text-slate-400">
+                {backupNotice ?? 'Local SQLite state (progress, drafts, notes & guild checklists)'}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <input
+                  ref={importInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={handleImportFile}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  disabled={backupBusy}
+                  onClick={handleExportBackup}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#0D1017] border border-white/[0.08] hover:border-[#F5B942]/50 text-slate-300 hover:text-white cursor-pointer transition disabled:opacity-40"
+                >
+                  <Download className="w-3 h-3 text-[#38BDF8]" />
+                  <span>Export JSON</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={backupBusy}
+                  onClick={() => importInputRef.current?.click()}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#0D1017] border border-white/[0.08] hover:border-[#2DD4A0]/50 text-slate-300 hover:text-white cursor-pointer transition disabled:opacity-40"
+                >
+                  <Upload className="w-3 h-3 text-[#2DD4A0]" />
+                  <span>Import JSON</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -355,33 +471,40 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
 
           <div className="inline-flex flex-wrap bg-[#0D1017] p-1 rounded-md border border-white/[0.06] gap-1 self-start md:self-auto">
-            {(['ALL', 'NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'FLAGGED'] as const).map((st) => (
-              <button
-                key={st}
-                type="button"
-                onClick={() => setStatusFilter(st)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer ${
-                  statusFilter === st
-                    ? st === 'FLAGGED'
-                      ? 'bg-[#F45D78] text-[#0D1017] font-semibold'
-                      : 'bg-[#F5B942] text-[#0D1017] font-semibold'
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {st === 'FLAGGED' && <PixelFlagIcon className="w-3 h-3" />}
-                <span>
-                  {st === 'ALL'
-                    ? 'All'
-                    : st === 'NOT_STARTED'
-                      ? 'Open'
-                      : st === 'IN_PROGRESS'
-                        ? 'Active'
-                        : st === 'COMPLETED'
-                          ? 'Cleared'
-                          : `Flagged${flaggedTotalCount > 0 ? ` (${flaggedTotalCount})` : ''}`}
-                </span>
-              </button>
-            ))}
+            {(['ALL', 'NOT_STARTED', 'IN_PROGRESS', 'COMPLETED', 'REVIEW', 'FLAGGED'] as const).map(
+              (st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition cursor-pointer ${
+                    statusFilter === st
+                      ? st === 'FLAGGED'
+                        ? 'bg-[#F45D78] text-[#0D1017] font-semibold'
+                        : st === 'REVIEW'
+                          ? 'bg-[#A78BFA] text-[#0D1017] font-semibold'
+                          : 'bg-[#F5B942] text-[#0D1017] font-semibold'
+                      : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {st === 'FLAGGED' && <PixelFlagIcon className="w-3 h-3" />}
+                  {st === 'REVIEW' && <RefreshCw className="w-3 h-3" />}
+                  <span>
+                    {st === 'ALL'
+                      ? 'All'
+                      : st === 'NOT_STARTED'
+                        ? 'Open'
+                        : st === 'IN_PROGRESS'
+                          ? 'Active'
+                          : st === 'COMPLETED'
+                            ? 'Cleared'
+                            : st === 'REVIEW'
+                              ? `Review${reviewTotalCount > 0 ? ` (${reviewTotalCount})` : ''}`
+                              : `Flagged${flaggedTotalCount > 0 ? ` (${flaggedTotalCount})` : ''}`}
+                  </span>
+                </button>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -394,13 +517,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <h2 className="text-xs font-semibold text-slate-400 flex items-center gap-2">
                 {isFlaggedQueue && !isSearchingLessons ? (
                   <PixelFlagIcon className="w-3.5 h-3.5" />
+                ) : isReviewQueue && !isSearchingLessons ? (
+                  <RefreshCw className="w-3.5 h-3.5 text-[#A78BFA]" />
                 ) : (
                   <PixelScrollIcon className="w-3.5 h-3.5" />
                 )}
                 <span>
                   {isFlaggedQueue && !isSearchingLessons
                     ? 'Flagged for Review'
-                    : 'Quest Search Results'}{' '}
+                    : isReviewQueue && !isSearchingLessons
+                      ? 'Assisted / Spaced Review Queue'
+                      : 'Quest Search Results'}{' '}
                   ({matchingLessons.length})
                 </span>
               </h2>
@@ -410,7 +537,9 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               <div className="rpg-panel text-center py-14 text-slate-400 text-sm px-4">
                 {isFlaggedQueue && !isSearchingLessons
                   ? 'No quests flagged for review yet. Open any stage and click Flag in the workspace toolbar.'
-                  : `No quests match "${search}".`}
+                  : isReviewQueue && !isSearchingLessons
+                    ? 'No quests in your review queue yet. Stages cleared with hints/solution or flagged appear here for a cold retry.'
+                    : `No quests match "${search}".`}
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -441,6 +570,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                             {lesson.flagged && <PixelFlagIcon className="w-3 h-3" />}
                             {lesson.hasNotes && (
                               <StickyNote className="w-3.5 h-3.5 text-[#38BDF8]" />
+                            )}
+                            {lesson.needsReview ? (
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#A78BFA]/15 text-[#A78BFA]">
+                                Assisted
+                              </span>
+                            ) : (
+                              lesson.status === 'COMPLETED' && (
+                                <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-[#2DD4A0]/15 text-[#2DD4A0]">
+                                  Cold Clear
+                                </span>
+                              )
                             )}
                             <StatusBadge status={lesson.status} />
                           </div>

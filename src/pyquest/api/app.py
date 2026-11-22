@@ -21,6 +21,7 @@ from pyquest.domain.models import (
     OracleRequest,
     OracleResponse,
     PortfolioProject,
+    ProgressBackupPayload,
     ProjectsResponse,
     RepoUpdateRequest,
     RunResponse,
@@ -53,6 +54,8 @@ def _build_lesson_summary(
         total_hints=len(lesson.hints),
         flagged=progress.flagged,
         has_notes=bool(progress.notes.strip()),
+        solution_revealed=progress.solution_revealed,
+        needs_review=progress.needs_review,
     )
 
 
@@ -82,6 +85,9 @@ def _build_module_groups(
         groups.append(
             ModuleGroup(
                 id=mod.id,
+                order=mod.order,
+                phase=mod.phase,
+                subtitle=mod.subtitle,
                 title=mod.title,
                 total_lessons=len(mod_lessons),
                 completed_lessons=completed,
@@ -127,6 +133,7 @@ def create_app(
             "app": "python-terminal-quest",
             "modules": len(curriculum.modules),
             "lessons": len(curriculum.lessons),
+            "demoMode": cfg.demo_mode,
         }
 
     @app.get("/api/curriculum", response_model=CurriculumResponse)
@@ -194,6 +201,7 @@ def create_app(
             entry_file=lesson.entry_file,
             concept_markdown=lesson.concept_markdown,
             files=files,
+            test_files=dict(lesson.test_files),
             unlocked_hints=unlocked,
             total_hints=len(lesson.hints),
             progress=progress,
@@ -210,6 +218,11 @@ def create_app(
     @app.post("/api/lessons/{lesson_id}/run", response_model=RunResponse)
     def run_lesson(lesson_id: str, body: FilesRequest) -> RunResponse:
         lesson = _require_lesson(lesson_id)
+        if cfg.demo_mode and body.files != lesson.solution_files:
+            raise HTTPException(
+                status_code=403,
+                detail="Arbitrary code execution is disabled in read-only demo mode.",
+            )
         store.save_draft_files(lesson_id, body.files)
         result = grader.grade(lesson, body.files)
         diag_text = result.summary
@@ -244,7 +257,22 @@ def create_app(
     @app.get("/api/lessons/{lesson_id}/solution")
     def get_solution(lesson_id: str) -> dict[str, object]:
         lesson = _require_lesson(lesson_id)
+        store.mark_solution_revealed(lesson_id)
         return {"lessonId": lesson_id, "files": dict(lesson.solution_files)}
+
+    @app.get("/api/progress/export", response_model=ProgressBackupPayload)
+    def export_progress() -> ProgressBackupPayload:
+        return store.export_backup()
+
+    @app.post("/api/progress/import")
+    def import_progress(body: ProgressBackupPayload) -> dict[str, str]:
+        if cfg.demo_mode:
+            raise HTTPException(
+                status_code=403,
+                detail="Import is disabled in read-only demo mode.",
+            )
+        store.import_backup(body)
+        return {"status": "restored"}
 
     @app.post("/api/lessons/{lesson_id}/reset")
     def reset_lesson(lesson_id: str) -> dict[str, object]:

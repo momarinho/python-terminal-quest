@@ -63,13 +63,32 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdown }) 
               {children}
             </td>
           ),
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              target="_blank"
+              rel="noreferrer"
+              className="text-[#38BDF8] underline underline-offset-2 hover:text-[#F5B942] transition"
+            >
+              {children}
+            </a>
+          ),
           code: ({ className, children }) => {
             const isBlock = Boolean(className) || String(children).includes('\n');
             if (isBlock) {
+              const langMatch = className?.match(/language-([A-Za-z0-9_-]+)/);
+              const lang = langMatch?.[1];
               return (
-                <pre className="bg-[#0B0E14] border border-white/[0.07] rounded-lg p-4 overflow-x-auto text-[13px] leading-[1.6] text-[#E2E8F0] my-4 font-mono">
-                  <code>{children}</code>
-                </pre>
+                <div className="relative my-4">
+                  {lang && (
+                    <span className="absolute top-2 right-3 text-[10px] font-mono uppercase tracking-wider text-slate-500 select-none">
+                      {lang}
+                    </span>
+                  )}
+                  <pre className="bg-[#0B0E14] border border-white/[0.07] rounded-lg p-4 overflow-x-auto text-[13px] leading-[1.6] text-[#E2E8F0] font-mono">
+                    <code>{children}</code>
+                  </pre>
+                </div>
               );
             }
             return (

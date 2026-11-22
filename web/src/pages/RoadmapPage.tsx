@@ -164,14 +164,18 @@ export const RoadmapPage: React.FC<RoadmapPageProps> = ({
     return PHASES.map((phase) => {
       const phaseModules = curriculum.modules
         .filter((m) => {
+          if (typeof m.phase === 'number' && m.phase > 0) {
+            return m.phase === phase.number;
+          }
           const num = parseModuleOrder(m.id);
           return num >= phase.moduleRange[0] && num <= phase.moduleRange[1];
         })
         .map((mod) => ({
           module: mod,
-          order: parseModuleOrder(mod.id),
+          order: mod.order && mod.order > 0 ? mod.order : parseModuleOrder(mod.id),
           visibleLessons: filterModuleLessons(mod, filter),
         }))
+        .sort((a, b) => a.order - b.order)
         .filter((item) => item.visibleLessons.length > 0);
 
       return { phase, items: phaseModules };

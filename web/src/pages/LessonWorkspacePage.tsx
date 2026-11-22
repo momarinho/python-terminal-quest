@@ -4,12 +4,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  FileCheck2,
   FileCode2,
   Loader2,
   RotateCcw,
   Save,
   Send,
   StickyNote,
+  Trash2,
 } from 'lucide-react';
 import { api } from '../api/client';
 import {
@@ -116,6 +118,38 @@ type SaveState = 'SAVED' | 'UNSAVED' | 'SAVING';
 
 const LEFT_PANE_STORAGE_KEY = 'pyquest.leftPaneWidthPct';
 const TERMINAL_HEIGHT_STORAGE_KEY = 'pyquest.terminalHeightPx';
+const ORACLE_CHAT_PREFIX = 'pyquest.oracleChat.';
+
+function loadOracleChat(lessonId: string): ChatMessage[] {
+  try {
+    const raw = localStorage.getItem(`${ORACLE_CHAT_PREFIX}${lessonId}`);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is ChatMessage =>
+        Boolean(item) &&
+        typeof item === 'object' &&
+        (item.role === 'user' || item.role === 'oracle') &&
+        typeof item.text === 'string'
+    );
+  } catch {
+    return [];
+  }
+}
+
+function saveOracleChat(lessonId: string, messages: ChatMessage[]): void {
+  try {
+    const key = `${ORACLE_CHAT_PREFIX}${lessonId}`;
+    if (messages.length === 0) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, JSON.stringify(messages));
+    }
+  } catch {
+    // ignore storage quota errors
+  }
+}
 
 function loadStoredNumber(key: string, fallback: number, min: number, max: number): number {
   try {
@@ -143,7 +177,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
   const [lesson, setLesson] = useState<LessonDetail | null>(null);
   const [files, setFiles] = useState<Record<string, string>>({});
   const [activeFile, setActiveFile] = useState<string>('');
-  const [leftTab, setLeftTab] = useState<'concept' | 'hints' | 'oracle' | 'notes'>('concept');
+  const [leftTab, setLeftTab] = useState<'concept' | 'hints' | 'tests' | 'oracle' | 'notes'>('concept');
   const [loading, setLoading] = useState<boolean>(true);
   const [runningTests, setRunningTests] = useState<boolean>(false);
   const [saveState, setSaveState] = useState<SaveState>('SAVED');
@@ -194,7 +228,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     setSaveState('SAVED');
     setNotesSaveState('SAVED');
     setCompanionMood('idle');
-    setChatHistory([]);
+    setChatHistory(loadOracleChat(lessonId));
     if (notesTimerRef.current) {
       window.clearTimeout(notesTimerRef.current);
       notesTimerRef.current = null;
@@ -532,17 +566,26 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     }, 40);
   };
 
+  const updateChatHistory = (targetLessonId: string, updater: (prev: ChatMessage[]) => ChatMessage[]) => {
+    setChatHistory((prev) => {
+      const next = updater(prev);
+      saveOracleChat(targetLessonId, next);
+      return next;
+    });
+  };
+
   const handleAskOracle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!lesson || !question.trim()) return;
+    const activeLessonId = lesson.id;
     const userQ = question.trim();
     setQuestion('');
-    setChatHistory((prev) => [...prev, { role: 'user', text: userQ }]);
+    updateChatHistory(activeLessonId, (prev) => [...prev, { role: 'user', text: userQ }]);
     setAskingOracle(true);
     try {
       const diagSummary = gradeResult?.summary ?? lesson.progress.lastDiagnostics ?? '';
-      const res = await api.askOracle(lesson.id, userQ, files, diagSummary);
-      setChatHistory((prev) => [
+      const res = await api.askOracle(activeLessonId, userQ, files, diagSummary);
+      updateChatHistory(activeLessonId, (prev) => [
         ...prev,
         {
           role: 'oracle',
@@ -556,7 +599,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
         },
       ]);
     } catch (err) {
-      setChatHistory((prev) => [
+      updateChatHistory(activeLessonId, (prev) => [
         ...prev,
         { role: 'oracle', text: `Oracle error: ${(err as Error).message}`, provider: 'error' },
       ]);
@@ -866,6 +909,19 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
 
             <button
               type="button"
+              onClick={() => setLeftTab('tests')}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium cursor-pointer shrink-0 transition ${
+                leftTab === 'tests'
+                  ? 'bg-[#1C2230] text-[#2DD4A0]'
+                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+              }`}
+            >
+              <FileCheck2 className="w-3.5 h-3.5 text-[#2DD4A0]" />
+              <span>Tests ({Object.keys(lesson.testFiles ?? {}).length})</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setLeftTab('notes')}
               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[13px] font-medium cursor-pointer shrink-0 transition ${
                 leftTab === 'notes'
@@ -978,6 +1034,44 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
               </div>
             )}
 
+            {leftTab === 'tests' && (
+              <div className="space-y-4">
+                <div className="rpg-panel p-4 space-y-1">
+                  <div className="text-sm font-semibold text-[#2DD4A0] flex items-center gap-2">
+                    <FileCheck2 className="w-4 h-4" />
+                    <span>Verification Suite (`pytest`)</span>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    Read-only pytest verification suite executed in the isolated runner. Inspect
+                    expected signatures, edge cases, and test doubles.
+                  </p>
+                </div>
+
+                {Object.entries(lesson.testFiles ?? {}).length === 0 ? (
+                  <div className="text-center py-12 border border-dashed border-white/[0.1] rounded-lg text-xs text-slate-400">
+                    No test files exposed for this stage.
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {Object.entries(lesson.testFiles ?? {}).map(([testPath, content]) => (
+                      <div
+                        key={testPath}
+                        className="rounded-lg border border-white/[0.08] bg-[#0B0E14] overflow-hidden"
+                      >
+                        <div className="px-3.5 py-2 bg-[#121620] border-b border-white/[0.08] flex items-center justify-between text-xs font-mono text-[#BAE6FD]">
+                          <span>tests/{testPath}</span>
+                          <span className="text-[11px] text-slate-500">read-only</span>
+                        </div>
+                        <pre className="p-4 text-[12.5px] leading-[1.6] font-mono text-[#E2E8F0] overflow-x-auto">
+                          <code>{content}</code>
+                        </pre>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             {leftTab === 'notes' && (
               <div className="h-full flex flex-col gap-3">
                 <div className="rpg-panel p-4 flex flex-wrap items-center justify-between gap-3">
@@ -1027,9 +1121,22 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
               <div className="h-full flex flex-col justify-between gap-4">
                 <div className="space-y-3 overflow-y-auto pr-1">
                   <div className="rpg-panel p-4 text-xs text-slate-300 space-y-1.5">
-                    <div className="text-xs font-semibold text-[#A78BFA] flex items-center gap-2">
-                      <PixelBotIcon className="w-4 h-4" />
-                      <span>RAG Oracle</span>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-xs font-semibold text-[#A78BFA] flex items-center gap-2">
+                        <PixelBotIcon className="w-4 h-4" />
+                        <span>RAG Oracle</span>
+                      </div>
+                      {chatHistory.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={() => updateChatHistory(lesson.id, () => [])}
+                          title="Clear chat history for this stage"
+                          className="inline-flex items-center gap-1 px-2 py-1 rounded text-[11px] text-slate-400 hover:text-[#F45D78] hover:bg-white/[0.05] cursor-pointer transition"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Clear</span>
+                        </button>
+                      )}
                     </div>
                     <p className="text-slate-400 leading-relaxed">
                       Ask about your code or pytest diagnostics. Active files,{' '}
@@ -1481,6 +1588,17 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                           )}
                         </div>
                       ))}
+                    </div>
+                  )}
+
+                  {gradeResult.stdout && gradeResult.stdout.trim().length > 0 && (
+                    <div className="space-y-1">
+                      <div className="text-xs font-sans font-semibold text-[#38BDF8]">
+                        Standard Output (stdout)
+                      </div>
+                      <pre className="bg-[#121620] border border-white/[0.08] rounded-lg p-3.5 text-slate-200 whitespace-pre-wrap">
+                        {gradeResult.stdout}
+                      </pre>
                     </div>
                   )}
 

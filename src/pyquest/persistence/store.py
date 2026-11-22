@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import sqlite3
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
@@ -12,6 +12,7 @@ from pyquest.domain.models import (
     LessonProgress,
     LessonSpec,
     LessonStatus,
+    ProgressBackupPayload,
     ProgressState,
     ProjectProgress,
     ProjectStatus,
@@ -88,6 +89,8 @@ class ProgressStore:
                     last_diagnostics TEXT NOT NULL DEFAULT '',
                     notes TEXT NOT NULL DEFAULT '',
                     flagged INTEGER NOT NULL DEFAULT 0,
+                    solution_revealed INTEGER NOT NULL DEFAULT 0,
+                    completed_at TEXT NOT NULL DEFAULT '',
                     updated_at TEXT NOT NULL DEFAULT ''
                 );
 
@@ -110,6 +113,12 @@ class ProgressStore:
                 );
                 """
             )
+            for ddl in (
+                "ALTER TABLE lesson_progress ADD COLUMN solution_revealed INTEGER NOT NULL DEFAULT 0",
+                "ALTER TABLE lesson_progress ADD COLUMN completed_at TEXT NOT NULL DEFAULT ''",
+            ):
+                with suppress(sqlite3.OperationalError):
+                    conn.execute(ddl)
 
     def get_lesson_progress(self, lesson_id: str) -> LessonProgress:
         with self._connect() as conn:
@@ -181,7 +190,49 @@ class ProgressStore:
                 """,
                 (lesson_id, payload, now),
             )
+            conn.execute(
+                """
+                UPDATE lesson_progress
+                SET hints_revealed = 0,
+                    solution_revealed = 0,
+                    updated_at = ?
+                WHERE lesson_id = ?
+                """,
+                (now, lesson_id),
+            )
         return dict(starter_files)
+
+    def mark_solution_revealed(self, lesson_id: str) -> LessonProgress:
+        now = _utc_now_iso()
+        with self._connect() as conn:
+            existing = conn.execute(
+                "SELECT status FROM lesson_progress WHERE lesson_id = ?",
+                (lesson_id,),
+            ).fetchone()
+            if existing is None:
+                conn.execute(
+                    """
+                    INSERT INTO lesson_progress (lesson_id, status, solution_revealed, updated_at)
+                    VALUES (?, 'IN_PROGRESS', 1, ?)
+                    """,
+                    (lesson_id, now),
+                )
+            elif existing["status"] != "COMPLETED":
+                conn.execute(
+                    """
+                    UPDATE lesson_progress
+                    SET solution_revealed = 1,
+                        updated_at = ?
+                    WHERE lesson_id = ?
+                    """,
+                    (now, lesson_id),
+                )
+            row = conn.execute(
+                "SELECT * FROM lesson_progress WHERE lesson_id = ?",
+                (lesson_id,),
+            ).fetchone()
+        assert row is not None
+        return self._row_to_lesson_progress(row)
 
     def record_run_attempt(
         self,
@@ -201,17 +252,22 @@ class ProgressStore:
             next_status: LessonStatus = (
                 "COMPLETED" if (passed or prev_status == "COMPLETED") else "IN_PROGRESS"
             )
+            existing_completed_at = str(existing["completed_at"]) if existing else ""
+            completed_at = now if passed else existing_completed_at
             conn.execute(
                 """
-                INSERT INTO lesson_progress (lesson_id, status, attempts, last_diagnostics, updated_at)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO lesson_progress (
+                    lesson_id, status, attempts, last_diagnostics, completed_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(lesson_id) DO UPDATE SET
                     status = excluded.status,
                     attempts = excluded.attempts,
                     last_diagnostics = excluded.last_diagnostics,
+                    completed_at = excluded.completed_at,
                     updated_at = excluded.updated_at
                 """,
-                (lesson_id, next_status, attempts, diagnostics_summary, now),
+                (lesson_id, next_status, attempts, diagnostics_summary, completed_at, now),
             )
             if passed:
                 conn.execute(
@@ -455,15 +511,114 @@ class ProgressStore:
         assert row is not None
         return self._row_to_project_progress(row)
 
+    def export_backup(self) -> ProgressBackupPayload:
+        with self._connect() as conn:
+            lesson_rows = conn.execute("SELECT * FROM lesson_progress ORDER BY lesson_id").fetchall()
+            draft_rows = conn.execute("SELECT lesson_id, files_json FROM lesson_drafts ORDER BY lesson_id").fetchall()
+            day_rows = conn.execute("SELECT day_iso FROM activity_days ORDER BY day_iso").fetchall()
+            project_rows = conn.execute("SELECT * FROM project_progress ORDER BY project_id").fetchall()
+
+        drafts: dict[str, dict[str, str]] = {}
+        for row in draft_rows:
+            loaded = json.loads(row["files_json"] or "{}")
+            if isinstance(loaded, dict):
+                drafts[str(row["lesson_id"])] = {str(k): str(v) for k, v in loaded.items()}
+
+        return ProgressBackupPayload(
+            exported_at=_utc_now_iso(),
+            lessons=[self._row_to_lesson_progress(r) for r in lesson_rows],
+            drafts=drafts,
+            activity_days=[str(r["day_iso"]) for r in day_rows],
+            projects=[self._row_to_project_progress(r) for r in project_rows],
+        )
+
+    def import_backup(self, payload: ProgressBackupPayload) -> None:
+        now = _utc_now_iso()
+        with self._connect() as conn:
+            for lp in payload.lessons:
+                conn.execute(
+                    """
+                    INSERT INTO lesson_progress (
+                        lesson_id, status, attempts, hints_revealed, last_diagnostics,
+                        notes, flagged, solution_revealed, completed_at, updated_at
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT(lesson_id) DO UPDATE SET
+                        status = excluded.status,
+                        attempts = excluded.attempts,
+                        hints_revealed = excluded.hints_revealed,
+                        last_diagnostics = excluded.last_diagnostics,
+                        notes = excluded.notes,
+                        flagged = excluded.flagged,
+                        solution_revealed = excluded.solution_revealed,
+                        completed_at = excluded.completed_at,
+                        updated_at = excluded.updated_at
+                    """,
+                    (
+                        lp.lesson_id,
+                        lp.status,
+                        lp.attempts,
+                        lp.hints_revealed,
+                        lp.last_diagnostics,
+                        lp.notes,
+                        1 if lp.flagged else 0,
+                        1 if lp.solution_revealed else 0,
+                        lp.completed_at,
+                        lp.updated_at or now,
+                    ),
+                )
+            for lesson_id, files in payload.drafts.items():
+                conn.execute(
+                    """
+                    INSERT INTO lesson_drafts (lesson_id, files_json, updated_at)
+                    VALUES (?, ?, ?)
+                    ON CONFLICT(lesson_id) DO UPDATE SET
+                        files_json = excluded.files_json,
+                        updated_at = excluded.updated_at
+                    """,
+                    (lesson_id, json.dumps(files), now),
+                )
+            for day_iso in payload.activity_days:
+                conn.execute("INSERT OR IGNORE INTO activity_days (day_iso) VALUES (?)", (day_iso,))
+            for proj in payload.projects:
+                conn.execute(
+                    """
+                    INSERT INTO project_progress (
+                        project_id, status, completed_checklist_json, repo_url, updated_at
+                    )
+                    VALUES (?, ?, ?, ?, ?)
+                    ON CONFLICT(project_id) DO UPDATE SET
+                        status = excluded.status,
+                        completed_checklist_json = excluded.completed_checklist_json,
+                        repo_url = excluded.repo_url,
+                        updated_at = excluded.updated_at
+                    """,
+                    (
+                        proj.project_id,
+                        proj.status,
+                        json.dumps(proj.completed_checklist_ids),
+                        proj.repo_url,
+                        proj.updated_at or now,
+                    ),
+                )
+
     def _row_to_lesson_progress(self, row: sqlite3.Row) -> LessonProgress:
+        hints_revealed = int(row["hints_revealed"])
+        solution_revealed = bool(row["solution_revealed"])
+        flagged = bool(row["flagged"])
+        status: LessonStatus = row["status"]
+        needs_review = status == "COMPLETED" and (hints_revealed > 0 or solution_revealed or flagged)
         return LessonProgress(
             lesson_id=str(row["lesson_id"]),
-            status=row["status"],
+            status=status,
             attempts=int(row["attempts"]),
-            hints_revealed=int(row["hints_revealed"]),
+            hints_revealed=hints_revealed,
             last_diagnostics=str(row["last_diagnostics"]),
             notes=str(row["notes"]),
-            flagged=bool(row["flagged"]),
+            flagged=flagged,
+            solution_revealed=solution_revealed,
+            completed_at=str(row["completed_at"]),
+            needs_review=needs_review,
             updated_at=str(row["updated_at"]),
         )
 

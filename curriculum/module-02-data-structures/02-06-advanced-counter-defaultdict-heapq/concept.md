@@ -1,13 +1,13 @@
 ## Concept: `Counter`, `defaultdict`, and `heapq` Priority Queues
 
-The Python standard library ships battle-tested tools in `collections` and `heapq` that eliminate boilerplate and keep algorithms $O(N \log K)$ or $O(N)$.
+The Python standard library ships battle-tested tools in `collections` and `heapq` that eliminate boilerplate and keep algorithms `O(N log K)` or `O(N)`.
 
 ### `Counter` & `defaultdict`
 * `Counter(items).most_common(k)` tallies hashable items in one pass.
 * `defaultdict(list)` automatically creates an empty list on first key access—no `if key not in groups:` needed!
 
 ### `heapq` Min-Heap & Deterministic Tie-Breaking
-`heapq` maintains a **min-heap** on a standard `list` (`heappush`, `heappop` in $O(\log N)$).
+`heapq` maintains a **min-heap** on a standard `list` (`heappush`, `heappop` in `O(log N)`).
 * To break ties cleanly by insertion order (FIFO for equal priority), store `(priority, seq, payload)` tuples—where `seq` is a monotonically increasing integer so `payload` itself never gets compared!
 
 ```python

@@ -54,3 +54,15 @@ def test_grader_reports_assertion_failure_on_lesson() -> None:
     assert res.passed is False
     assert res.stage == "TEST"
     assert any(not tc.passed for tc in res.test_cases)
+
+
+def test_grader_rejects_forbidden_submission_paths() -> None:
+    loaded = CurriculumLoader(CURRICULUM_DIR).load()
+    lesson = loaded.lessons_by_id["01-01"]
+    grader = PytestGrader()
+
+    for bad_path in ("conftest.py", "sub/conftest.py", "tests/test_hack.py", "../escape.py"):
+        res = grader.grade(lesson, {bad_path: "def nope(): pass\n"})
+        assert res.passed is False
+        assert res.stage == "SYNTAX"
+        assert "Forbidden file path" in res.summary

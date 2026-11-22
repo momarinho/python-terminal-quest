@@ -20,6 +20,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl \
     && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 pyquest \
+    && useradd --uid 10001 --gid pyquest --create-home --shell /bin/bash pyquest \
     && mkdir -p /app/.pyquest
 
 COPY pyproject.toml uv.lock* README.md ./
@@ -29,6 +31,10 @@ RUN uv sync --no-dev --frozen || uv sync --no-dev
 
 COPY curriculum/ /app/curriculum/
 COPY --from=web-builder /build/web/dist /app/web/dist
+
+RUN chown -R pyquest:pyquest /app
+
+USER pyquest
 
 ENV PYQUEST_HOST=0.0.0.0
 ENV PYQUEST_PORT=8080

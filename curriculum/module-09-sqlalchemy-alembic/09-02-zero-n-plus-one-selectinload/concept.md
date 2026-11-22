@@ -4,7 +4,7 @@ By default, SQLAlchemy relationships lazy-load on attribute access. Fetching 25 
 
 ### Choosing `joinedload` vs. `selectinload`
 * **`joinedload(Parent.to_one)`:** Joins a `N:1` or `1:1` parent in the **same** `SELECT` (1 query total, zero row explosion).
-* **`selectinload(Parent.to_many)`:** Fires **one** `SELECT ... WHERE parent_id IN (...)` batch query for all child collections—keeping total queries constant ($O(1)$ queries regardless of $N$ rows!).
+* **`selectinload(Parent.to_many)`:** Fires **one** `SELECT ... WHERE parent_id IN (...)` batch query for all child collections—keeping total queries constant (`O(1)` queries regardless of `N` rows!).
 
 ```python
 stmt = (

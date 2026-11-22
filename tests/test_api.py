@@ -43,6 +43,7 @@ def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
     assert lesson_resp.status_code == 200
     lesson_data = lesson_resp.json()
     assert set(lesson_data["files"].keys()) == {"models.py", "engine.py"}
+    assert len(lesson_data["testFiles"]) >= 1
 
     # Save multi-file draft
     draft_files = {
@@ -107,3 +108,62 @@ def test_projects_endpoint(tmp_path: Path) -> None:
     ]
     assert [p["requiredModulesCompleted"] for p in data["projects"]] == [5, 9, 12]
     assert all(not p["milestoneUnlocked"] for p in data["projects"])
+
+
+def test_solution_reveal_review_reset_and_backup_roundtrip(tmp_path: Path) -> None:
+    client = _make_client(tmp_path)
+
+    # Revealing solution before completion marks solutionRevealed=True
+    sol_resp = client.get("/api/lessons/01-01/solution")
+    assert sol_resp.status_code == 200
+    sol_files = sol_resp.json()["files"]
+
+    # Completing after reveal sets needsReview=True
+    run_resp = client.post("/api/lessons/01-01/run", json={"files": sol_files})
+    assert run_resp.status_code == 200
+    prog = run_resp.json()["progress"]
+    assert prog["status"] == "COMPLETED"
+    assert prog["solutionRevealed"] is True
+    assert prog["needsReview"] is True
+    assert prog["completedAt"] != ""
+
+    # Export backup, then import into a fresh DB
+    client.post("/api/lessons/01-01/notes", json={"notes": "Backup note check"})
+    export_resp = client.get("/api/progress/export")
+    assert export_resp.status_code == 200
+    backup_payload = export_resp.json()
+    assert any(item["lessonId"] == "01-01" for item in backup_payload["lessons"])
+
+    fresh_client = _make_client(tmp_path / "fresh")
+    import_resp = fresh_client.post("/api/progress/import", json=backup_payload)
+    assert import_resp.status_code == 200
+    restored = fresh_client.get("/api/lessons/01-01").json()
+    assert restored["progress"]["notes"] == "Backup note check"
+    assert restored["progress"]["status"] == "COMPLETED"
+
+    # Reset clears hints_revealed and solution_revealed for a cold retry
+    reset_resp = client.post("/api/lessons/01-01/reset")
+    assert reset_resp.status_code == 200
+    after_reset = client.get("/api/lessons/01-01").json()["progress"]
+    assert after_reset["solutionRevealed"] is False
+    assert after_reset["hintsRevealed"] == 0
+
+
+def test_demo_mode_blocks_arbitrary_code_execution_and_import(tmp_path: Path) -> None:
+    settings = Settings(
+        db_path=tmp_path / "demo.db",
+        curriculum_dir=REPO_ROOT / "curriculum",
+        web_dist_dir=tmp_path / "missing_dist",
+        demo_mode=True,
+    )
+    client = TestClient(create_app(settings))
+    assert client.get("/api/health").json()["demoMode"] is True
+
+    run_resp = client.post(
+        "/api/lessons/01-01/run",
+        json={"files": {"config_parser.py": "print('arbitrary')\n"}},
+    )
+    assert run_resp.status_code == 403
+
+    import_resp = client.post("/api/progress/import", json={"version": "1.0"})
+    assert import_resp.status_code == 403

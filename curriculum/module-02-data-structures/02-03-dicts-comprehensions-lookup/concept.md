@@ -1,6 +1,6 @@
 ## Concept: Dictionaries, Safe Lookups & Dict Comprehensions
 
-Dictionaries map hashable keys to values in amortized $O(1)$ time. Modern Python makes merging, filtering, and safe lookups concise and non-destructive.
+Dictionaries map hashable keys to values in amortized `O(1)` time. Modern Python makes merging, filtering, and safe lookups concise and non-destructive.
 
 ### Safe Lookup & Non-Mutating Merge (`|`)
 * `mapping.get(key, default)` avoids `KeyError` without mutating `mapping`.

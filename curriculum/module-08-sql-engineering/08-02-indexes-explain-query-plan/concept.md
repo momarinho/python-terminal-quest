@@ -1,6 +1,6 @@
 ## Concept: Composite Indexes & `EXPLAIN QUERY PLAN`
 
-Full table scans (`SCAN table`) grow linearly $O(N)$ as rows accumulate. A well-ordered B-tree **composite index** turns equality + range/sort queries into $O(\log N)$ index seeks (`SEARCH table USING INDEX ...`).
+Full table scans (`SCAN table`) grow linearly `O(N)` as rows accumulate. A well-ordered B-tree **composite index** turns equality + range/sort queries into `O(log N)` index seeks (`SEARCH table USING INDEX ...`).
 
 ### Leftmost-Prefix & Equality-First Rule
 For a query filtering `WHERE branch_id = ? AND status = ? ORDER BY due_at DESC LIMIT 20`:
