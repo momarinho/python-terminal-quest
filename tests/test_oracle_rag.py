@@ -65,8 +65,28 @@ def test_oracle_ask_returns_grounded_offline_rag_response(tmp_path: Path) -> Non
     assert body["provider"] == "offline-rag"
     assert body["guardrailTriggered"] is False
     assert isinstance(body["latencyMs"], int)
+    assert len(body["reasoningSteps"]) >= 4
     assert "11-02" in [c["lessonId"] for c in body["citations"]]
     assert any(src.endswith("concept.md") for src in body["citedSources"])
+
+
+def test_oracle_eval_benchmark_and_api_endpoint(tmp_path: Path) -> None:
+    settings = Settings(
+        db_path=tmp_path / "progress.db",
+        curriculum_dir=CURRICULUM_DIR,
+        web_dist_dir=tmp_path / "missing_dist",
+    )
+    client = TestClient(create_app(settings))
+    eval_resp = client.get("/api/oracle/eval")
+    assert eval_resp.status_code == 200
+    report = eval_resp.json()
+    assert report["totalQueries"] == 15
+    assert report["recallAtK"] >= 0.85
+    assert report["mrrAtK"] >= 0.75
+    assert report["zeroLeakVerified"] is True
+    assert report["guardrailBlockRate"] == 1.0
+    assert report["p50LatencyMs"] >= 1.0
+    assert report["p95LatencyMs"] >= report["p50LatencyMs"]
 
 
 def test_capstone_indexer_never_indexes_solution_or_test_files() -> None:
@@ -184,6 +204,7 @@ def test_agentic_query_rewriting_with_diagnostics_and_ttl_cache() -> None:
         last_diagnostics="AssertionError: Expected <= 2 SQL queries via selectinload, got 6",
     )
     assert first.mode == "live-llm"
+    assert any("adaptive query rewrite" in step for step in first.reasoning_steps)
     assert len(fake_live.calls) == 1
 
     # Identical follow-up hits the exact-match TTL cache instead of re-invoking the LLM
@@ -194,4 +215,5 @@ def test_agentic_query_rewriting_with_diagnostics_and_ttl_cache() -> None:
         last_diagnostics="AssertionError: Expected <= 2 SQL queries via selectinload, got 6",
     )
     assert second.answer == first.answer
+    assert "ttl_cache: hit" in second.reasoning_steps
     assert len(fake_live.calls) == 1

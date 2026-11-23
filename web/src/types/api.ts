@@ -170,6 +170,7 @@ export interface OracleResponse {
   mode: 'stub' | 'offline-rag' | 'live-llm';
   citations: OracleCitation[];
   citedSources: string[];
+  reasoningSteps?: string[];
   guardrailTriggered: boolean;
   latencyMs: number;
 }

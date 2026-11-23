@@ -148,6 +148,11 @@ def test_solution_reveal_review_reset_and_backup_roundtrip(tmp_path: Path) -> No
     assert after_reset["solutionRevealed"] is False
     assert after_reset["hintsRevealed"] == 0
 
+    # Full progress reset wipes all progress tables cleanly
+    wipe_resp = client.post("/api/progress/reset")
+    assert wipe_resp.status_code == 200
+    assert client.get("/api/curriculum").json()["completedLessons"] == 0
+
 
 def test_demo_mode_blocks_arbitrary_code_execution_and_import(tmp_path: Path) -> None:
     settings = Settings(

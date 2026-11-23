@@ -1,3 +1,4 @@
+from pyquest.rag.evaluator import evaluate_rag_oracle
 from pyquest.rag.guardrails import (
     detect_guardrail_violation,
     scrub_pii_and_secrets,
@@ -46,6 +47,7 @@ __all__ = [
     "build_rag_oracle",
     "chunk_lesson_markdown",
     "detect_guardrail_violation",
+    "evaluate_rag_oracle",
     "index_curriculum_lessons",
     "scrub_pii_and_secrets",
     "validate_safe_corpus_path",

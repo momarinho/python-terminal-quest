@@ -270,6 +270,7 @@ class AgenticRagOracle(RagPipeline):
                 mode="offline-rag",
                 citations=[],
                 cited_sources=[],
+                reasoning_steps=[f"guardrail_check: blocked ({violation})"],
                 guardrail_triggered=True,
                 latency_ms=elapsed_ms,
             )
@@ -281,11 +282,20 @@ class AgenticRagOracle(RagPipeline):
         cached = self._cache.get(cache_key)
         if cached is not None:
             elapsed_ms = max(1, int((time.perf_counter() - started) * 1000))
-            return cached.model_copy(update={"latency_ms": elapsed_ms})
+            cached_steps = [*cached.reasoning_steps, "ttl_cache: hit"]
+            return cached.model_copy(update={"latency_ms": elapsed_ms, "reasoning_steps": cached_steps})
+
+        reasoning_steps = [
+            "guardrail_check: passed (PII/secrets scrubbed)",
+            "ttl_cache: miss",
+        ]
 
         # Node 2: Initial Hybrid BM25 + Vector RRF Retrieval
         query_seed = scrubbed_question or f"{lesson.title} {scrubbed_diagnostics}"
         hits = self._retrieve_hybrid(query_seed, active_lesson_id=lesson.id, top_k=4)
+        reasoning_steps.append(
+            f"hybrid_retrieve: Okapi BM25 + dense vector RRF top-{len(hits) or 0}"
+        )
 
         # Node 3 & 4: Document Grader + Adaptive Query Rewriter (Week 7 Agentic pattern)
         rewrote_query = False
@@ -298,6 +308,11 @@ class AgenticRagOracle(RagPipeline):
             )
             hits = _merge_hits(hits, secondary_hits, top_k=4)
             rewrote_query = True
+            reasoning_steps.append(
+                "document_grader: Triggered adaptive query rewrite with diagnostics & code symbols"
+            )
+        else:
+            reasoning_steps.append("document_grader: High-confidence direct match")
 
         # Deduplicate citations cleanly by lesson_id while keeping top-scoring snippet
         citations_by_lesson: dict[str, OracleCitation] = {}
@@ -359,6 +374,7 @@ class AgenticRagOracle(RagPipeline):
                 fallback_reason=fallback_reason,
             )
 
+        reasoning_steps.append(f"socratic_generator: {mode} ({provider})")
         elapsed_ms = max(1, int((time.perf_counter() - started) * 1000))
         response = OracleResponse(
             answer=answer,
@@ -366,6 +382,7 @@ class AgenticRagOracle(RagPipeline):
             mode=mode,  # type: ignore[arg-type]
             citations=citations,
             cited_sources=cited_sources,
+            reasoning_steps=reasoning_steps,
             guardrail_triggered=False,
             latency_ms=elapsed_ms,
         )

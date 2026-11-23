@@ -291,8 +291,19 @@ class OracleResponse(CamelModel):
     mode: Literal["stub", "offline-rag", "live-llm"] = "stub"
     citations: list[OracleCitation] = Field(default_factory=list)
     cited_sources: list[str] = Field(default_factory=list)
+    reasoning_steps: list[str] = Field(default_factory=list)
     guardrail_triggered: bool = False
     latency_ms: int = 0
+
+
+class RagEvalReport(CamelModel):
+    total_queries: int
+    recall_at_k: float
+    mrr_at_k: float
+    zero_leak_verified: bool
+    guardrail_block_rate: float
+    p50_latency_ms: float
+    p95_latency_ms: float
 
 
 class ChecklistUpdateRequest(CamelModel):

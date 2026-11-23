@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { api } from '../api/client';
 import {
+  type CompanionCodeEvent,
   type CompanionMood,
   HeroCompanionFloating,
   HeroCompanionSprite,
@@ -117,6 +118,7 @@ interface ChatMessage {
   mode?: 'stub' | 'offline-rag' | 'live-llm';
   citations?: OracleCitation[];
   sources?: string[];
+  reasoningSteps?: string[];
   guardrailTriggered?: boolean;
   latencyMs?: number;
 }
@@ -194,6 +196,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const [errorBanner, setErrorBanner] = useState<string | null>(null);
   const [companionMood, setCompanionMood] = useState<CompanionMood>('idle');
+  const [companionCodeEvent, setCompanionCodeEvent] = useState<CompanionCodeEvent | null>(null);
   const [liveHero, setLiveHero] = useState<HeroStatus | null>(hero);
   const [tierUpModal, setTierUpModal] = useState<{
     previousTier: number;
@@ -234,6 +237,27 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
   const liveHeroRef = useRef<HeroStatus | null>(liveHero);
   liveHeroRef.current = liveHero;
   const autoSaveTimerRef = useRef<number | null>(null);
+  const lastTypingEventRef = useRef<number>(0);
+  const codeEventSeqRef = useRef<number>(0);
+  const emitCodeEvent = useCallback(
+    (
+      payload: CompanionCodeEvent extends infer T
+        ? T extends CompanionCodeEvent
+          ? Omit<T, 'id'>
+          : never
+        : never
+    ) => {
+      codeEventSeqRef.current += 1;
+      setCompanionCodeEvent({ ...payload, id: codeEventSeqRef.current } as CompanionCodeEvent);
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (leftTab === 'tests' || leftTab === 'notes') {
+      emitCodeEvent({ type: 'study_buff', source: leftTab });
+    }
+  }, [leftTab, emitCodeEvent]);
 
   useEffect(() => {
     if (hero) {
@@ -324,13 +348,32 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     setRunningTests(true);
     setTerminalCollapsed(false);
     setCompanionMood('running');
+    emitCodeEvent({ type: 'run_start' });
     setSaveState('SAVING');
     setErrorBanner(null);
+    const wasCompletedBefore = currentLesson.progress.status === 'COMPLETED';
     try {
       const res = await api.runTests(currentLesson.id, filesRef.current);
       setGradeResult(res.result);
       setSaveState('SAVED');
       setCompanionMood(res.result.passed ? 'victory' : 'fail');
+      const totalCount = res.result.testCases.length;
+      const passedCount = res.result.testCases.filter((tc) => tc.passed).length;
+      const isColdClear =
+        res.result.passed &&
+        !res.progress.needsReview &&
+        res.progress.hintsRevealed === 0 &&
+        !res.progress.solutionRevealed;
+      emitCodeEvent({
+        type: 'grade_result',
+        passed: res.result.passed,
+        passedCount,
+        totalCount,
+        stage: res.result.stage,
+        firstClear: res.result.passed && !wasCompletedBefore,
+        isColdClear,
+        isBoss: currentLesson.kind === 'BOSS',
+      });
       const prevTier = liveHeroRef.current?.tier ?? 1;
       if (res.hero && res.hero.tier > prevTier) {
         setTierUpModal({ previousTier: prevTier, nextHero: res.hero });
@@ -459,6 +502,14 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
       return updated;
     });
     setSaveState('UNSAVED');
+    const now = Date.now();
+    if (now - lastTypingEventRef.current >= 1200) {
+      lastTypingEventRef.current = now;
+      emitCodeEvent({
+        type: 'typing',
+        hasReturnAnnotation: /->\s*[A-Za-z_[\]]/.test(nextValue),
+      });
+    }
 
     if (autoSaveTimerRef.current) {
       window.clearTimeout(autoSaveTimerRef.current);
@@ -628,6 +679,7 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
           mode: res.mode,
           citations: res.citations,
           sources: res.citedSources,
+          reasoningSteps: res.reasoningSteps,
           guardrailTriggered: res.guardrailTriggered,
           latencyMs: res.latencyMs,
         },
@@ -1384,6 +1436,18 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                           </div>
                         </div>
                       )}
+                      {msg.reasoningSteps && msg.reasoningSteps.length > 0 && (
+                        <details className="pt-2 border-t border-white/[0.06] text-[11px] text-slate-400">
+                          <summary className="cursor-pointer select-none font-medium text-slate-300 hover:text-white transition">
+                            Agentic RAG Trace ({msg.reasoningSteps.length} steps)
+                          </summary>
+                          <ol className="mt-1.5 space-y-1 pl-4 list-decimal font-mono text-[10.5px] text-slate-400">
+                            {msg.reasoningSteps.map((step, stepIdx) => (
+                              <li key={stepIdx}>{step}</li>
+                            ))}
+                          </ol>
+                        </details>
+                      )}
                       {(!msg.citations || msg.citations.length === 0) &&
                         msg.sources &&
                         msg.sources.length > 0 && (
@@ -1832,10 +1896,13 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
 
       {/* Collapsible Floating 5-Tier Hero Companion */}
       <HeroCompanionFloating
+        lessonId={lesson.id}
         tier={liveHero?.tier ?? hero?.tier ?? 1}
         tierTitle={liveHero?.title ?? hero?.title ?? 'Apprentice'}
         mood={companionMood}
         speechText={companionSpeech}
+        codeEvent={companionCodeEvent}
+        activeStudyBuff={leftTab === 'tests' || leftTab === 'notes'}
         onJumpTests={() => {
           setLeftTab('tests');
           setMobilePane('guide');

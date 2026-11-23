@@ -1,10 +1,32 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { Download, RefreshCw, Shield, StickyNote, Upload } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  AlertTriangle,
+  Download,
+  Eye,
+  EyeOff,
+  Gamepad2,
+  Lock,
+  RefreshCw,
+  RotateCcw,
+  Settings2,
+  Shield,
+  StickyNote,
+  Unlock,
+  Upload,
+  X,
+} from 'lucide-react';
 import { api } from '../api/client';
 import {
+  type CompanionAfkState,
   HERO_TIER_CATALOG,
   HeroArmoryModal,
   HeroCompanionSprite,
+  readBossGateEnabled,
+  readCompanionAfkEnabled,
+  readCompanionAfkState,
+  resetCompanionAfkState,
+  setBossGateEnabled,
+  setCompanionAfkEnabled,
 } from '../components/HeroCompanion';
 import {
   PixelBoltIcon,
@@ -53,7 +75,26 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [backupNotice, setBackupNotice] = useState<string | null>(null);
   const [backupBusy, setBackupBusy] = useState(false);
   const [armoryOpen, setArmoryOpen] = useState(false);
+  const [accountModalOpen, setAccountModalOpen] = useState(false);
+  const [confirmFullReset, setConfirmFullReset] = useState(false);
+  const [afkEnabled, setAfkEnabled] = useState<boolean>(() => readCompanionAfkEnabled());
+  const [bossGateEnabled, setBossGateEnabledState] = useState<boolean>(() => readBossGateEnabled());
+  const [afkState, setAfkState] = useState<CompanionAfkState>(() => readCompanionAfkState());
   const importInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    const syncAfk = () => {
+      setAfkEnabled(readCompanionAfkEnabled());
+      setBossGateEnabledState(readBossGateEnabled());
+      setAfkState(readCompanionAfkState());
+    };
+    window.addEventListener('pyquest:afk-updated', syncAfk);
+    window.addEventListener('storage', syncAfk);
+    return () => {
+      window.removeEventListener('pyquest:afk-updated', syncAfk);
+      window.removeEventListener('storage', syncAfk);
+    };
+  }, []);
 
   const completionPercent = useMemo(() => {
     if (curriculum.totalLessons === 0) return 0;
@@ -285,6 +326,30 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </button>
 
               <div className="flex flex-wrap items-center gap-2.5 text-xs font-medium">
+                {afkEnabled && (
+                  <span
+                    title={`Companion AFK Lv.${afkState.level} · ${afkState.parriesWon} parries · ${afkState.bountiesCleared} bounties`}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#0D1017] border border-[#38BDF8]/30 text-[#38BDF8]"
+                  >
+                    <Gamepad2 className="w-3.5 h-3.5" />
+                    <span>
+                      AFK Lv.{afkState.level} · {afkState.bugsSlain} bugs · {afkState.parriesWon} parries
+                    </span>
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setCompanionAfkEnabled(!afkEnabled)}
+                  title="Toggle Companion AFK Mini-Game"
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border cursor-pointer transition ${
+                    afkEnabled
+                      ? 'bg-[#102620] border-[#2DD4A0]/40 text-[#2DD4A0] hover:bg-[#143028]'
+                      : 'bg-[#0D1017] border-white/[0.08] text-slate-400 hover:text-white'
+                  }`}
+                >
+                  {afkEnabled ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                  <span>AFK Game: {afkEnabled ? 'On' : 'Off'}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setArmoryOpen(true)}
@@ -476,6 +541,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 >
                   <Upload className="w-3 h-3 text-[#2DD4A0]" />
                   <span>Import JSON</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirmFullReset(false);
+                    setAccountModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#0D1017] border border-white/[0.08] hover:border-[#F45D78]/50 text-slate-300 hover:text-white cursor-pointer transition"
+                >
+                  <Settings2 className="w-3 h-3 text-[#F5B942]" />
+                  <span>Reset / Options</span>
                 </button>
               </div>
             </div>
@@ -773,6 +849,193 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         totalBosses={bossStats.total}
         streakDays={curriculum.streak?.currentStreakDays ?? 0}
       />
+
+      {accountModalOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/75 backdrop-blur-[2px] flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Account & Progress Options"
+        >
+          <div className="rpg-panel-gold max-w-lg w-full overflow-hidden shadow-2xl">
+            <div className="px-5 py-4 border-b border-white/[0.08] bg-[#0D1017] flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <Settings2 className="w-4 h-4 text-[#F5B942]" />
+                <div>
+                  <h2 className="text-sm font-semibold text-[#F8FAFC]">
+                    Account &amp; Course Options
+                  </h2>
+                  <p className="text-xs text-slate-400">
+                    Manage boss progression gates, AFK companion state, or reset account progress.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountModalOpen(false);
+                  setConfirmFullReset(false);
+                }}
+                className="p-1 rounded-md text-slate-400 hover:text-white hover:bg-[#1C2230] cursor-pointer transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-4">
+              {/* Course Boss Gates Toggle */}
+              <div className="rounded-lg bg-[#0D1017] border border-white/[0.08] p-3.5 flex items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-semibold text-[#F8FAFC] flex items-center gap-1.5">
+                    {bossGateEnabled ? (
+                      <Lock className="w-3.5 h-3.5 text-[#F5B942]" />
+                    ) : (
+                      <Unlock className="w-3.5 h-3.5 text-[#2DD4A0]" />
+                    )}
+                    <span>
+                      {bossGateEnabled ? 'Guided Boss Gates' : 'Free Roam (All Bosses Open)'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    {bossGateEnabled
+                      ? 'Modules stay open to explore, while each module Boss unlocks once its standard stages are cleared.'
+                      : 'All standard stages and module Boss fights are unlocked right away.'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setBossGateEnabled(!bossGateEnabled)}
+                  className={`shrink-0 px-3 py-1.5 rounded-md border text-xs font-semibold cursor-pointer transition ${
+                    bossGateEnabled
+                      ? 'bg-[#231D11] border-[#F5B942]/50 text-[#F5B942] hover:bg-[#2E2616]'
+                      : 'bg-[#102620] border-[#2DD4A0]/40 text-[#2DD4A0] hover:bg-[#143028]'
+                  }`}
+                >
+                  {bossGateEnabled ? 'Switch to Free Roam' : 'Enable Boss Gates'}
+                </button>
+              </div>
+
+              {/* AFK Companion Controls */}
+              <div className="rounded-lg bg-[#0D1017] border border-white/[0.08] p-3.5 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <div className="text-xs font-semibold text-[#F8FAFC]">
+                      AFK Companion (Lv.{afkState.level} · {afkState.bugsSlain} bugs)
+                    </div>
+                    <div className="text-[11px] text-slate-400">
+                      Resetting the companion keeps your course lessons, drafts, and notes intact.
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCompanionAfkEnabled(!afkEnabled)}
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border text-xs font-medium cursor-pointer transition ${
+                      afkEnabled
+                        ? 'bg-[#102620] border-[#2DD4A0]/40 text-[#2DD4A0] hover:bg-[#143028]'
+                        : 'bg-[#151923] border-white/[0.1] text-slate-300 hover:text-white'
+                    }`}
+                  >
+                    {afkEnabled ? (
+                      <Eye className="w-3.5 h-3.5" />
+                    ) : (
+                      <EyeOff className="w-3.5 h-3.5" />
+                    )}
+                    <span>AFK Mini-Game: {afkEnabled ? 'On' : 'Off'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      resetCompanionAfkState();
+                      setBackupNotice('AFK Companion reset to Lv.1.');
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#151923] border border-white/[0.1] hover:border-[#38BDF8]/50 text-xs font-medium text-slate-200 hover:text-[#38BDF8] cursor-pointer transition"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>Reset Companion Only</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Full Account Reset */}
+              <div className="rounded-lg bg-[#231219]/60 border border-[#F45D78]/35 p-3.5 space-y-3">
+                <div className="flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-[#F45D78] shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <div className="text-xs font-semibold text-[#FECDD3]">
+                      Full Account Reset (Course SQLite + Companion)
+                    </div>
+                    <p className="text-[11px] text-slate-300 leading-relaxed">
+                      Wipes all completed lessons, code drafts, study notes, streaks, guild project
+                      checklists, and AFK companion progress.
+                    </p>
+                  </div>
+                </div>
+
+                {!confirmFullReset ? (
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={backupBusy}
+                      onClick={handleExportBackup}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0D1017] border border-white/[0.1] hover:border-[#38BDF8]/50 text-xs font-medium text-slate-200 cursor-pointer transition disabled:opacity-40"
+                    >
+                      <Download className="w-3.5 h-3.5 text-[#38BDF8]" />
+                      <span>Export JSON Backup First</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmFullReset(true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#F45D78]/20 border border-[#F45D78]/50 hover:bg-[#F45D78]/30 text-xs font-semibold text-[#FECDD3] cursor-pointer transition"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Reset Entire Account...</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#F45D78]/25">
+                    <span className="text-[11px] font-semibold text-[#FECDD3]">
+                      Are you sure? This cannot be undone.
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmFullReset(false)}
+                        className="px-2.5 py-1.5 rounded-md bg-[#0D1017] border border-white/[0.1] text-xs text-slate-300 hover:text-white cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={backupBusy}
+                        onClick={async () => {
+                          setBackupBusy(true);
+                          try {
+                            await api.resetAllProgress();
+                            resetCompanionAfkState();
+                            onProgressUpdated?.();
+                            setBackupNotice('All account and companion progress reset.');
+                            setConfirmFullReset(false);
+                            setAccountModalOpen(false);
+                          } catch (err) {
+                            setBackupNotice(`Reset failed: ${(err as Error).message}`);
+                          } finally {
+                            setBackupBusy(false);
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-md bg-[#F45D78] hover:bg-[#FB7185] text-xs font-semibold text-[#0D1017] cursor-pointer transition disabled:opacity-40"
+                      >
+                        Confirm Full Reset
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

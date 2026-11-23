@@ -602,6 +602,13 @@ class ProgressStore:
                     ),
                 )
 
+    def reset_all_progress(self) -> None:
+        with self._connect() as conn:
+            conn.execute("DELETE FROM lesson_progress")
+            conn.execute("DELETE FROM lesson_drafts")
+            conn.execute("DELETE FROM activity_days")
+            conn.execute("DELETE FROM project_progress")
+
     def _row_to_lesson_progress(self, row: sqlite3.Row) -> LessonProgress:
         hints_revealed = int(row["hints_revealed"])
         solution_revealed = bool(row["solution_revealed"])

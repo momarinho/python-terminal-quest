@@ -155,4 +155,11 @@ export const api = {
       body: JSON.stringify(payload),
     });
   },
+
+  resetAllProgress(): Promise<{ status: string }> {
+    return requestJson<{ status: string }>('/api/progress/reset', {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  },
 };

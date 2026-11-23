@@ -23,10 +23,12 @@ from pyquest.domain.models import (
     PortfolioProject,
     ProgressBackupPayload,
     ProjectsResponse,
+    RagEvalReport,
     RepoUpdateRequest,
     RunResponse,
 )
 from pyquest.persistence.store import ProgressStore
+from pyquest.rag.evaluator import evaluate_rag_oracle
 from pyquest.rag.interfaces import RagPipeline
 from pyquest.rag.pipeline import build_rag_oracle
 from pyquest.runner.grader import PytestGrader
@@ -342,6 +344,10 @@ def create_app(
         progress = store.get_lesson_progress(body.lesson_id)
         diag = body.last_diagnostics or progress.last_diagnostics
         return oracle.ask(lesson, body.question, body.files, last_diagnostics=diag)
+
+    @app.get("/api/oracle/eval", response_model=RagEvalReport)
+    def eval_oracle() -> RagEvalReport:
+        return evaluate_rag_oracle(curriculum.lessons, oracle)
 
     # Serve built SPA assets when web/dist exists
     web_dist = cfg.web_dist_dir

@@ -6,9 +6,12 @@ import {
   ChevronRight,
   ChevronUp,
   Copy,
+  Lock,
   Share2,
   StickyNote,
+  Unlock,
 } from 'lucide-react';
+import { readBossGateEnabled, setBossGateEnabled } from '../components/HeroCompanion';
 import {
   PixelBoltIcon,
   PixelCampfireIcon,
@@ -102,7 +105,18 @@ export const ModulePage: React.FC<ModulePageProps> = ({
   const [copiedAngle, setCopiedAngle] = useState<'concept' | 'boss' | null>(null);
   const [insightExpanded, setInsightExpanded] = useState(initialOpenCampfire);
   const [selectedAngleTab, setSelectedAngleTab] = useState<'concept' | 'boss'>('concept');
+  const [bossGateEnabled, setBossGateEnabledState] = useState<boolean>(() => readBossGateEnabled());
   const campfireRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const syncGate = () => setBossGateEnabledState(readBossGateEnabled());
+    window.addEventListener('pyquest:afk-updated', syncGate);
+    window.addEventListener('storage', syncGate);
+    return () => {
+      window.removeEventListener('pyquest:afk-updated', syncGate);
+      window.removeEventListener('storage', syncGate);
+    };
+  }, []);
 
   const moduleIndex = useMemo(
     () => curriculum.modules.findIndex((m) => m.id === moduleId),
@@ -354,108 +368,158 @@ export const ModulePage: React.FC<ModulePageProps> = ({
         </div>
 
         <div className="space-y-3">
-          {moduleGroup.lessons.map((lesson, idx) => {
-            const isBoss = lesson.kind === 'BOSS';
-            const isDone = lesson.status === 'COMPLETED';
-            const isWeb = lesson.runtime === 'WEB_INTEGRATION';
+          {(() => {
+            const standardLessons = moduleGroup.lessons.filter((l) => l.kind !== 'BOSS');
+            const standardCompleted = standardLessons.filter((l) => l.status === 'COMPLETED').length;
+            const allStandardDone =
+              standardLessons.length === 0 || standardCompleted === standardLessons.length;
 
-            return (
-              <button
-                key={lesson.id}
-                type="button"
-                onClick={() => onSelectLesson(lesson.id)}
-                className={`w-full text-left group p-4 sm:p-5 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition ${
-                  isBoss
-                    ? 'bg-[#21131C] hover:bg-[#2A1723] border border-[#F45D78]/45 hover:border-[#F45D78]'
-                    : 'rpg-card'
-                }`}
-              >
-                <div className="space-y-2 flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2.5 text-xs">
-                    {isBoss ? (
-                      <span className="inline-flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-md bg-[#F45D78]/15 text-[#F45D78]">
-                        {isDone ? (
-                          <PixelCrownIcon className="w-3.5 h-3.5" />
-                        ) : (
-                          <PixelSkullIcon className="w-3.5 h-3.5" />
-                        )}
-                        <span>Boss Stage #{lesson.id}</span>
+            return moduleGroup.lessons.map((lesson, idx) => {
+              const isBoss = lesson.kind === 'BOSS';
+              const isDone = lesson.status === 'COMPLETED';
+              const isWeb = lesson.runtime === 'WEB_INTEGRATION';
+              const isBossLocked = bossGateEnabled && isBoss && !isDone && !allStandardDone;
+
+              if (isBossLocked) {
+                return (
+                  <div
+                    key={lesson.id}
+                    className="w-full text-left p-4 sm:p-5 rounded-lg bg-[#17111A] border border-[#F45D78]/25 flex flex-col md:flex-row md:items-center justify-between gap-4 opacity-90"
+                  >
+                    <div className="space-y-2 flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                        <span className="inline-flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-md bg-[#F45D78]/15 text-[#F45D78]">
+                          <Lock className="w-3.5 h-3.5" />
+                          <span>Boss Stage #{lesson.id} · Locked</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/[0.05] text-slate-300 font-medium">
+                          Clear {standardCompleted}/{standardLessons.length} standard stages in this realm to unlock Boss
+                        </span>
+                      </div>
+
+                      <h3 className="text-base font-semibold text-slate-300">{lesson.title}</h3>
+                      <p className="text-xs sm:text-[13px] text-slate-500 leading-relaxed">
+                        {lesson.objective}
+                      </p>
+                    </div>
+
+                    <div className="flex md:flex-col items-center md:items-end justify-between gap-2 shrink-0 border-t md:border-t-0 border-white/[0.06] pt-3 md:pt-0">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#F5B942]/80">
+                        <PixelCoinIcon className="w-3.5 h-3.5" />
+                        <span>+{lesson.xp} XP</span>
                       </span>
-                    ) : (
-                      <span className="font-semibold text-[#F5B942]">
-                        Stage {String(idx + 1).padStart(2, '0')} · #{lesson.id}
-                      </span>
-                    )}
+                      <button
+                        type="button"
+                        onClick={() => setBossGateEnabled(false)}
+                        title="Switch to Free Roam so all Boss stages are open"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#1C2230] hover:bg-[#252D40] border border-white/[0.1] text-xs font-medium text-slate-200 hover:text-[#F5B942] cursor-pointer transition"
+                      >
+                        <Unlock className="w-3.5 h-3.5" />
+                        <span>Enable Free Roam</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              }
 
-                    <StatusBadge status={lesson.status} />
-
-                    <span className="inline-flex items-center gap-1 text-slate-400">
-                      {isWeb ? (
-                        <PixelBoltIcon className="w-3 h-3" />
+              return (
+                <button
+                  key={lesson.id}
+                  type="button"
+                  onClick={() => onSelectLesson(lesson.id)}
+                  className={`w-full text-left group p-4 sm:p-5 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer transition ${
+                    isBoss
+                      ? 'bg-[#21131C] hover:bg-[#2A1723] border border-[#F45D78]/45 hover:border-[#F45D78]'
+                      : 'rpg-card'
+                  }`}
+                >
+                  <div className="space-y-2 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs">
+                      {isBoss ? (
+                        <span className="inline-flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-md bg-[#F45D78]/15 text-[#F45D78]">
+                          {isDone ? (
+                            <PixelCrownIcon className="w-3.5 h-3.5" />
+                          ) : (
+                            <PixelSkullIcon className="w-3.5 h-3.5" />
+                          )}
+                          <span>Boss Stage #{lesson.id}</span>
+                        </span>
                       ) : (
-                        <PixelPythonIcon className="w-3 h-3" />
+                        <span className="font-semibold text-[#F5B942]">
+                          Stage {String(idx + 1).padStart(2, '0')} · #{lesson.id}
+                        </span>
                       )}
-                      <span>{isWeb ? 'Web & AI' : 'Python 3.13'}</span>
-                    </span>
 
-                    {lesson.flagged && (
-                      <span className="inline-flex items-center gap-1 text-[#F45D78] font-medium">
-                        <PixelFlagIcon className="w-3 h-3" />
-                        <span>Flagged</span>
-                      </span>
-                    )}
+                      <StatusBadge status={lesson.status} />
 
-                    {lesson.hasNotes && (
-                      <span className="inline-flex items-center gap-1 text-[#38BDF8] font-medium">
-                        <StickyNote className="w-3 h-3" />
-                        <span>Notes</span>
+                      <span className="inline-flex items-center gap-1 text-slate-400">
+                        {isWeb ? (
+                          <PixelBoltIcon className="w-3 h-3" />
+                        ) : (
+                          <PixelPythonIcon className="w-3 h-3" />
+                        )}
+                        <span>{isWeb ? 'Web & AI' : 'Python 3.13'}</span>
                       </span>
-                    )}
+
+                      {lesson.flagged && (
+                        <span className="inline-flex items-center gap-1 text-[#F45D78] font-medium">
+                          <PixelFlagIcon className="w-3 h-3" />
+                          <span>Flagged</span>
+                        </span>
+                      )}
+
+                      {lesson.hasNotes && (
+                        <span className="inline-flex items-center gap-1 text-[#38BDF8] font-medium">
+                          <StickyNote className="w-3 h-3" />
+                          <span>Notes</span>
+                        </span>
+                      )}
+                    </div>
+
+                    <h3
+                      className={`text-base font-semibold transition ${
+                        isBoss
+                          ? 'text-[#F5B942] group-hover:text-amber-200'
+                          : 'text-[#F8FAFC] group-hover:text-[#F5B942]'
+                      }`}
+                    >
+                      {lesson.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-[13px] text-slate-400 leading-relaxed">
+                      {lesson.objective}
+                    </p>
                   </div>
 
-                  <h3
-                    className={`text-base font-semibold transition ${
-                      isBoss
-                        ? 'text-[#F5B942] group-hover:text-amber-200'
-                        : 'text-[#F8FAFC] group-hover:text-[#F5B942]'
-                    }`}
-                  >
-                    {lesson.title}
-                  </h3>
-
-                  <p className="text-xs sm:text-[13px] text-slate-400 leading-relaxed">
-                    {lesson.objective}
-                  </p>
-                </div>
-
-                <div className="flex md:flex-col items-center md:items-end justify-between gap-2 shrink-0 border-t md:border-t-0 border-white/[0.06] pt-3 md:pt-0">
-                  <span
-                    className={`inline-flex items-center gap-1 text-xs font-semibold ${
-                      isBoss ? 'text-[#F5B942]' : 'text-[#2DD4A0]'
-                    }`}
-                  >
-                    <PixelCoinIcon className="w-3.5 h-3.5" />
-                    <span>+{lesson.xp} XP</span>
-                  </span>
-                  <span
-                    className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${
-                      isBoss
-                        ? 'bg-[#F45D78] group-hover:bg-[#F5B942] text-[#0D1017]'
-                        : 'bg-[#1C2230] group-hover:bg-[#F5B942] text-slate-200 group-hover:text-[#0D1017]'
-                    }`}
-                  >
-                    {lesson.status === 'COMPLETED'
-                      ? 'Replay →'
-                      : lesson.status === 'IN_PROGRESS'
-                        ? 'Resume →'
-                        : isBoss
-                          ? 'Challenge Boss →'
-                          : 'Play →'}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+                  <div className="flex md:flex-col items-center md:items-end justify-between gap-2 shrink-0 border-t md:border-t-0 border-white/[0.06] pt-3 md:pt-0">
+                    <span
+                      className={`inline-flex items-center gap-1 text-xs font-semibold ${
+                        isBoss ? 'text-[#F5B942]' : 'text-[#2DD4A0]'
+                      }`}
+                    >
+                      <PixelCoinIcon className="w-3.5 h-3.5" />
+                      <span>+{lesson.xp} XP</span>
+                    </span>
+                    <span
+                      className={`px-3 py-1.5 rounded-md text-xs font-semibold transition ${
+                        isBoss
+                          ? 'bg-[#F45D78] group-hover:bg-[#F5B942] text-[#0D1017]'
+                          : 'bg-[#1C2230] group-hover:bg-[#F5B942] text-slate-200 group-hover:text-[#0D1017]'
+                      }`}
+                    >
+                      {lesson.status === 'COMPLETED'
+                        ? 'Replay →'
+                        : lesson.status === 'IN_PROGRESS'
+                          ? 'Resume →'
+                          : isBoss
+                            ? 'Challenge Boss →'
+                            : 'Play →'}
+                    </span>
+                  </div>
+                </button>
+              );
+            });
+          })()}
 
           {/* Campfire [INSIGHT] Rest-Site Card */}
           {insight && (
