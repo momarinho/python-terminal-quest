@@ -28,7 +28,7 @@ from pyquest.domain.models import (
 )
 from pyquest.persistence.store import ProgressStore
 from pyquest.rag.interfaces import RagPipeline
-from pyquest.rag.stub_oracle import StubOracleService
+from pyquest.rag.pipeline import build_rag_oracle
 from pyquest.runner.grader import PytestGrader
 
 
@@ -113,7 +113,7 @@ def create_app(
         standard_timeout_seconds=cfg.standard_timeout_seconds,
         web_timeout_seconds=cfg.web_timeout_seconds,
     )
-    oracle: RagPipeline = oracle_service or StubOracleService()
+    oracle: RagPipeline = oracle_service or build_rag_oracle(curriculum.lessons, cfg)
 
     app = FastAPI(
         title="Python Terminal Quest API",
@@ -273,6 +273,16 @@ def create_app(
             )
         store.import_backup(body)
         return {"status": "restored"}
+
+    @app.post("/api/progress/reset")
+    def reset_progress() -> dict[str, str]:
+        if cfg.demo_mode:
+            raise HTTPException(
+                status_code=403,
+                detail="Reset is disabled in read-only demo mode.",
+            )
+        store.reset_all_progress()
+        return {"status": "reset"}
 
     @app.post("/api/lessons/{lesson_id}/reset")
     def reset_lesson(lesson_id: str) -> dict[str, object]:

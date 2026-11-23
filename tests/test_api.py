@@ -72,7 +72,7 @@ def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
     assert run_body["progress"]["status"] == "COMPLETED"
     assert run_body["hero"]["earnedXp"] == 250
 
-    # DIY RAG Capstone Stub Oracle ask endpoint
+    # Agentic Hybrid RAG Oracle ask endpoint (offline-rag by default)
     oracle_resp = client.post(
         "/api/oracle/ask",
         json={
@@ -83,11 +83,11 @@ def test_lesson_run_draft_notes_flag_reset_and_oracle(tmp_path: Path) -> None:
     )
     assert oracle_resp.status_code == 200
     oracle_body = oracle_resp.json()
-    assert oracle_body["mode"] == "stub"
-    assert oracle_body["provider"] == "stub"
+    assert oracle_body["mode"] == "offline-rag"
+    assert oracle_body["provider"] == "offline-rag"
     assert oracle_body["guardrailTriggered"] is False
-    assert oracle_body["citations"][0]["lessonId"] == "01-09"
-    assert "CAPSTONE_README.md" in oracle_body["answer"]
+    cited_ids = [c["lessonId"] for c in oracle_body["citations"]]
+    assert "01-09" in cited_ids or "01-02" in cited_ids
 
     # Reset restores starter files
     reset_resp = client.post("/api/lessons/01-09/reset")
