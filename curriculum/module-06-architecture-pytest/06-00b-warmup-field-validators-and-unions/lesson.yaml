@@ -1,0 +1,15 @@
+id: 06-00b
+moduleId: module-06
+moduleTitle: 'Module 6: Complex Project Architecture, Typing & pytest'
+title: 'Beginner Warm-Up 2: `@field_validator` & Tagged Unions'
+objective: Practice stripping whitespace in a Pydantic `@field_validator` and dispatching
+  two `Literal`-tagged models.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Pydantic v2
+- Validators

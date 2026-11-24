@@ -1,0 +1,5 @@
+hints:
+- '`double_positives`: `[n * 2 for n in nums if n > 0]`.'
+- '`most_common_word`: `Counter(words).most_common(1)[0][0]` returns the top word.'
+- '`keep_recent`: `list(deque(events, maxlen=limit))` keeps only the newest `limit`
+  events.'

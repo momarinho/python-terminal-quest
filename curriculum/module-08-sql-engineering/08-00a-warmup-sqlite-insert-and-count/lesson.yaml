@@ -1,0 +1,15 @@
+id: 08-00a
+moduleId: module-08
+moduleTitle: 'Module 8: Raw SQL Engineering'
+title: 'Beginner Warm-Up 1: First SQLite `INSERT` & `COUNT(*)`'
+objective: Insert parameterized rows into a SQLite table using `?` placeholders and
+  count total rows.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- SQL
+- SQLite

@@ -1,0 +1,15 @@
+id: 02-00b
+moduleId: module-02
+moduleTitle: 'Module 2: Data Structures & Core Algorithms'
+title: 'Beginner Warm-Up 2: Dict Lookups & Unique Sets'
+objective: Practice `.get()` default lookups on dictionaries and fast deduplication/intersection
+  with `set`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Dicts
+- Sets

@@ -1,5 +1,0 @@
-hints:
-- '`iter_even_numbers`: loop `for n in range(0, limit + 1, 2): yield n`.'
-- '`extract_order_id`: `match = re.search(r"ORD-\d+", text)` then `return match.group(0)
-  if match else None`.'
-- '`apply_twice`: simply `return fn(fn(value))`.'

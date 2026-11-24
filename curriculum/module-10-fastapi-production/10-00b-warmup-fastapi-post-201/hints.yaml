@@ -1,0 +1,4 @@
+hints:
+- Pass `status_code=201` to `@app.post("/notes", status_code=201)`.
+- 'Return `{"title": payload.title.strip()}`.'
+- FastAPI handles invalid JSON with automatic `422` validation errors.

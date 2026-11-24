@@ -1,0 +1,5 @@
+hints:
+- Pass `coro` and `timeout=timeout_sec` to `await asyncio.wait_for(...)`.
+- Catch `TimeoutError` (in Python 3.11+, `asyncio.TimeoutError` is an alias for built-in
+  `TimeoutError`).
+- Return `'TIMEOUT'` inside the `except TimeoutError:` block.

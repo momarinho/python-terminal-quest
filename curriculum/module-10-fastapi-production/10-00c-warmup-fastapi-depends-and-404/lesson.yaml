@@ -1,0 +1,15 @@
+id: 10-00c
+moduleId: module-10
+moduleTitle: 'Module 10: FastAPI as a Production System'
+title: 'Beginner Warm-Up 3: `Depends()` Injection & `HTTPException(404)`'
+objective: Practice FastAPI's `Depends(...)` dependency injection and raising `HTTPException(status_code=404)`.
+mode: FASTAPI
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- FastAPI
+- Depends
+runtime: WEB_INTEGRATION

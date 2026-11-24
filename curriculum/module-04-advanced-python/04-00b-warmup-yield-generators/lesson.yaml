@@ -1,0 +1,14 @@
+id: 04-00b
+moduleId: module-04
+moduleTitle: 'Module 4: Advanced Python'
+title: 'Beginner Warm-Up 2: Your First `yield` Generators'
+objective: Write simple lazy generators using `yield` and `yield from` without building
+  an entire list in memory.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Generators

@@ -1,0 +1,15 @@
+id: 01-00b
+moduleId: module-01
+moduleTitle: 'Module 1: Python Fundamentals'
+title: 'Beginner Warm-Up 2: Strings & Type Conversion'
+objective: Clean whitespace/case on strings, cast strings into ints/floats, and normalize
+  'yes'/'no' flags safely.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Strings
+- Casting

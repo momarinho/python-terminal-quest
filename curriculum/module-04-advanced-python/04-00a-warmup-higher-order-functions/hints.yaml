@@ -1,0 +1,4 @@
+hints:
+- '`apply_twice`: return `fn(fn(value))`.'
+- '`make_multiplier`: return `partial(multiply, factor)`.'
+- Notice how `partial(multiply, 3)(5)` evaluates `multiply(3, 5) == 15`.

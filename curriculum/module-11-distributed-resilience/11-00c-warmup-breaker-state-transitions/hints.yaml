@@ -1,0 +1,5 @@
+hints:
+- '`record_failure`: increment `self.failures += 1` and flip `self.state = ''OPEN''`
+  if `self.failures >= self.threshold`.'
+- '`record_success`: reset `self.failures = 0` and `self.state = ''CLOSED''`.'
+- Keep attribute names `self.failures` and `self.state` exact.

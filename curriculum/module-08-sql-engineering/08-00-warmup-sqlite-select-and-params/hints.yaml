@@ -1,6 +1,0 @@
-hints:
-- '`insert_item`: `conn.execute("INSERT INTO items (sku, qty) VALUES (?, ?)", (sku,
-  qty))`.'
-- '`fetch_in_stock_skus`: pass single-element tuple `(min_qty,)` with a trailing comma!'
-- '`count_items`: `row = conn.execute("SELECT COUNT(*) FROM items").fetchone()`, then
-  `return int(row[0]) if row else 0`.'

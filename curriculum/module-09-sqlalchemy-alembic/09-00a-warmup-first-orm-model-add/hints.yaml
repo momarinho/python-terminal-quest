@@ -1,0 +1,4 @@
+hints:
+- Instantiate `account = Account(email=email, balance=balance)`.
+- Stage it with `session.add(account)` then commit with `session.commit()`.
+- Return `account` so callers see its generated primary key `account.id`.

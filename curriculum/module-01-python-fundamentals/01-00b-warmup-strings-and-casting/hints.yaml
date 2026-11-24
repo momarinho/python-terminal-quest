@@ -1,0 +1,4 @@
+hints:
+- '`clean_label`: `return raw.strip().lower()`.'
+- '`parse_count`: `return int(raw.strip())`.'
+- '`is_enabled`: `return raw.strip().lower() in {''true'', ''1'', ''yes''}`.'

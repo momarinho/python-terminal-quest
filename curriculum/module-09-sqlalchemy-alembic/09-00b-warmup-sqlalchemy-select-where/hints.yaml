@@ -1,0 +1,4 @@
+hints:
+- Build `stmt = select(Account.email).where(Account.balance >= min_balance).order_by(Account.email)`.
+- Run `session.scalars(stmt).all()` to unwrap the single column values automatically.
+- Convert to `list(...)` so the return type matches `list[str]`.

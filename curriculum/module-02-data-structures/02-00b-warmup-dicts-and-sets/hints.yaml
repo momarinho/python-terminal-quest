@@ -1,0 +1,4 @@
+hints:
+- '`scores.get(player, 0)` returns `0` when `player` is not in `scores`.'
+- '`set(tags)` drops duplicates and `sorted(...)` returns them in alphabetical order.'
+- No loop is needed—one line per function!

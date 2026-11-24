@@ -1,0 +1,15 @@
+id: 01-00d
+moduleId: module-01
+moduleTitle: 'Module 1: Python Fundamentals'
+title: 'Beginner Warm-Up 4: `for` Loops, Default Args & `try / except`'
+objective: Practice iterating over lists with a `for` loop, summing positives, and
+  catching ValueError gracefully with `try/except`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Loops
+- Exceptions

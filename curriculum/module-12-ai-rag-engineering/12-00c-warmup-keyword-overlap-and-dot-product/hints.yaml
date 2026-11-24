@@ -1,0 +1,5 @@
+hints:
+- '`keyword_overlap`: extract lowercase words with `re.findall(r"[a-z0-9]+", ...)`
+  and divide intersection size by `len(q_words)`.'
+- '`dot_product`: `sum(x * y for x, y in zip(a, b, strict=True))`.'
+- Guard empty `q_words` to return `0.0` instead of ZeroDivisionError.

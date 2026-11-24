@@ -1,4 +1,0 @@
-hints:
-- '`fetch_value`: `await asyncio.sleep(0)` then `return x * 2`.'
-- '`fetch_all`: `return list(await asyncio.gather(*(fetch_value(x) for x in items)))`.'
-- '`run_sync`: `return asyncio.run(fetch_all(items))`.'

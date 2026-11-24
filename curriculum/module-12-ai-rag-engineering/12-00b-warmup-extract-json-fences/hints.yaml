@@ -1,0 +1,4 @@
+hints:
+- Find `start = raw.find("{")` and `end = raw.rfind("}")`.
+- 'If `start == -1 or end <= start: raise ValueError("No JSON object found")`.'
+- 'Slice `raw[start : end + 1]` and parse with `json.loads(...)`.'

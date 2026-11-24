@@ -1,0 +1,4 @@
+hints:
+- '`MemoryNotifier.send`: append `(recipient, msg)` to `self.sent`.'
+- '`welcome_user`: call `notifier.send(email, "Welcome!")` and return `f"welcomed:{email}"`.'
+- Any class implementing `.send(recipient, msg)` satisfies `Notifier` structurally!

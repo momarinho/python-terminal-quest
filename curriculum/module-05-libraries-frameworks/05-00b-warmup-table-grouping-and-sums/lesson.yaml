@@ -1,0 +1,15 @@
+id: 05-00b
+moduleId: module-05
+moduleTitle: 'Module 5: Libraries & Frameworks Base'
+title: 'Beginner Warm-Up 2: Tabular Row Grouping & Sums'
+objective: Practice aggregating table rows (`list[dict]`) into category totals before
+  doing DataFrame groupby in Pandas.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Tables
+- Aggregation

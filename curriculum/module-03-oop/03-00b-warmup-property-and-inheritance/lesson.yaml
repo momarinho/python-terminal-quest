@@ -1,0 +1,14 @@
+id: 03-00b
+moduleId: module-03
+moduleTitle: 'Module 3: Object-Oriented Programming'
+title: 'Beginner Warm-Up 2: `@property` & Simple Subclassing'
+objective: Compute a derived attribute with `@property` and extend a base class cleanly.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- OOP
+- Property

@@ -1,0 +1,5 @@
+hints:
+- '`insert_item`: `conn.execute("INSERT INTO items (sku, qty) VALUES (?, ?)", (sku,
+  qty))`.'
+- '`count_items`: call `.fetchone()` and extract `int(row[0])`.'
+- The table `items(sku TEXT, qty INTEGER)` is already created by the tests.

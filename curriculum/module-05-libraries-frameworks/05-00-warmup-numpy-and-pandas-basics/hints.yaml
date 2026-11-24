@@ -1,6 +1,0 @@
-hints:
-- '`scale_array`: `return (np.asarray(values, dtype=float) * factor).tolist()`.'
-- '`filter_above_threshold`: build `arr = np.asarray(values)` then `return arr[arr
-  > threshold].tolist()`.'
-- '`total_column_sum`: check `if not rows: return 0`, create `df = pd.DataFrame(rows)`,
-  and return `int(df[col].sum())`.'

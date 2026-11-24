@@ -1,0 +1,15 @@
+id: 12-00c
+moduleId: module-12
+moduleTitle: 'Module 12: AI Engineering & Production RAG'
+title: 'Beginner Warm-Up 3: Word Overlap & Dot-Product Scoring'
+objective: Compute simple lexical keyword overlap and vector dot product before building
+  full Hybrid RAG.
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- RAG
+- Vectors

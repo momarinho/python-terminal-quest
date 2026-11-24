@@ -1,0 +1,15 @@
+id: 09-00c
+moduleId: module-09
+moduleTitle: 'Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic'
+title: 'Beginner Warm-Up 3: `session.get()` & Updating ORM Attributes'
+objective: Fetch a row by primary key with `session.get(Account, account_id)` and
+  commit an attribute update.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- SQLAlchemy 2.0
+- Update

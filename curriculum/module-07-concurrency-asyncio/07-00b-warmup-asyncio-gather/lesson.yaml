@@ -1,0 +1,15 @@
+id: 07-00b
+moduleId: module-07
+moduleTitle: 'Module 7: CPython Internals, Concurrency & asyncio'
+title: 'Beginner Warm-Up 2: Running Coroutines Concurrently with `asyncio.gather`'
+objective: Use `asyncio.gather` to run multiple coroutines concurrently and collect
+  ordered results.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Asyncio
+- Gather

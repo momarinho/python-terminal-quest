@@ -1,0 +1,14 @@
+id: 07-00a
+moduleId: module-07
+moduleTitle: 'Module 7: CPython Internals, Concurrency & asyncio'
+title: 'Beginner Warm-Up 1: Your First `async def` & `await`'
+objective: Practice writing a simple async coroutine with `await asyncio.sleep(0)`
+  and executing it with `asyncio.run`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Asyncio

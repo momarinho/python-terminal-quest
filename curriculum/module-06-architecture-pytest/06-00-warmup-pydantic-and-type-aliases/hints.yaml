@@ -1,4 +1,0 @@
-hints:
-- 'Set `port: int = Field(ge=1, le=65535)` on `ServiceItem`.'
-- '`validate_service`: return `ServiceItem.model_validate(raw)`.'
-- '`dump_service_dict`: return `item.model_dump()`.'

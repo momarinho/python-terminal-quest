@@ -376,7 +376,10 @@ export const ModulePage: React.FC<ModulePageProps> = ({
 
             return moduleGroup.lessons.map((lesson, idx) => {
               const isBoss = lesson.kind === 'BOSS';
-              const isWarmup = lesson.id.endsWith('-00') || lesson.tags.includes('Warm-Up');
+              const isWarmup =
+                /-\d{2}[a-z]$/.test(lesson.id) ||
+                lesson.id.endsWith('-00') ||
+                lesson.tags.includes('Warm-Up');
               const isDone = lesson.status === 'COMPLETED';
               const isWeb = lesson.runtime === 'WEB_INTEGRATION';
               const isBossLocked = bossGateEnabled && isBoss && !isDone && !allStandardDone;

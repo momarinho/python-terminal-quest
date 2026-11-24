@@ -1,0 +1,4 @@
+hints:
+- '`items[0]` gets the first element and `items[-1]` gets the last element.'
+- '`items[-3:]` safely returns up to the last 3 elements without raising IndexError.'
+- Do not call `.pop()`—slicing leaves the caller's list untouched.

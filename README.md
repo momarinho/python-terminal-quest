@@ -2,7 +2,7 @@
 
 A calm Obsidian 16-bit RPG learning workspace for mastering modern **Python 3.13**, **Data Structures**, **OOP**, **Django/DRF**, **Architecture & Typing**, **Asyncio**, **Raw SQL**, **SQLAlchemy 2.0 & Alembic**, **FastAPI**, **Redis Caching/Rate Limiting**, **Distributed Resilience**, and **AI & Production Agentic RAG**.
 
-**Complete Curriculum:** 12 modules • 87 interactive lessons (12 Warm-Up Reveals + 63 core + 12 Boss Fights, balanced from a gentle Day-1 warm-up to 2026 Dev Pleno patterns) • 3 Portfolio Guild PRDs (`CLI Financial Ledger Reconciler`, `High-Concurrency Inventory & Audit Service`, `Mini-Sidekiq Distributed Job Engine + AI Triage & AWS Mapping`).
+**Complete Curriculum:** 12 modules • 112 interactive lessons (37 Beginner Warm-Up Reveals + 63 Core Stages + 12 Boss Fights, balanced from zero-jargon Day-1 basics to 2026 Dev Pleno patterns) • 3 Portfolio Guild PRDs (`CLI Financial Ledger Reconciler`, `High-Concurrency Inventory & Audit Service`, `Mini-Sidekiq Distributed Job Engine + AI Triage & AWS Mapping`).
 
 ---
 
@@ -30,7 +30,7 @@ flowchart LR
 ## Project Roadmap & Feature Checklist
 
 ### Completed
-- [x] **12-Module, 87-Lesson Curriculum (`01-00` .. `12-05`):** Progressive path starting each module with a 2-minute Warm-Up & Concept Reveal (`XX-00`), ramping through FastAPI, Asyncio, SQLAlchemy 2.0/Alembic, Distributed Resilience, and Production RAG.
+- [x] **12-Module, 112-Lesson Curriculum (`01-00a` .. `12-05`):** Starts every module with a 3–4 stage Beginner Warm-Up Reveal pack (`XX-00a..`) before ramping through core engineering challenges, FastAPI, Asyncio, SQLAlchemy 2.0/Alembic, Distributed Resilience, and Production RAG.
 - [x] **3 Portfolio Guild Projects:** End-to-end PRDs, sprint checklists, code review criteria, and AWS mapping.
 - [x] **Sandboxed `pytest` Grader & AST Diagnostics:** Isolated subprocess runner with POSIX `rlimit`s, forbidden path checks, and Monaco error markers.
 - [x] **Obsidian Workspace UI:** Multi-file Monaco editor, Solution Diff viewer, Read-Only Test Inspector, Battle Log, Review Queue, Campfire LinkedIn cards, and `Ctrl+K` Quick-Jump Palette.
@@ -47,22 +47,22 @@ flowchart LR
 
 ---
 
-## Curriculum Map (12 Modules • 87 Stages)
+## Curriculum Map (12 Modules • 112 Stages)
 
 | Module | Topic Focus | Stages | Boss Fight |
 |---|---|---|---|
-| **01** | Python Fundamentals (`Decimal`, `match/case`, mutable traps, domain exceptions) | 10 | Fee & Policy Evaluator Engine |
-| **02** | Data Structures & Core Algorithms (`deque`, `Counter`, `heapq`, BST) | 9 | Log Stream Sliding-Window & Top-K Tracker |
-| **03** | Object-Oriented Programming (`@dataclass`, `@property`, `Protocol`, dunders) | 7 | Extensible Order Book Domain |
-| **04** | Advanced Python (Decorators, `yield`/`batched`, context managers, atomic writes) | 8 | Streaming PII Log Redactor |
-| **05** | Ecosystem & Web Base (NumPy, Pandas, Matplotlib, Flask, Requests, BS4, Django/DRF) | 9 | Automated Web Report Collector |
-| **06** | Architecture, Typing & `pytest` (`src/` layout, PEP 695/Pydantic v2, test doubles) | 6 | Multi-Module Billing Core |
-| **07** | Concurrency & `asyncio` (GIL/profiling, pools, `TaskGroup`, `httpx` backpressure) | 6 | Resilient Async Health Aggregator |
-| **08** | Raw SQL Engineering (CTEs, `EXPLAIN QUERY PLAN`, keyset cursors, ACID/locks) | 6 | Inventory Reservation Engine |
-| **09** | SQLAlchemy 2.0 & Alembic (Unit of Work/DTOs, `selectinload` zero-N+1, migrations) | 6 | Zero-N+1 Order Repository |
-| **10** | FastAPI Production Systems (`Depends`, RFC 7807, PyJWT RBAC, `contextvars`, Redis) | 7 | Hardened Admin Gateway API |
-| **11** | Distributed Resilience (Idempotency SHA-256, Circuit Breaker, Outbox, DLQ, HMAC) | 7 | Resilient Event Relay Engine |
-| **12** | AI Engineering & Production RAG (PII scrubbing, Pydantic repair, hybrid citations, evals) | 6 | Socratic RAG Tutor Pipeline |
+| **01** | Python Fundamentals (`Decimal`, `match/case`, mutable traps, domain exceptions) | 13 | Fee & Policy Evaluator Engine |
+| **02** | Data Structures & Core Algorithms (`deque`, `Counter`, `heapq`, BST) | 11 | Log Stream Sliding-Window & Top-K Tracker |
+| **03** | Object-Oriented Programming (`@dataclass`, `@property`, `Protocol`, dunders) | 9 | Extensible Order Book Domain |
+| **04** | Advanced Python (Decorators, `yield`/`batched`, context managers, atomic writes) | 10 | Streaming PII Log Redactor |
+| **05** | Ecosystem & Web Base (NumPy, Pandas, Matplotlib, Flask, Requests, BS4, Django/DRF) | 11 | Automated Web Report Collector |
+| **06** | Architecture, Typing & `pytest` (`src/` layout, PEP 695/Pydantic v2, test doubles) | 8 | Multi-Module Billing Core |
+| **07** | Concurrency & `asyncio` (GIL/profiling, pools, `TaskGroup`, `httpx` backpressure) | 8 | Resilient Async Health Aggregator |
+| **08** | Raw SQL Engineering (CTEs, `EXPLAIN QUERY PLAN`, keyset cursors, ACID/locks) | 8 | Inventory Reservation Engine |
+| **09** | SQLAlchemy 2.0 & Alembic (Unit of Work/DTOs, `selectinload` zero-N+1, migrations) | 8 | Zero-N+1 Order Repository |
+| **10** | FastAPI Production Systems (`Depends`, RFC 7807, PyJWT RBAC, `contextvars`, Redis) | 9 | Hardened Admin Gateway API |
+| **11** | Distributed Resilience (Idempotency SHA-256, Circuit Breaker, Outbox, DLQ, HMAC) | 9 | Resilient Event Relay Engine |
+| **12** | AI Engineering & Production RAG (PII scrubbing, Pydantic repair, hybrid citations, evals) | 8 | Socratic RAG Tutor Pipeline |
 
 ### Portfolio Guild Gates (`curriculum/projects.yaml`)
 1. **Gate #1 (After Module 5):** *CLI Financial Ledger Reconciler* (`Decimal`, streaming CSV, atomic reports, CI)

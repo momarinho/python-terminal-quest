@@ -1,0 +1,15 @@
+id: 09-00b
+moduleId: module-09
+moduleTitle: 'Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic'
+title: 'Beginner Warm-Up 2: Typed `select()` & `session.scalars()`'
+objective: Query filtered and ordered column lists cleanly using SQLAlchemy 2.0 `select()`
+  statements.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- SQLAlchemy 2.0
+- Select

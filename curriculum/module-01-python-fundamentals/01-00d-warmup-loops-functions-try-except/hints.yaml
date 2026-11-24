@@ -1,0 +1,6 @@
+hints:
+- '`sum_positives`: initialize `total = 0`, loop `for n in numbers:`, add when `n
+  > 0`.'
+- '`parse_int_or_default`: wrap `return int(raw.strip())` in `try:` and `except ValueError:
+  return default`.'
+- 'Remember the default parameter `default: int = 0` is already in the signature.'

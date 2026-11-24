@@ -1,0 +1,5 @@
+hints:
+- '`sum_by_category`: accumulate `totals[cat] += amt` with `defaultdict(int)` and
+  return `dict(totals)`.'
+- '`filter_min_amount`: `[row for row in rows if int(row[''amount'']) >= min_amount]`.'
+- Keep row dicts unmodified.

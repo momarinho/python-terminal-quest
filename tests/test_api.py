@@ -23,12 +23,12 @@ def test_health_and_curriculum_endpoints(tmp_path: Path) -> None:
     assert health.status_code == 200
     assert health.json()["status"] == "ok"
     assert health.json()["modules"] == 12
-    assert health.json()["lessons"] == 87
+    assert health.json()["lessons"] == 112
 
     curr = client.get("/api/curriculum")
     assert curr.status_code == 200
     body = curr.json()
-    assert body["totalLessons"] == 87
+    assert body["totalLessons"] == 112
     assert body["completedLessons"] == 0
     assert body["hero"]["tier"] == 1
     assert body["hero"]["title"] == "Apprentice"

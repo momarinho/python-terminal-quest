@@ -1,0 +1,4 @@
+hints:
+- '`iter_evens`: `yield from range(0, limit + 1, 2)`.'
+- '`iter_non_empty`: strip each line and `yield cleaned` only if `cleaned` is non-empty.'
+- Remember never to `return` a list inside a generator function—use `yield`!

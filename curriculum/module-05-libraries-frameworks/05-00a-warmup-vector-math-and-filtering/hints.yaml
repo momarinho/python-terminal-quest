@@ -1,0 +1,4 @@
+hints:
+- '`scale_values`: return `[v * factor for v in values]`.'
+- '`average_or_zero`: guard empty lists with `if values else 0.0`.'
+- You can call `statistics.mean(values)` when non-empty.

@@ -1,0 +1,15 @@
+id: 04-00c
+moduleId: module-04
+moduleTitle: 'Module 4: Advanced Python'
+title: 'Beginner Warm-Up 3: Simple Regex Capture & `pathlib.Path`'
+objective: Practice extracting an ID with `re.search` and reading/writing text cleanly
+  using `pathlib.Path`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Regex
+- Pathlib

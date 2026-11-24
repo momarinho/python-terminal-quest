@@ -1,0 +1,15 @@
+id: 06-00c
+moduleId: module-06
+moduleTitle: 'Module 6: Complex Project Architecture, Typing & pytest'
+title: 'Beginner Warm-Up 3: Dependency Injection & Fake Test Doubles'
+objective: Practice passing a `Protocol`-typed dependency into a function so unit
+  tests can pass an in-memory fake.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Testing
+- Protocol

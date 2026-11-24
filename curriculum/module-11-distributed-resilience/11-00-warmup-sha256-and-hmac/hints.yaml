@@ -1,5 +1,0 @@
-hints:
-- '`sha256_hex`: encode `payload.encode(''utf-8'')` before calling `hashlib.sha256(...).hexdigest()`.'
-- '`sign_hmac`: `hmac.new(secret.encode(''utf-8''), message.encode(''utf-8''), hashlib.sha256).hexdigest()`.'
-- '`verify_hmac`: never compare secrets with `==`—use `hmac.compare_digest(sign_hmac(secret,
-  message), signature)`.'

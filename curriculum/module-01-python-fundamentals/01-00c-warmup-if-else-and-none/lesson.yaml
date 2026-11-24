@@ -1,0 +1,15 @@
+id: 01-00c
+moduleId: module-01
+moduleTitle: 'Module 1: Python Fundamentals'
+title: 'Beginner Warm-Up 3: `if / elif / else` & `is None`'
+objective: Write clean multi-branch conditionals and distinguish `value = 0` from
+  `value = None`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Control Flow
+- None

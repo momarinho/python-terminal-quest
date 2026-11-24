@@ -1,0 +1,14 @@
+id: 03-00c
+moduleId: module-03
+moduleTitle: 'Module 3: Object-Oriented Programming'
+title: 'Beginner Warm-Up 3: `@dataclass(frozen=True)` Basics'
+objective: Eliminate `__init__` boilerplate with `@dataclass(frozen=True)` and format
+  object fields cleanly.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Dataclass

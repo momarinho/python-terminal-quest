@@ -1,0 +1,5 @@
+hints:
+- Strip and lowercase `v`, raising `ValueError` if empty.
+- 'In `format_action`, check `if event.kind == ''ping'': return ''pong''` else return
+  `f''mail:{event.to}''`.'
+- Do not forget `@classmethod` right under `@field_validator('tag')`.

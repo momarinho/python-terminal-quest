@@ -1,0 +1,14 @@
+id: 08-00c
+moduleId: module-08
+moduleTitle: 'Module 8: Raw SQL Engineering'
+title: 'Beginner Warm-Up 3: SQL `GROUP BY` & `SUM()`'
+objective: Aggregate per-category totals directly in SQL using `GROUP BY` and `SUM()`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- SQL
+- GROUP BY

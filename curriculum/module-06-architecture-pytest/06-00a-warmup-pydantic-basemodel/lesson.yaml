@@ -1,0 +1,14 @@
+id: 06-00a
+moduleId: module-06
+moduleTitle: 'Module 6: Complex Project Architecture, Typing & pytest'
+title: 'Beginner Warm-Up 1: Your First Pydantic v2 `BaseModel`'
+objective: Define a typed Pydantic `BaseModel` with `Field` bounds and practice `model_validate`
+  / `model_dump`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Pydantic v2

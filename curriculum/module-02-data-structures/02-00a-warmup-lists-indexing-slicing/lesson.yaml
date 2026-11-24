@@ -1,0 +1,15 @@
+id: 02-00a
+moduleId: module-02
+moduleTitle: 'Module 2: Data Structures & Core Algorithms'
+title: 'Beginner Warm-Up 1: Lists — Indexing & Slicing'
+objective: Practice reading the first/last elements of a list and extracting non-mutating
+  slices.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Lists
+- Slicing

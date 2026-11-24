@@ -1,0 +1,15 @@
+id: 12-00b
+moduleId: module-12
+moduleTitle: 'Module 12: AI Engineering & Production RAG'
+title: 'Beginner Warm-Up 2: Unwrapping Markdown ` ```json ` Fences'
+objective: Practice stripping markdown code fences and parsing structured JSON from
+  messy LLM replies.
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Structured Outputs
+- JSON

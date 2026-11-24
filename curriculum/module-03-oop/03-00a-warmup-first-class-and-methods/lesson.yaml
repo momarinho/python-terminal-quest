@@ -1,0 +1,15 @@
+id: 03-00a
+moduleId: module-03
+moduleTitle: 'Module 3: Object-Oriented Programming'
+title: 'Beginner Warm-Up 1: Your First `class`, `__init__` & Methods'
+objective: Create a simple CounterWallet class with `__init__` and `deposit()` / `withdraw()`
+  instance methods.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- OOP
+- Classes

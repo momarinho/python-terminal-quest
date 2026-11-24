@@ -1,0 +1,14 @@
+id: 10-00a
+moduleId: module-10
+moduleTitle: 'Module 10: FastAPI as a Production System'
+title: 'Beginner Warm-Up 1: First FastAPI `GET` Route & Path/Query Params'
+objective: Define a FastAPI `GET` endpoint with typed path and query parameters.
+mode: FASTAPI
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- FastAPI
+runtime: WEB_INTEGRATION

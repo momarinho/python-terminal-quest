@@ -1,0 +1,5 @@
+hints:
+- '`double_async`: write `await asyncio.sleep(0)` before `return x * 2`.'
+- '`run_double`: `return asyncio.run(double_async(x))`.'
+- Remember calling `double_async(5)` without `await` or `asyncio.run()` only returns
+  a coroutine object!

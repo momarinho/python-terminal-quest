@@ -1,0 +1,4 @@
+hints:
+- Filter with `WHERE qty >= ?`.
+- Sort with `ORDER BY qty DESC, sku ASC` so higher quantities come first cleanly.
+- Bound `LIMIT ?` using `(min_qty, limit)`.

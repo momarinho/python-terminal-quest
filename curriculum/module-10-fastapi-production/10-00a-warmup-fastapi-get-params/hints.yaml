@@ -1,0 +1,5 @@
+hints:
+- '`health()` returns `{"status": "ok"}`.'
+- '`read_item(item_id: int, tag: str = "default")` returns `{"item_id": item_id, "tag":
+  tag}`.'
+- FastAPI converts `item_id` in the URL path to an `int` automatically.

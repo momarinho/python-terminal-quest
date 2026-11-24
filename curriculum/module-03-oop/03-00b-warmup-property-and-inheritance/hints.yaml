@@ -1,0 +1,4 @@
+hints:
+- '`Rectangle.area`: `@property` method returning `self.width * self.height`.'
+- '`AdminBadge` inherits `self.name` from `UserBadge.__init__`.'
+- Override `label(self) -> str` in `AdminBadge` to return `f"[ADMIN] {self.name}"`.

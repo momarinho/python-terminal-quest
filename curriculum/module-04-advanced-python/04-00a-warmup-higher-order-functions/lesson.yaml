@@ -1,0 +1,15 @@
+id: 04-00a
+moduleId: module-04
+moduleTitle: 'Module 4: Advanced Python'
+title: 'Beginner Warm-Up 1: Functions as Values, `lambda` & `functools.partial`'
+objective: Practice passing a function to another function and freezing an argument
+  with `functools.partial` before writing decorators.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Functions
+- Partial

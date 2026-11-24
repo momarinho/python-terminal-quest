@@ -1,0 +1,4 @@
+hints:
+- Look up the row with `session.get(Account, account_id)`.
+- Return `None` cleanly if `account is None`.
+- Otherwise add `account.balance += delta`, call `session.commit()`, and return `account`.

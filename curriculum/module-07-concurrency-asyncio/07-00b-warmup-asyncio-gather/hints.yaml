@@ -1,0 +1,5 @@
+hints:
+- '`fetch_tag`: `await asyncio.sleep(0)` and `return name.upper()`.'
+- '`fetch_all_tags`: unpack the generator comprehension with `*`: `await asyncio.gather(*(fetch_tag(n)
+  for n in names))`.'
+- Wrap the `gather` return value in `list(...)`.

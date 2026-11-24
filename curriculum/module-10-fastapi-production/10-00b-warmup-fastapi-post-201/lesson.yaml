@@ -1,0 +1,15 @@
+id: 10-00b
+moduleId: module-10
+moduleTitle: 'Module 10: FastAPI as a Production System'
+title: 'Beginner Warm-Up 2: `POST` Body Validation & `status_code=201`'
+objective: Accept a Pydantic request body on `@app.post` and return HTTP 201 Created.
+mode: FASTAPI
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- FastAPI
+- POST
+runtime: WEB_INTEGRATION

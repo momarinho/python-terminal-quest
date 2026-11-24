@@ -1,0 +1,5 @@
+hints:
+- 'Change `points: int = 0` to `points: int = 10`.'
+- '`format_badge`: return `f"{badge.name} (+{badge.points} XP)"`.'
+- '`add_tag`: create `result = list(tags) if tags is not None else []`, append `''verified''`,
+  and return `result`.'

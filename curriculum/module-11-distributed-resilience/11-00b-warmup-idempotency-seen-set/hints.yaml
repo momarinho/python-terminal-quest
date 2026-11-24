@@ -1,0 +1,5 @@
+hints:
+- 'Check `if event_id in self._results: return (self._results[event_id], True)`.'
+- For new keys, compute `result = f"ok:{value}"`, store `self._results[event_id] =
+  result`, and return `(result, False)`.
+- The boolean indicates whether this call was a duplicate replay.

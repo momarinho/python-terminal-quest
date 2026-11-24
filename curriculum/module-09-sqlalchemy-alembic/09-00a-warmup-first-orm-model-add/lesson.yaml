@@ -1,0 +1,14 @@
+id: 09-00a
+moduleId: module-09
+moduleTitle: 'Module 9: SQLAlchemy 2.0, Sessions, Zero-N+1 & Alembic'
+title: 'Beginner Warm-Up 1: First ORM Row Insert (`session.add`)'
+objective: Create and persist a typed SQLAlchemy 2.0 `Account` instance using `session.add`
+  and `session.commit`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- SQLAlchemy 2.0

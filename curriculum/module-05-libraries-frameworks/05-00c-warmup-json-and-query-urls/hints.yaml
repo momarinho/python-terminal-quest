@@ -1,0 +1,5 @@
+hints:
+- '`decode_status`: `data = json.loads(raw_json)` then `return str(data.get(''status'',
+  ''unknown''))`.'
+- '`build_query_url`: use `urlencode(params)` after `?`.'
+- Remember `base_url` already has no trailing `?`.

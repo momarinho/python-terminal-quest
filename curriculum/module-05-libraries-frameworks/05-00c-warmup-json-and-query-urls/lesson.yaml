@@ -1,0 +1,15 @@
+id: 05-00c
+moduleId: module-05
+moduleTitle: 'Module 5: Libraries & Frameworks Base'
+title: 'Beginner Warm-Up 3: Parsing JSON & Query URLs'
+objective: Practice `json.loads` / `json.dumps` and `urllib.parse.urlencode` before
+  calling Flask, Requests, and Django APIs.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- JSON
+- HTTP

@@ -1,0 +1,14 @@
+id: 11-00b
+moduleId: module-11
+moduleTitle: 'Module 11: Distributed Resilience, Docker & 12-Factor'
+title: 'Beginner Warm-Up 2: Simple Idempotency Deduplication'
+objective: Practice caching outcomes by `(idempotency_key)` in memory before adding
+  SHA-256 conflict detection.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Idempotency

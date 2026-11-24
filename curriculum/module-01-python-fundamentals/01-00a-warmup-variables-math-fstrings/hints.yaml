@@ -1,0 +1,4 @@
+hints:
+- '`add_numbers`: `return a + b`.'
+- '`split_bill_cents`: `return (total_cents // people, total_cents % people)`.'
+- '`greet_player`: `return f"Welcome, {name}! Level {level}"`.'

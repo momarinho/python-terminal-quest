@@ -1,0 +1,5 @@
+hints:
+- Query `SELECT warehouse, SUM(qty) FROM stock GROUP BY warehouse`.
+- 'Use `.fetchall()` and build a dict `{str(row[0]): int(row[1]) for row in rows}`.'
+- Remember every non-aggregated selected column (`warehouse`) must appear in `GROUP
+  BY`.

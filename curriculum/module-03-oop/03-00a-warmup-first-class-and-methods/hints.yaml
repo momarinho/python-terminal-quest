@@ -1,0 +1,4 @@
+hints:
+- In `deposit`, mutate `self.balance += amount`.
+- 'In `withdraw`, check `if amount > self.balance: return False` first.'
+- Otherwise subtract `self.balance -= amount` and `return True`.

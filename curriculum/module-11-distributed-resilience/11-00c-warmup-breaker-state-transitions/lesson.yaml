@@ -1,0 +1,14 @@
+id: 11-00c
+moduleId: module-11
+moduleTitle: 'Module 11: Distributed Resilience, Docker & 12-Factor'
+title: 'Beginner Warm-Up 3: Minimal Circuit Breaker State Counter'
+objective: Practice flipping a simple CLOSED -> OPEN -> CLOSED circuit breaker flag
+  after consecutive failures.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Circuit Breaker

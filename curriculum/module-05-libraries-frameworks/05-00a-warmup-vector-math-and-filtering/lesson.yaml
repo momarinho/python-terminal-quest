@@ -1,0 +1,14 @@
+id: 05-00a
+moduleId: module-05
+moduleTitle: 'Module 5: Libraries & Frameworks Base'
+title: 'Beginner Warm-Up 1: Scaling Numbers & Computing Means'
+objective: Practice array scaling, threshold filtering, and safe mean calculations
+  before using NumPy vectorization.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Data Processing

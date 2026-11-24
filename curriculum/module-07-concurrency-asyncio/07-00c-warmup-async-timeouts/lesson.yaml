@@ -1,0 +1,15 @@
+id: 07-00c
+moduleId: module-07
+moduleTitle: 'Module 7: CPython Internals, Concurrency & asyncio'
+title: 'Beginner Warm-Up 3: Async Timeouts (`asyncio.wait_for`)'
+objective: Guard an async call against hanging forever using `asyncio.wait_for` and
+  `TimeoutError` fallback.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Asyncio
+- Timeouts

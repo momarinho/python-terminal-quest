@@ -1,0 +1,15 @@
+id: 01-00a
+moduleId: module-01
+moduleTitle: 'Module 1: Python Fundamentals'
+title: 'Beginner Warm-Up 1: Variables, Basic Math & f-strings'
+objective: 'Write your very first Python functions: assign sums, split floor division
+  vs remainder, and format greetings with f-strings.'
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- Variables
+- Math

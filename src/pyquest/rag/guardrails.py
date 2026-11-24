@@ -41,7 +41,7 @@ _GUARDRAIL_RULES: list[tuple[str, re.Pattern[str]]] = [
     ),
 ]
 
-_CITATION_RE = re.compile(r"\[(\d{2}-\d{2})\]")
+_CITATION_RE = re.compile(r"\[(\d{2}-\d{2}[a-z]?)\]")
 _FENCED_BLOCK_RE = re.compile(r"```(?:python|py)?\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
 
 

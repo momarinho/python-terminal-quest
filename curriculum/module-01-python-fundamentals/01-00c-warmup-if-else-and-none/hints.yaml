@@ -1,0 +1,5 @@
+hints:
+- '`classify_temp`: check `>= 30` -> `''HOT''`, `>= 15` -> `''WARM''`, else `''COLD''`.'
+- '`normalize_retries`: do NOT write `retries or 3` because `0 or 3` would return
+  `3` instead of `0`!'
+- Write `return 3 if retries is None else retries`.

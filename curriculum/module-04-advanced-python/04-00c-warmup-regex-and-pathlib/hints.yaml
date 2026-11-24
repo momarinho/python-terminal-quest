@@ -1,0 +1,4 @@
+hints:
+- '`re.search(r"TKT-\d+", text)` returns a Match object or `None`.'
+- '`match.group(0)` extracts the matched substring `''TKT-123''`.'
+- '`target.write_text(content, encoding="utf-8")` writes a file in one call.'

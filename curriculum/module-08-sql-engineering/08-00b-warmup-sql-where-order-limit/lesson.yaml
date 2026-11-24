@@ -1,0 +1,15 @@
+id: 08-00b
+moduleId: module-08
+moduleTitle: 'Module 8: Raw SQL Engineering'
+title: 'Beginner Warm-Up 2: `SELECT`, `WHERE`, `ORDER BY` & `LIMIT`'
+objective: Filter rows cleanly with `WHERE`, sort results, and cap result counts with
+  `LIMIT`.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Beginner
+- SQL
+- SELECT
