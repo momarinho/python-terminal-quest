@@ -6,10 +6,13 @@ import time
 from collections import OrderedDict
 
 from pyquest.config import Settings
-from pyquest.domain.models import LessonSpec, OracleCitation, OracleResponse
+from pyquest.domain.models import LessonSpec, OracleCitation, OracleResponse, OracleTurn
+from pyquest.rag.code_inspector import extract_concept_code_example, inspect_learner_code_gaps
 from pyquest.rag.guardrails import (
     detect_guardrail_violation,
+    enforce_output_spoiler_firewall,
     scrub_pii_and_secrets,
+    trim_history_to_token_budget,
     verify_citations,
 )
 from pyquest.rag.indexer import index_curriculum_lessons
@@ -32,6 +35,8 @@ _VAGUE_QUERY_PATTERNS = (
     "doesn't work",
     "fix this",
     "debug",
+    "diagnose",
+    "inspect my code",
 )
 
 
@@ -100,7 +105,7 @@ def _merge_hits(
 
 
 class AgenticRagOracle(RagPipeline):
-    """Production Agentic Hybrid RAG Oracle (Guardrail -> Hybrid BM25+Vector RRF -> Grade/Rewrite -> Cache -> Socratic Generate)."""
+    """Production Agentic Hybrid RAG Oracle with AST inspection, Second-Brain notes, memory, and firewalls."""
 
     def __init__(
         self,
@@ -128,13 +133,28 @@ class AgenticRagOracle(RagPipeline):
         scrubbed_question: str,
         scrubbed_files: dict[str, str],
         scrubbed_diagnostics: str,
+        trimmed_history: list[OracleTurn],
+        attempts: int,
+        hints_revealed: int,
+        matched_notes: list[tuple[str, str]],
     ) -> str:
         provider_tag = self._llm_client.provider_name if self._llm_client else "offline-rag"
         files_digest = hashlib.blake2b(
             "\n".join(f"{k}:{v}" for k, v in sorted(scrubbed_files.items())).encode("utf-8"),
             digest_size=12,
         ).hexdigest()
-        raw = f"{provider_tag}|{lesson_id}|{scrubbed_question.lower()}|{files_digest}|{scrubbed_diagnostics}"
+        hist_digest = hashlib.blake2b(
+            "|".join(f"{t.role}:{t.text}" for t in trimmed_history).encode("utf-8"),
+            digest_size=8,
+        ).hexdigest()
+        notes_digest = hashlib.blake2b(
+            "|".join(f"{lid}:{txt}" for lid, txt in matched_notes).encode("utf-8"),
+            digest_size=8,
+        ).hexdigest()
+        raw = (
+            f"{provider_tag}|{lesson_id}|{scrubbed_question.lower()}|"
+            f"{files_digest}|{scrubbed_diagnostics}|{hist_digest}|{attempts}|{hints_revealed}|{notes_digest}"
+        )
         return hashlib.blake2b(raw.encode("utf-8"), digest_size=16).hexdigest()
 
     def _retrieve_hybrid(self, query_text: str, *, active_lesson_id: str, top_k: int = 4) -> list[ScoredChunk]:
@@ -152,15 +172,52 @@ class AgenticRagOracle(RagPipeline):
         scrubbed_question: str,
         scrubbed_files: dict[str, str],
         scrubbed_diagnostics: str,
+        trimmed_history: list[OracleTurn],
     ) -> str:
         parts = [scrubbed_question, lesson.title, *lesson.tags]
         if scrubbed_diagnostics:
             first_line = scrubbed_diagnostics.splitlines()[0][:200]
             parts.append(first_line)
+        recent_user = [t.text for t in trimmed_history if t.role == "user"][-2:]
+        parts.extend(recent_user)
         symbols = _extract_code_symbols(scrubbed_files)
         if symbols:
             parts.extend(symbols)
         return " ".join(part for part in parts if part).strip()
+
+    def _search_learner_notes(
+        self,
+        active_lesson_id: str,
+        query_text: str,
+        learner_notes: dict[str, str] | None,
+    ) -> list[tuple[str, str]]:
+        if not learner_notes:
+            return []
+        q_tokens = set(tokenize_for_search(query_text))
+        scored: list[tuple[float, str, str]] = []
+        for lid, raw_note in learner_notes.items():
+            cleaned = scrub_pii_and_secrets(raw_note.strip())
+            if not cleaned:
+                continue
+            note_tokens = set(tokenize_for_search(cleaned))
+            overlap = len(q_tokens & note_tokens)
+            score = overlap + (1.5 if lid == active_lesson_id else 0.0)
+            if overlap > 0 or lid == active_lesson_id:
+                scored.append((score, lid, cleaned))
+        scored.sort(key=lambda item: item[0], reverse=True)
+        return [(lid, note[:220]) for _, lid, note in scored[:2]]
+
+    def _select_progressive_hint(
+        self,
+        lesson: LessonSpec,
+        attempts: int,
+        hints_revealed: int,
+    ) -> str:
+        if not lesson.hints:
+            return lesson.objective
+        tier_idx = max(0, attempts // 2, hints_revealed)
+        idx = min(tier_idx, len(lesson.hints) - 1)
+        return lesson.hints[idx]
 
     def _build_offline_socratic_answer(
         self,
@@ -169,6 +226,10 @@ class AgenticRagOracle(RagPipeline):
         hits: list[ScoredChunk],
         scrubbed_diagnostics: str,
         *,
+        code_gaps: list[str],
+        matched_notes: list[tuple[str, str]],
+        attempts: int,
+        hints_revealed: int,
         rewrote_query: bool,
         fallback_reason: str | None = None,
     ) -> str:
@@ -184,6 +245,16 @@ class AgenticRagOracle(RagPipeline):
             diag_line = scrubbed_diagnostics.splitlines()[0][:240]
             lines.append(f"\n**Latest Verification Signal:**\n> `{diag_line}`")
 
+        if code_gaps:
+            lines.append("\n**Zero-Spoiler Code Inspection (`ast`):**")
+            for obs in code_gaps:
+                lines.append(f"- {obs}")
+
+        if matched_notes:
+            lines.append("\n**From Your Personal Field Notes (Second Brain):**")
+            for note_lid, note_text in matched_notes:
+                lines.append(f"- **`[{note_lid}]`**: {note_text}")
+
         if hits:
             lines.append("\n**Relevant Concept Grounding:**")
             seen_lessons: set[str] = set()
@@ -197,16 +268,25 @@ class AgenticRagOracle(RagPipeline):
                 seen_lessons.add(lid)
                 lines.append(f"- **{tag}**: {snippet}")
 
-        nudge = lesson.hints[0] if lesson.hints else lesson.objective
+        nudge = self._select_progressive_hint(lesson, attempts, hints_revealed)
         lines.append(f"\n**Next Step to Check (`[{lesson.id}]`):** {nudge}")
+
+        wants_example = (
+            attempts >= 2
+            or "example" in scrubbed_question.lower()
+            or "syntax" in scrubbed_question.lower()
+        )
+        if wants_example:
+            example = extract_concept_code_example(lesson.concept_markdown)
+            if example:
+                lines.append(f"\n**Illustrative Concept Pattern (`[{lesson.id}]`):**\n{example}")
+
         if rewrote_query:
             lines.append(
                 "_Agentic retrieval note: broadened search using your active stage tags and test diagnostics._"
             )
         elif scrubbed_question:
-            lines.append(
-                f"_Focused on your question:_ `{scrubbed_question[:120]}`"
-            )
+            lines.append(f"_Focused on your question:_ `{scrubbed_question[:120]}`")
         return "\n".join(lines)
 
     def _build_live_prompts(
@@ -216,12 +296,17 @@ class AgenticRagOracle(RagPipeline):
         scrubbed_files: dict[str, str],
         scrubbed_diagnostics: str,
         hits: list[ScoredChunk],
+        *,
+        code_gaps: list[str],
+        trimmed_history: list[OracleTurn],
+        matched_notes: list[tuple[str, str]],
+        attempts: int,
     ) -> tuple[str, str]:
         system_prompt = (
             "You are the Socratic Staff Python Mentor inside Python Terminal Quest.\n"
             "Rules:\n"
             "1. Ground every explanation in the retrieved lesson context and cite lesson IDs like [09-02].\n"
-            "2. Diagnose the learner's active code and latest pytest failure concisely.\n"
+            "2. Diagnose the learner's active code, AST gaps, and latest pytest failure concisely.\n"
             "3. NEVER provide a full copy-paste solution to the exercise; guide with targeted hints or tiny 2-4 line illustrative snippets."
         )
         context_block = "\n".join(
@@ -232,11 +317,21 @@ class AgenticRagOracle(RagPipeline):
             f"--- {fname} ---\n{code[:1500]}"
             for fname, code in sorted(scrubbed_files.items())
         )
+        history_block = "\n".join(
+            f"{t.role.upper()}: {t.text}" for t in trimmed_history
+        )
+        notes_block = "\n".join(
+            f"[{nid}] Note: {ntext}" for nid, ntext in matched_notes
+        )
+        gaps_block = "\n".join(f"- {g}" for g in code_gaps)
         user_prompt = (
-            f"Active Stage: [{lesson.id}] {lesson.title}\n"
+            f"Active Stage: [{lesson.id}] {lesson.title} (Attempts: {attempts})\n"
             f"Objective: {lesson.objective}\n"
             f"Learner Question: {scrubbed_question}\n"
             f"Latest Diagnostic: {scrubbed_diagnostics or 'None'}\n\n"
+            f"AST Code Inspection Observations:\n{gaps_block or '(none)'}\n\n"
+            f"Recent Conversation History:\n{history_block or '(none)'}\n\n"
+            f"Learner Personal Notes:\n{notes_block or '(none)'}\n\n"
             f"Learner Draft Files:\n{files_block or '(none)'}\n\n"
             f"Retrieved Curriculum Concept Chunks:\n{context_block}"
         )
@@ -248,6 +343,11 @@ class AgenticRagOracle(RagPipeline):
         question: str,
         files: dict[str, str],
         last_diagnostics: str = "",
+        *,
+        history: list[OracleTurn] | None = None,
+        attempts: int = 0,
+        hints_revealed: int = 0,
+        learner_notes: dict[str, str] | None = None,
     ) -> OracleResponse:
         started = time.perf_counter()
 
@@ -255,6 +355,7 @@ class AgenticRagOracle(RagPipeline):
         scrubbed_question = scrub_pii_and_secrets(question.strip())
         scrubbed_diagnostics = scrub_pii_and_secrets(last_diagnostics.strip())
         scrubbed_files = {name: scrub_pii_and_secrets(code) for name, code in files.items()}
+        trimmed_history = trim_history_to_token_budget(history or [], max_tokens=600)
 
         violation = detect_guardrail_violation(scrubbed_question)
         if violation is not None:
@@ -275,9 +376,26 @@ class AgenticRagOracle(RagPipeline):
                 latency_ms=elapsed_ms,
             )
 
+        # Disambiguate short follow-up queries using latest user turn in history
+        recent_user_context = " ".join(
+            t.text for t in trimmed_history if t.role == "user"
+        )
+        query_seed = scrubbed_question or f"{lesson.title} {scrubbed_diagnostics}"
+        if recent_user_context and len(scrubbed_question.split()) <= 10:
+            query_seed = f"{query_seed} {recent_user_context}"
+
+        matched_notes = self._search_learner_notes(lesson.id, query_seed, learner_notes)
+
         # Week 6 Optimization: Exact-match TTL cache lookup
         cache_key = self._build_cache_key(
-            lesson.id, scrubbed_question, scrubbed_files, scrubbed_diagnostics
+            lesson.id,
+            scrubbed_question,
+            scrubbed_files,
+            scrubbed_diagnostics,
+            trimmed_history,
+            attempts,
+            hints_revealed,
+            matched_notes,
         )
         cached = self._cache.get(cache_key)
         if cached is not None:
@@ -289,9 +407,17 @@ class AgenticRagOracle(RagPipeline):
             "guardrail_check: passed (PII/secrets scrubbed)",
             "ttl_cache: miss",
         ]
+        if trimmed_history:
+            reasoning_steps.append(f"memory_window: retained {len(trimmed_history)} recent turns")
+
+        # AST Code Inspector (zero-spoiler structural analysis)
+        code_gaps = inspect_learner_code_gaps(lesson, scrubbed_files)
+        if code_gaps:
+            reasoning_steps.append(f"ast_inspector: found {len(code_gaps)} structural gap(s)")
+        else:
+            reasoning_steps.append("ast_inspector: no structural placeholder gaps detected")
 
         # Node 2: Initial Hybrid BM25 + Vector RRF Retrieval
-        query_seed = scrubbed_question or f"{lesson.title} {scrubbed_diagnostics}"
         hits = self._retrieve_hybrid(query_seed, active_lesson_id=lesson.id, top_k=4)
         reasoning_steps.append(
             f"hybrid_retrieve: Okapi BM25 + dense vector RRF top-{len(hits) or 0}"
@@ -301,7 +427,7 @@ class AgenticRagOracle(RagPipeline):
         rewrote_query = False
         if _needs_adaptive_rewrite(scrubbed_question, hits, scrubbed_diagnostics):
             rewritten_query = self._rewrite_query(
-                lesson, scrubbed_question, scrubbed_files, scrubbed_diagnostics
+                lesson, scrubbed_question, scrubbed_files, scrubbed_diagnostics, trimmed_history
             )
             secondary_hits = self._retrieve_hybrid(
                 rewritten_query, active_lesson_id=lesson.id, top_k=4
@@ -313,6 +439,11 @@ class AgenticRagOracle(RagPipeline):
             )
         else:
             reasoning_steps.append("document_grader: High-confidence direct match")
+
+        if matched_notes:
+            reasoning_steps.append(
+                f"second_brain_notes: matched {len(matched_notes)} personal note(s)"
+            )
 
         # Deduplicate citations cleanly by lesson_id while keeping top-scoring snippet
         citations_by_lesson: dict[str, OracleCitation] = {}
@@ -331,6 +462,19 @@ class AgenticRagOracle(RagPipeline):
             if hit.chunk.source not in cited_sources:
                 cited_sources.append(hit.chunk.source)
 
+        for note_lid, note_text in matched_notes:
+            note_source = f"notes/{note_lid}"
+            if note_source not in cited_sources:
+                cited_sources.append(note_source)
+            if note_lid not in citations_by_lesson:
+                note_lesson = self._lessons_by_id.get(note_lid, lesson)
+                citations_by_lesson[note_lid] = OracleCitation(
+                    lesson_id=note_lid,
+                    title=f"{note_lesson.title} (Your Notes)",
+                    snippet=note_text,
+                    score=0.78,
+                )
+
         citations = list(citations_by_lesson.values())
         if not citations:
             citations = [
@@ -343,7 +487,7 @@ class AgenticRagOracle(RagPipeline):
             ]
             cited_sources = [f"curriculum/{lesson.module_id}/{lesson.id}/concept.md"]
 
-        # Node 5: Dual-Mode Generation (Live LLM with seamless Offline RAG fallback)
+        # Node 5: Dual-Mode Generation + Post-Generation Spoiler Firewall
         mode = "offline-rag"
         provider = "offline-rag"
         answer = ""
@@ -351,14 +495,27 @@ class AgenticRagOracle(RagPipeline):
 
         if self._llm_client is not None:
             sys_prompt, user_prompt = self._build_live_prompts(
-                lesson, scrubbed_question, scrubbed_files, scrubbed_diagnostics, hits
+                lesson,
+                scrubbed_question,
+                scrubbed_files,
+                scrubbed_diagnostics,
+                hits,
+                code_gaps=code_gaps,
+                trimmed_history=trimmed_history,
+                matched_notes=matched_notes,
+                attempts=attempts,
             )
             try:
                 raw_llm = self._llm_client.generate(sys_prompt, user_prompt)
-                valid_cites = verify_citations(raw_llm, set(self._lessons_by_id.keys()))
-                answer = raw_llm
+                filtered_llm, firewall_hit = enforce_output_spoiler_firewall(
+                    raw_llm, lesson.solution_files
+                )
+                if firewall_hit:
+                    reasoning_steps.append("output_firewall: redacted full-solution code dump")
+                valid_cites = verify_citations(filtered_llm, set(self._lessons_by_id.keys()))
+                answer = filtered_llm
                 if not valid_cites and citations:
-                    answer = f"{raw_llm}\n\n_Grounded reference: `[{citations[0].lesson_id}]`._"
+                    answer = f"{filtered_llm}\n\n_Grounded reference: `[{citations[0].lesson_id}]`._"
                 mode = "live-llm"
                 provider = self._llm_client.provider_name
             except Exception as exc:
@@ -370,6 +527,10 @@ class AgenticRagOracle(RagPipeline):
                 scrubbed_question,
                 hits,
                 scrubbed_diagnostics,
+                code_gaps=code_gaps,
+                matched_notes=matched_notes,
+                attempts=attempts,
+                hints_revealed=hints_revealed,
                 rewrote_query=rewrote_query,
                 fallback_reason=fallback_reason,
             )

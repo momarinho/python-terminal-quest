@@ -659,17 +659,24 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     });
   };
 
-  const handleAskOracle = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!lesson || !question.trim()) return;
-    const activeLessonId = lesson.id;
-    const userQ = question.trim();
+  const submitOracleQuestion = async (rawQuestion: string) => {
+    const currentLesson = lessonRef.current;
+    const userQ = rawQuestion.trim();
+    if (!currentLesson || !userQ || askingOracle) return;
+    const activeLessonId = currentLesson.id;
+    const historyWindow = chatHistory.slice(-6).map((m) => ({ role: m.role, text: m.text }));
     setQuestion('');
     updateChatHistory(activeLessonId, (prev) => [...prev, { role: 'user', text: userQ }]);
     setAskingOracle(true);
     try {
-      const diagSummary = gradeResult?.summary ?? lesson.progress.lastDiagnostics ?? '';
-      const res = await api.askOracle(activeLessonId, userQ, files, diagSummary);
+      const diagSummary = gradeResult?.summary ?? currentLesson.progress.lastDiagnostics ?? '';
+      const res = await api.askOracle(
+        activeLessonId,
+        userQ,
+        filesRef.current,
+        diagSummary,
+        historyWindow
+      );
       updateChatHistory(activeLessonId, (prev) => [
         ...prev,
         {
@@ -692,6 +699,11 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
     } finally {
       setAskingOracle(false);
     }
+  };
+
+  const handleAskOracle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitOracleQuestion(question);
   };
 
   const startHorizontalResize = (e: React.MouseEvent) => {
@@ -1459,30 +1471,60 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                   ))}
                 </div>
 
-                <form
-                  onSubmit={handleAskOracle}
-                  className="flex gap-2 pt-3 border-t border-white/[0.08]"
-                >
-                  <input
-                    type="text"
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder="Ask the Oracle about your Python code or error..."
-                    className="flex-1 bg-[#0B0E14] border border-white/[0.08] rounded-md px-3 py-2 text-xs text-[#F8FAFC] placeholder-slate-500 focus:outline-none focus:border-[#F5B942]/60"
-                  />
-                  <button
-                    type="submit"
-                    disabled={askingOracle || !question.trim()}
-                    className="px-3.5 py-2 disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer rpg-btn-gold"
-                  >
-                    {askingOracle ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    ) : (
-                      <Send className="w-3.5 h-3.5" />
-                    )}
-                    <span>Ask</span>
-                  </button>
-                </form>
+                <div className="pt-3 border-t border-white/[0.08] space-y-2.5">
+                  <div className="flex flex-wrap gap-1.5">
+                    {[
+                      {
+                        label: 'Diagnose test failure',
+                        prompt: 'Why is my latest pytest check failing? Inspect my code.',
+                      },
+                      {
+                        label: 'Inspect my code gaps',
+                        prompt: 'Inspect my current code structure and point out missing steps.',
+                      },
+                      {
+                        label: 'Prerequisite concepts',
+                        prompt: 'Which earlier lesson covers the core pattern needed here?',
+                      },
+                      {
+                        label: '3-line syntax example',
+                        prompt: 'Show a concise syntax example of the concept for this stage.',
+                      },
+                    ].map((chip) => (
+                      <button
+                        key={chip.label}
+                        type="button"
+                        disabled={askingOracle}
+                        onClick={() => submitOracleQuestion(chip.prompt)}
+                        className="px-2.5 py-1 rounded-md bg-[#121620] hover:bg-[#1C2230] border border-white/[0.08] hover:border-[#A78BFA]/50 text-[11px] font-medium text-slate-300 hover:text-white disabled:opacity-40 cursor-pointer transition"
+                      >
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  <form onSubmit={handleAskOracle} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      placeholder="Ask the Oracle about your Python code or error..."
+                      className="flex-1 bg-[#0B0E14] border border-white/[0.08] rounded-md px-3 py-2 text-xs text-[#F8FAFC] placeholder-slate-500 focus:outline-none focus:border-[#F5B942]/60"
+                    />
+                    <button
+                      type="submit"
+                      disabled={askingOracle || !question.trim()}
+                      className="px-3.5 py-2 disabled:opacity-40 text-xs font-semibold inline-flex items-center gap-1.5 cursor-pointer rpg-btn-gold"
+                    >
+                      {askingOracle ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Send className="w-3.5 h-3.5" />
+                      )}
+                      <span>Ask</span>
+                    </button>
+                  </form>
+                </div>
               </div>
             )}
           </div>
@@ -1801,6 +1843,29 @@ export const LessonWorkspacePage: React.FC<LessonWorkspacePageProps> = ({
                               ? 'Next Stage →'
                               : 'Realm Overview →'}
                         </span>
+                      </button>
+                    </div>
+                  )}
+
+                  {!gradeResult.passed && (
+                    <div className="p-3 rounded-lg bg-[#1A1320] border border-[#A78BFA]/35 flex flex-wrap items-center justify-between gap-2 font-sans">
+                      <span className="text-xs text-slate-200">
+                        Need a zero-spoiler breakdown of this failure?
+                      </span>
+                      <button
+                        type="button"
+                        disabled={askingOracle}
+                        onClick={() => {
+                          setLeftTab('oracle');
+                          setMobilePane('guide');
+                          submitOracleQuestion(
+                            'Diagnose my latest test failure and inspect my code for the root cause.'
+                          );
+                        }}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#A78BFA]/15 hover:bg-[#A78BFA]/25 border border-[#A78BFA]/40 text-xs font-semibold text-[#DDD6FE] cursor-pointer transition disabled:opacity-40"
+                      >
+                        <PixelBotIcon className="w-3.5 h-3.5" />
+                        <span>Ask AI Oracle to Diagnose</span>
                       </button>
                     </div>
                   )}

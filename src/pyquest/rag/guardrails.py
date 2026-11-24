@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import math
 import re
+
+from pyquest.domain.models import OracleTurn
 
 _BEARER_RE = re.compile(r"\bBearer\s+[A-Za-z0-9._~+/=-]{8,}", re.IGNORECASE)
 _API_KEY_RE = re.compile(
@@ -39,6 +42,87 @@ _GUARDRAIL_RULES: list[tuple[str, re.Pattern[str]]] = [
 ]
 
 _CITATION_RE = re.compile(r"\[(\d{2}-\d{2})\]")
+_FENCED_BLOCK_RE = re.compile(r"```(?:python|py)?\s*\n(.*?)```", re.DOTALL | re.IGNORECASE)
+
+
+def approx_tokens(text: str) -> int:
+    """Deterministic lightweight token estimator (~4 chars per token)."""
+    return math.ceil(len(text) / 4) if text else 0
+
+
+def trim_history_to_token_budget(
+    history: list[OracleTurn],
+    *,
+    max_tokens: int = 600,
+) -> list[OracleTurn]:
+    """Keep the most recent PII-scrubbed turns in chronological order within max_tokens."""
+    if not history or max_tokens <= 0:
+        return []
+    kept_reversed: list[OracleTurn] = []
+    used = 0
+    for turn in reversed(history):
+        scrubbed_text = scrub_pii_and_secrets(turn.text.strip())
+        if not scrubbed_text:
+            continue
+        cost = approx_tokens(scrubbed_text) + 4
+        if kept_reversed and used + cost > max_tokens:
+            break
+        if not kept_reversed and cost > max_tokens:
+            scrubbed_text = scrubbed_text[: max_tokens * 4]
+        kept_reversed.append(OracleTurn(role=turn.role, text=scrubbed_text))
+        used += cost
+    return list(reversed(kept_reversed))
+
+
+def _meaningful_code_lines(code: str) -> set[str]:
+    lines: set[str] = set()
+    for raw in code.splitlines():
+        stripped = " ".join(raw.strip().split())
+        if not stripped or stripped.startswith("#"):
+            continue
+        if stripped.startswith(("import ", "from ", "def ", "async def ", "class ")):
+            continue
+        lines.add(stripped)
+    return lines
+
+
+def enforce_output_spoiler_firewall(
+    answer: str,
+    solution_files: dict[str, str],
+) -> tuple[str, bool]:
+    """Redact fenced code blocks from LLM replies if they leak >= 70% of a solution file."""
+    if not answer or not solution_files:
+        return answer, False
+
+    sol_line_sets = [
+        lines
+        for code in solution_files.values()
+        if len(lines := _meaningful_code_lines(code)) >= 3
+    ]
+    if not sol_line_sets:
+        return answer, False
+
+    triggered = False
+
+    def _replace_if_spoiler(match: re.Match[str]) -> str:
+        nonlocal triggered
+        block_lines = _meaningful_code_lines(match.group(1))
+        if len(block_lines) < 3:
+            return match.group(0)
+        for sol_lines in sol_line_sets:
+            overlap = len(block_lines & sol_lines)
+            coverage = overlap / len(sol_lines)
+            if overlap >= 3 and coverage >= 0.70:
+                triggered = True
+                return (
+                    "```python\n"
+                    "# [Socratic Firewall: Full solution redacted — focus on the guided step above]\n"
+                    "```"
+                )
+        return match.group(0)
+
+    filtered = _FENCED_BLOCK_RE.sub(_replace_if_spoiler, answer)
+    return filtered, triggered
 
 
 def scrub_pii_and_secrets(text: str) -> str:

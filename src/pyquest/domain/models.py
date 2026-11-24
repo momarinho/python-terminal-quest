@@ -271,11 +271,17 @@ class FlagRequest(CamelModel):
     flagged: bool
 
 
+class OracleTurn(CamelModel):
+    role: Literal["user", "oracle"]
+    text: str
+
+
 class OracleRequest(CamelModel):
     lesson_id: str
     question: str
     files: dict[str, str] = Field(default_factory=dict)
     last_diagnostics: str = ""
+    history: list[OracleTurn] = Field(default_factory=list)
 
 
 class OracleCitation(CamelModel):

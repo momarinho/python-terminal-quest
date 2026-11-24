@@ -97,11 +97,12 @@ export const api = {
     lessonId: string,
     question: string,
     files: Record<string, string>,
-    lastDiagnostics = ''
+    lastDiagnostics = '',
+    history: Array<{ role: 'user' | 'oracle'; text: string }> = []
   ): Promise<OracleResponse> {
     return requestJson<OracleResponse>('/api/oracle/ask', {
       method: 'POST',
-      body: JSON.stringify({ lessonId, question, files, lastDiagnostics }),
+      body: JSON.stringify({ lessonId, question, files, lastDiagnostics, history }),
     });
   },
 

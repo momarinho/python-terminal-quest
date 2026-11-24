@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 from pyquest.api.app import create_app
 from pyquest.config import Settings
 from pyquest.curriculum.loader import CurriculumLoader
+from pyquest.domain.models import OracleTurn
 from pyquest.rag import (
     AgenticRagOracle,
     HybridRrfVectorStore,
@@ -14,7 +15,9 @@ from pyquest.rag import (
     SolutionLeakError,
     build_rag_oracle,
     chunk_lesson_markdown,
+    enforce_output_spoiler_firewall,
     index_curriculum_lessons,
+    inspect_learner_code_gaps,
     scrub_pii_and_secrets,
 )
 
@@ -217,3 +220,75 @@ def test_agentic_query_rewriting_with_diagnostics_and_ttl_cache() -> None:
     assert second.answer == first.answer
     assert "ttl_cache: hit" in second.reasoning_steps
     assert len(fake_live.calls) == 1
+
+
+def test_ast_code_inspector_and_progressive_attempt_escalation() -> None:
+    curriculum = CurriculumLoader(CURRICULUM_DIR).load()
+    lesson = curriculum.lessons_by_id["01-01"]
+    oracle = AgenticRagOracle(curriculum.lessons)
+
+    gaps = inspect_learner_code_gaps(lesson, dict(lesson.starter_files))
+    assert any("parse_service_config()" in obs for obs in gaps)
+
+    resp = oracle.ask(
+        lesson,
+        "Inspect my code and explain what is missing",
+        dict(lesson.starter_files),
+        attempts=3,
+    )
+    assert "Zero-Spoiler Code Inspection" in resp.answer
+    assert "parse_service_config()" in resp.answer
+    assert "Illustrative Concept Pattern" in resp.answer
+    assert lesson.hints[min(1, len(lesson.hints) - 1)] in resp.answer
+
+
+def test_multi_turn_history_personal_notes_and_output_spoiler_firewall(tmp_path: Path) -> None:
+    curriculum = CurriculumLoader(CURRICULUM_DIR).load()
+    lesson_01 = curriculum.lessons_by_id["01-01"]
+
+    # Post-generation spoiler firewall redacts full-solution dumps from live LLM answers
+    sol_code = next(iter(lesson_01.solution_files.values()))
+    leaked_reply = f"Here is the answer:\n```python\n{sol_code}\n```"
+    filtered, triggered = enforce_output_spoiler_firewall(leaked_reply, lesson_01.solution_files)
+    assert triggered is True
+    assert "Socratic Firewall: Full solution redacted" in filtered
+
+    # Verify API forwards multi-turn history and saved personal Field Notes
+    settings = Settings(
+        db_path=tmp_path / "progress.db",
+        curriculum_dir=CURRICULUM_DIR,
+        web_dist_dir=tmp_path / "missing_dist",
+    )
+    client = TestClient(create_app(settings))
+    client.post(
+        "/api/lessons/01-02/notes",
+        json={"notes": "Always construct Decimal from strings and quantize with ROUND_HALF_UP."},
+    )
+    resp = client.post(
+        "/api/oracle/ask",
+        json={
+            "lessonId": "01-09",
+            "question": "Why is precision drifting in invoice math?",
+            "files": dict(curriculum.lessons_by_id["01-09"].starter_files),
+            "history": [
+                {"role": "user", "text": "I keep getting float drift with Decimal"},
+                {"role": "oracle", "text": "Check how you initialize Decimal in [01-02]."},
+            ],
+        },
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "Personal Field Notes" in body["answer"]
+    assert "ROUND_HALF_UP" in body["answer"]
+    assert any(step.startswith("memory_window:") for step in body["reasoningSteps"])
+    assert any(step.startswith("second_brain_notes:") for step in body["reasoningSteps"])
+
+    # Also validate OracleTurn model compatibility cleanly directly
+    oracle = AgenticRagOracle(curriculum.lessons)
+    direct = oracle.ask(
+        lesson_01,
+        "What about that?",
+        dict(lesson_01.starter_files),
+        history=[OracleTurn(role="user", text="How do I cast raw_port?")],
+    )
+    assert any(step.startswith("memory_window:") for step in direct.reasoning_steps)
