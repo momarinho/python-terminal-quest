@@ -1,0 +1,6 @@
+hints:
+- '`last_two`: Python negative slice `items[-2:]` safely handles lists of any length
+  (even 0 or 1!).'
+- '`square_positives`: `[n * n for n in nums if n > 0]`.'
+- '`safe_lookup`: `mapping.get(key, 0)` avoids `KeyError` without needing an `if`
+  branch.'

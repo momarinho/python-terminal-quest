@@ -376,6 +376,7 @@ export const ModulePage: React.FC<ModulePageProps> = ({
 
             return moduleGroup.lessons.map((lesson, idx) => {
               const isBoss = lesson.kind === 'BOSS';
+              const isWarmup = lesson.id.endsWith('-00') || lesson.tags.includes('Warm-Up');
               const isDone = lesson.status === 'COMPLETED';
               const isWeb = lesson.runtime === 'WEB_INTEGRATION';
               const isBossLocked = bossGateEnabled && isBoss && !isDone && !allStandardDone;
@@ -443,6 +444,10 @@ export const ModulePage: React.FC<ModulePageProps> = ({
                             <PixelSkullIcon className="w-3.5 h-3.5" />
                           )}
                           <span>Boss Stage #{lesson.id}</span>
+                        </span>
+                      ) : isWarmup ? (
+                        <span className="inline-flex items-center gap-1.5 font-semibold px-2 py-0.5 rounded-md bg-[#2DD4A0]/15 text-[#2DD4A0]">
+                          <span>Warm-Up Reveal · #{lesson.id}</span>
                         </span>
                       ) : (
                         <span className="font-semibold text-[#F5B942]">

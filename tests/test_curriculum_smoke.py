@@ -10,10 +10,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 CURRICULUM_DIR = REPO_ROOT / "curriculum"
 
 
-def test_curriculum_loads_all_12_modules_75_lessons_and_3_gates() -> None:
+def test_curriculum_loads_all_12_modules_87_lessons_and_3_gates() -> None:
     loaded = CurriculumLoader(CURRICULUM_DIR).load()
     assert len(loaded.modules) == 12
-    assert len(loaded.lessons) == 75
+    assert len(loaded.lessons) == 87
 
     boss_lessons = [lesson for lesson in loaded.lessons if lesson.kind == "BOSS"]
     assert [b.id for b in boss_lessons] == [

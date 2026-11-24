@@ -1,0 +1,14 @@
+id: 08-00
+moduleId: module-08
+moduleTitle: 'Module 8: Raw SQL Engineering'
+title: 'Warm-Up Reveal: Parameterized SQLite `INSERT`, `SELECT` & `COUNT`'
+objective: Warm up with SQLite's `?` bind parameters, `fetchall()`, and `fetchone()`
+  before writing CTEs, indexes, keyset pagination, and ACID reservations.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- SQL
+- SQLite

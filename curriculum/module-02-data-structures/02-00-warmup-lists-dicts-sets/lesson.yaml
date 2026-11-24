@@ -1,0 +1,15 @@
+id: 02-00
+moduleId: module-02
+moduleTitle: 'Module 2: Data Structures & Core Algorithms'
+title: 'Warm-Up Reveal: Slicing, Comprehensions & `.get()`'
+objective: 'Warm up with 3 1-line data structure reveals: negative slicing, filtered
+  list comprehensions, and safe dict lookups with default values.'
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Lists
+- Dicts
+- Comprehensions

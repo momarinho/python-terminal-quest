@@ -1,0 +1,5 @@
+hints:
+- '`estimate_tokens`: `return math.ceil(len(text) / 4) if text else 0`.'
+- '`redact_api_key`: `return re.sub(r"sk-[A-Za-z0-9]{6,}", "[REDACTED]", text)`.'
+- '`keyword_overlap_score`: use `len(q_words & d_words) / len(q_words)` when `q_words`
+  is non-empty.'

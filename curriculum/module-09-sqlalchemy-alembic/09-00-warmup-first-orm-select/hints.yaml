@@ -1,0 +1,5 @@
+hints:
+- '`add_account`: construct `Account(email=email, balance=balance)`, call `session.add(account)`
+  then `session.commit()`, and return `account`.'
+- '`list_active_emails`: `stmt = select(Account.email).where(Account.balance >= min_balance).order_by(Account.email)`.'
+- Execute with `return list(session.scalars(stmt).all())`.

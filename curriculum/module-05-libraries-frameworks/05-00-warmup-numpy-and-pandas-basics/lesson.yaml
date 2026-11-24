@@ -1,0 +1,14 @@
+id: 05-00
+moduleId: module-05
+moduleTitle: 'Module 5: Libraries & Frameworks Base'
+title: 'Warm-Up Reveal: First Vectorized NumPy & Pandas Ops'
+objective: 'Warm up with 3 1-line data library reveals: scaling a NumPy array, boolean
+  mask filtering, and summing a Pandas DataFrame column.'
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- NumPy
+- Pandas

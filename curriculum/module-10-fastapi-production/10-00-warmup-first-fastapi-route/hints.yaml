@@ -1,0 +1,5 @@
+hints:
+- 'Use `version: str = Depends(get_app_version)` in `ping` and return `{"status":
+  "pong", "version": version}`.'
+- Decorate `echo_item` with `@app.post("/echo", status_code=201)`.
+- 'Return `{"echo": payload.message.strip()}` from `echo_item`.'

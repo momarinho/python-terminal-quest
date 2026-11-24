@@ -1,0 +1,14 @@
+id: 06-00
+moduleId: module-06
+moduleTitle: 'Module 6: Complex Project Architecture, Typing & pytest'
+title: 'Warm-Up Reveal: Pydantic v2 `BaseModel`, `model_validate` & `model_dump`'
+objective: Warm up with Pydantic v2 validation syntax before tackling layered src/
+  architecture, Discriminated Unions, and pytest test doubles.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Pydantic v2
+- Typing

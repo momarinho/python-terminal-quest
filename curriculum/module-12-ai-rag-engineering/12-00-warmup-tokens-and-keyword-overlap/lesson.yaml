@@ -1,0 +1,14 @@
+id: 12-00
+moduleId: module-12
+moduleTitle: 'Module 12: AI Engineering & Production RAG'
+title: 'Warm-Up Reveal: Token Math, Secret Redaction & Word Overlap'
+objective: Warm up with the 3 essential AI/RAG utilities before building PII scrubbers,
+  Pydantic repair loops, hybrid search, and Socratic guardrails.
+mode: AI_SYSTEMS
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- AI Engineering
+- RAG

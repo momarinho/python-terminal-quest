@@ -1,0 +1,15 @@
+id: 11-00
+moduleId: module-11
+moduleTitle: 'Module 11: Distributed Resilience, Docker & 12-Factor'
+title: 'Warm-Up Reveal: SHA-256 Fingerprints & Constant-Time HMAC'
+objective: Warm up with hashlib.sha256 and hmac.compare_digest before building Idempotency
+  Keys, Circuit Breakers, Transactional Outbox, and Webhook verifiers.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Security
+- HMAC
+- SHA-256

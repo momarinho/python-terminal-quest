@@ -1,0 +1,15 @@
+id: 04-00
+moduleId: module-04
+moduleTitle: 'Module 4: Advanced Python'
+title: 'Warm-Up Reveal: `yield`, `re.search` & Higher-Order Functions'
+objective: 'Warm up with 3 core Module 4 building blocks: lazy generator yielding,
+  regex pattern capture, and passing a callable as a parameter.'
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Generators
+- Regex
+- Callables

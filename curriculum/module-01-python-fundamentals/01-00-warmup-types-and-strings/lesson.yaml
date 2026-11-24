@@ -1,0 +1,15 @@
+id: 01-00
+moduleId: module-01
+moduleTitle: 'Module 1: Python Fundamentals'
+title: 'Warm-Up Reveal: Strings, Ints & Safe Booleans'
+objective: Practice 3 tiny 1-line syntax reveals for cleaning strings, casting integers,
+  and checking truthy flag strings before diving into Module 1.
+mode: PYTEST_TDD
+kind: STANDARD
+xp: 50
+entryFile: warmup.py
+tags:
+- Warm-Up
+- Python 3.13
+- Strings
+- Types

@@ -1,0 +1,5 @@
+hints:
+- 'Add `name: str` and `points: int = 10` to `Badge` with `@dataclass(frozen=True)`.'
+- '`format_badge`: return `f"{badge.name} (+{badge.points} XP)"`.'
+- '`add_tag`: copy `list(tags)` when `tags is not None` else `[]`, append `''verified''`,
+  and return it.'
