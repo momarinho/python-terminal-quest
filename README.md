@@ -1,5 +1,12 @@
 # Python Terminal Quest
 
+[![CI](https://github.com/momarinho/python-terminal-quest/actions/workflows/ci.yml/badge.svg)](https://github.com/momarinho/python-terminal-quest/actions/workflows/ci.yml)
+![Python 3.13+](https://img.shields.io/badge/Python-3.13%2B-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.115%2B-009688?logo=fastapi&logoColor=white)
+![React + Monaco](https://img.shields.io/badge/React%20%2B%20TypeScript-Monaco%20IDE-61DAFB?logo=react&logoColor=black)
+![Agentic Hybrid RAG](https://img.shields.io/badge/RAG-Okapi%20BM25%20%2B%20RRF-7C3AED)
+[![License: MIT](https://img.shields.io/badge/License-MIT-F5B942.svg)](LICENSE)
+
 A calm Obsidian 16-bit RPG learning workspace for mastering modern **Python 3.13**, **Data Structures**, **OOP**, **Django/DRF**, **Architecture & Typing**, **Asyncio**, **Raw SQL**, **SQLAlchemy 2.0 & Alembic**, **FastAPI**, **Redis Caching/Rate Limiting**, **Distributed Resilience**, and **AI & Production Agentic RAG**.
 
 **Complete Curriculum:** 12 modules • 112 interactive lessons (37 Beginner Warm-Up Reveals + 63 Core Stages + 12 Boss Fights, balanced from zero-jargon Day-1 basics to 2026 Dev Pleno patterns) • 3 Portfolio Guild PRDs (`CLI Financial Ledger Reconciler`, `High-Concurrency Inventory & Audit Service`, `Mini-Sidekiq Distributed Job Engine + AI Triage & AWS Mapping`).
@@ -15,15 +22,23 @@ flowchart LR
     API --> Store["ProgressStore (SQLite WAL)"]
     API --> Grader["PytestGrader (AST Pre-Check + Isolated Subprocess + JUnit XML)"]
     API --> Oracle["AgenticRagOracle (BM25 + Vector RRF + AST Inspector + Guardrails)"]
-    Loader --> Disk["curriculum/module-* (75 Stages + 3 Guild PRDs)"]
+    Loader --> Disk["curriculum/module-* (112 Stages + 3 Guild PRDs)"]
 ```
 
-### Engineering Highlights
+### Engineering Highlights & Measured RAG Benchmark
 - **Agentic Hybrid RAG Oracle (`src/pyquest/rag/`):** Okapi BM25 + Blake2b dense vectors fused with **Reciprocal Rank Fusion (RRF)**, adaptive query rewriting, zero-spoiler Python `ast` code gap inspection, Second-Brain retrieval across your saved Field Notes, multi-turn token-budgeted history, PII/injection & post-generation spoiler firewalls, transparent reasoning trace, and live `ollama` / `gemini` / `openai_compat` LLM adapters with zero-key `offline-rag` fallback.
 - **Isolated `pytest` Grader (`src/pyquest/runner/grader.py`):** Pre-validates Python syntax via `ast.parse` for clickable line/column diagnostics in Monaco, blocks forbidden `conftest.py` / `tests/` path overrides, isolates environment variables, enforces POSIX CPU/file-size `rlimit`s + wall-clock timeouts, and parses JUnit XML + `stdout`/`stderr`.
 - **SQLite WAL State & Spaced Review (`src/pyquest/persistence/store.py`):** Persists multi-file code drafts, study notes, flagged stages, daily streaks, 5-tier Hero Companion progression, **Cold Clear vs. Assisted (`needsReview`)** status, Portfolio Guild checklists, and full JSON export/import backups (`GET /api/progress/export`, `POST /api/progress/import`, `POST /api/progress/reset`).
 - **Workspace Productivity (`web/src/`):** Split-pane Obsidian Monaco Editor with reference solution diffing, clickable syntax diagnostics, 1-click Battle Log AI diagnosis button, Quick-Action Oracle prompt chips, read-only **`Tests` (`pytest`)** inspector, global `Ctrl+K` command palette, 5-tier Hero Companion 2.0 + Armory + optional AFK mini-game, Boss Gate lock toggle, and Campfire LinkedIn reflection outlines.
 - **Hardened Container & Demo Mode:** Multi-stage non-root `Dockerfile` (`USER pyquest`) and optional read-only `PYQUEST_DEMO_MODE=true` guard disabling arbitrary code execution and state imports for safe public previews.
+
+#### Architectural Trade-offs & Observed `GET /api/oracle/eval` Results
+| Decision / Metric | Choice & Outcome |
+|---|---|
+| **Hybrid Search (Okapi BM25 + Cosine + RRF)** | Preserves exact Python/SQL symbol matching (`selectinload`, `ROUND_HALF_UP`) alongside semantic vector overlap, eliminating external Elasticsearch/OpenSearch JVM overhead. |
+| **Zero-Leak & Firewall Guarantees** | `SolutionLeakError` blocks `solution/` & `tests/` at index time (**`zeroLeakVerified: true`**), pre-flight filters block injections (**`guardrailBlockRate: 1.0`**), and `enforce_output_spoiler_firewall` strips full-solution code dumps. |
+| **Offline Retrieval Benchmark (15 queries)** | Measured on the 112-stage curriculum corpus: **`recallAtK: 1.0` (`K=4`)**, **`mrrAtK: 1.0`**, **`p50LatencyMs: 12.0 ms`**, **`p95LatencyMs: 13.0 ms`**. |
+| **Zero-Spoiler AST Inspector** | Compares learner draft AST vs. starter/solution ASTs so even zero-key `offline-rag` mode pinpoints unmodified functions, `SyntaxError`s, and missing constructs without leaking answers. |
 
 ---
 
